@@ -45,7 +45,7 @@ class SendSMSWorker(private val appContext: Context, workerParams: WorkerParamet
                 /*NotificationChannel.DEFAULT_CHANNEL_ID*/
             )
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Сервис отправки сообщений работает")
+                .setContentTitle("Отправляем ссобщения")
                 .setProgress(100, 0, true)
                 .setOngoing(true)
                 .build()

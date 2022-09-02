@@ -4,9 +4,15 @@ package ru.mobileprism.autoredemption
 import android.app.*
 import android.content.Intent
 import android.os.IBinder
+import androidx.compose.runtime.remember
 import androidx.core.app.NotificationCompat
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.WorkManager
+import ru.mobileprism.autoredemption.workmanager.SendSMSWorker
 
 class ForegroundService : Service() {
+
+    private val workManager = WorkManager.getInstance(this)
 
     override fun onCreate() {
         super.onCreate()
@@ -15,6 +21,7 @@ class ForegroundService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val input = intent.getStringExtra("inputExtra")
+        val numbers = intent.getStringArrayExtra("numbers")
 
         createNotificationChannel()
 
@@ -32,6 +39,11 @@ class ForegroundService : Service() {
             .build()
         startForeground(1, notification)
         //do heavy work on a background thread
+
+        workManager.enqueueUniquePeriodicWork(
+            SendSMSWorker.NAME, ExistingPeriodicWorkPolicy.REPLACE,
+            getSendSMSWork(numbers?.toList() ?: listOf())
+        )
 
 
         //stopSelf();

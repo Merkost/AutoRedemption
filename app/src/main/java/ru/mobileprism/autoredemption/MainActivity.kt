@@ -31,6 +31,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -58,9 +59,7 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val isServiceRunning = remember { mutableStateOf(false) }
 
-                val checkService = remember { mutableStateOf(false) }
-
-                LaunchedEffect(key1 = checkService) {
+                LaunchedEffect(key1 = Unit) {
                     isServiceRunning.value = context.isServiceRunning(ForegroundService::class.java)
                 }
 
@@ -90,8 +89,6 @@ class MainActivity : ComponentActivity() {
                     onDispose { }
                 }
 
-                val workManager = remember { WorkManager.getInstance(context) }
-
                 val coroutineScope = rememberCoroutineScope()
 
                 val numbers = remember { mutableStateListOf<String>() }
@@ -115,20 +112,15 @@ class MainActivity : ComponentActivity() {
                                     true -> {
                                         FloatingActionButton(onClick = {
                                             stopService()
-                                            checkService.value = checkService.value.not()
-
+                                            isServiceRunning.value = false
                                         }) {
                                             Icon(Icons.Default.Close, "")
                                         }
                                     }
                                     false -> {
                                         FloatingActionButton(onClick = {
-                                            startService()
-                                            checkService.value = checkService.value.not()
-                                            /*workManager.enqueueUniquePeriodicWork(
-                                                SendSMSWorker.NAME, ExistingPeriodicWorkPolicy.REPLACE,
-                                                getSendSMSWork(numbers)
-                                            )*/
+                                            startService(numbers)
+                                            isServiceRunning.value = true
                                         }) {
                                             Icon(Icons.Default.Send, "")
                                         }
@@ -161,9 +153,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun startService() {
+    private fun startService(numbers: List<String>) {
         val serviceIntent = Intent(this, ForegroundService::class.java)
         serviceIntent.putExtra("inputExtra", "Сервис для автоматической отправки сообщений")
+        serviceIntent.putExtra("numbers", numbers.toTypedArray())
         applicationContext.startForegroundService(serviceIntent)
     }
 
@@ -194,12 +187,16 @@ fun AddNumSheet(sheetState: ModalBottomSheetState, onAdd: (String) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Добавление нового номера")
-
         OutlinedTextField(
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .focusRequester(focusRequester),
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        keyboardController?.show()
+                    }
+                },
             value = numToAdd.value,
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Phone,
@@ -244,9 +241,10 @@ fun AddNumSheet(sheetState: ModalBottomSheetState, onAdd: (String) -> Unit) {
 
         }
 
-        /*DisposableEffect(Unit) {
+        DisposableEffect(Unit) {
             focusRequester.requestFocus()
-        }*/
+            onDispose {  }
+        }
     }
 }
 
