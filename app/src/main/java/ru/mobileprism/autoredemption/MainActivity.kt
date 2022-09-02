@@ -17,6 +17,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -57,13 +58,18 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val isServiceRunning = remember { mutableStateOf(false) }
 
+                val checkService = remember { mutableStateOf(false) }
+
+                LaunchedEffect(key1 = checkService) {
+                    isServiceRunning.value = context.isServiceRunning(ForegroundService::class.java)
+                }
+
                 val smsPermissionState = rememberPermissionState(
                     android.Manifest.permission.SEND_SMS
                 )
 
                 DisposableEffect(Unit) {
                     smsPermissionState.launchPermissionRequest()
-                    isServiceRunning.value = context.isServiceRunning(ForegroundService::class.java)
                     onDispose { }
                 }
 
@@ -107,13 +113,18 @@ class MainActivity : ComponentActivity() {
                             Crossfade(targetState = isServiceRunning.value) {
                                 when (it) {
                                     true -> {
-                                        FloatingActionButton(onClick = { stopService() }) {
+                                        FloatingActionButton(onClick = {
+                                            stopService()
+                                            checkService.value = checkService.value.not()
+
+                                        }) {
                                             Icon(Icons.Default.Close, "")
                                         }
                                     }
                                     false -> {
                                         FloatingActionButton(onClick = {
                                             startService()
+                                            checkService.value = checkService.value.not()
                                             /*workManager.enqueueUniquePeriodicWork(
                                                 SendSMSWorker.NAME, ExistingPeriodicWorkPolicy.REPLACE,
                                                 getSendSMSWork(numbers)
@@ -150,13 +161,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun startService() {
+    private fun startService() {
         val serviceIntent = Intent(this, ForegroundService::class.java)
-        serviceIntent.putExtra("inputExtra", "Foreground Service Example in Android")
-        ContextCompat.startForegroundService(this, serviceIntent)
+        serviceIntent.putExtra("inputExtra", "Сервис для автоматической отправки сообщений")
+        applicationContext.startForegroundService(serviceIntent)
     }
 
-    fun stopService() {
+    private fun stopService() {
         val serviceIntent = Intent(this, ForegroundService::class.java)
         stopService(serviceIntent)
     }
@@ -185,6 +196,7 @@ fun AddNumSheet(sheetState: ModalBottomSheetState, onAdd: (String) -> Unit) {
         Text(text = "Добавление нового номера")
 
         OutlinedTextField(
+            shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
