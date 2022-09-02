@@ -1,7 +1,10 @@
 package ru.mobileprism.autoredemption
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -12,11 +15,13 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.*
@@ -31,6 +36,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.work.*
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
@@ -49,15 +55,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             AutoRedemptionTheme {
                 val context = LocalContext.current
+                val isServiceRunning = remember { mutableStateOf(false) }
 
                 val smsPermissionState = rememberPermissionState(
                     android.Manifest.permission.SEND_SMS
                 )
 
                 DisposableEffect(Unit) {
-
                     smsPermissionState.launchPermissionRequest()
-                    onDispose {  }
+                    isServiceRunning.value = context.isServiceRunning(ForegroundService::class.java)
+                    onDispose { }
                 }
 
                 DisposableEffect(key1 = context) {
@@ -74,7 +81,7 @@ class MainActivity : ComponentActivity() {
                     } catch (e: ActivityNotFoundException) {
                         e.printStackTrace()
                     }
-                    onDispose {  }
+                    onDispose { }
                 }
 
                 val workManager = remember { WorkManager.getInstance(context) }
@@ -97,22 +104,25 @@ class MainActivity : ComponentActivity() {
 
                     Scaffold(
                         floatingActionButton = {
-                            FloatingActionButton(onClick = {
-                                workManager.enqueueUniquePeriodicWork(
-                                    SendSMSWorker.NAME, ExistingPeriodicWorkPolicy.REPLACE,
-                                    getSendSMSWork(numbers)
-                                )
-
-                                /*val smsManager = SmsManager.getDefault() as SmsManager
-                                smsManager.sendTextMessage("0", null, "sms message", null, null)
-                                Toast.makeText(context,
-                                    "sms have been sent",
-                                    Toast.LENGTH_SHORT).show();*/
-                            }) {
-                                Icon(Icons.Default.Send, "")
-                                /*Crossfade(targetState = workManager.getWorkInfosLiveData()) {
-
-                                }*/
+                            Crossfade(targetState = isServiceRunning.value) {
+                                when (it) {
+                                    true -> {
+                                        FloatingActionButton(onClick = { stopService() }) {
+                                            Icon(Icons.Default.Close, "")
+                                        }
+                                    }
+                                    false -> {
+                                        FloatingActionButton(onClick = {
+                                            startService()
+                                            /*workManager.enqueueUniquePeriodicWork(
+                                                SendSMSWorker.NAME, ExistingPeriodicWorkPolicy.REPLACE,
+                                                getSendSMSWork(numbers)
+                                            )*/
+                                        }) {
+                                            Icon(Icons.Default.Send, "")
+                                        }
+                                    }
+                                }
                             }
                         },
                         topBar = {
@@ -138,6 +148,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    fun startService() {
+        val serviceIntent = Intent(this, ForegroundService::class.java)
+        serviceIntent.putExtra("inputExtra", "Foreground Service Example in Android")
+        ContextCompat.startForegroundService(this, serviceIntent)
+    }
+
+    fun stopService() {
+        val serviceIntent = Intent(this, ForegroundService::class.java)
+        stopService(serviceIntent)
     }
 
 }
@@ -264,7 +285,10 @@ fun getSendSMSWork(numbers: List<String>): PeriodicWorkRequest {
     val myData: Data = Data.Builder()
         .apply {
             if (BuildConfig.DEBUG) {
-                putStringArray(SendSMSWorker.NUMBERS_ARG, Constants.DEBUG_NUMBERS.toTypedArray())
+                putStringArray(
+                    SendSMSWorker.NUMBERS_ARG,
+                    Constants.DEBUG_NUMBERS.toTypedArray()
+                )
             } else putStringArray(SendSMSWorker.NUMBERS_ARG, numbers.toTypedArray())
         }
         .build()
@@ -282,3 +306,9 @@ fun getSendSMSWork(numbers: List<String>): PeriodicWorkRequest {
             }
         }.build()
 }
+
+@Suppress("DEPRECATION") // Deprecated for third party Services.
+fun <T> Context.isServiceRunning(service: Class<T>) =
+    (getSystemService(ACTIVITY_SERVICE) as ActivityManager)
+        .getRunningServices(Integer.MAX_VALUE)
+        .any { it.service.className == service.name }
