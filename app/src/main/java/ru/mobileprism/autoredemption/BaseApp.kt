@@ -3,11 +3,29 @@ package ru.mobileprism.autoredemption
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import dagger.hilt.android.HiltAndroidApp
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
+import ru.mobileprism.autoredemption.di.koinAppModule
 
-class BaseApp: Application() {
+@HiltAndroidApp
+class BaseApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        startKoin {
+            androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
+            androidContext(this@BaseApp)
+            modules(
+                listOf(
+                    koinAppModule,
+
+                )
+            )
+        }
 
 
         // Create the NotificationChannel

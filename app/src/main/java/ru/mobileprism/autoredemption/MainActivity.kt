@@ -17,12 +17,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.work.*
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import dagger.hilt.android.AndroidEntryPoint
+import ru.mobileprism.autoredemption.datastore.AppSettings
+import ru.mobileprism.autoredemption.datastore.AppSettingsImpl
 import ru.mobileprism.autoredemption.screens.HomeScreen
 import ru.mobileprism.autoredemption.screens.SettingsScreen
 import ru.mobileprism.autoredemption.ui.theme.AutoRedemptionTheme
 import ru.mobileprism.autoredemption.workmanager.SendSMSWorker
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 object MainDestinations {
     val SETTINGS: String = "SETTINGS"
@@ -30,8 +34,8 @@ object MainDestinations {
 }
 
 class MainActivity : ComponentActivity() {
+
     @SuppressLint("BatteryLife")
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -48,7 +52,9 @@ class MainActivity : ComponentActivity() {
                         HomeScreen { navController.navigate(MainDestinations.SETTINGS) }
                     }
 
-
+                    composable(MainDestinations.SETTINGS) {
+                        SettingsScreen(upPress = navController::popBackStack)
+                    }
 
                 }
             }
