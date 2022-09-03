@@ -73,7 +73,6 @@ fun HomeScreen(toSettings: () -> Unit) {
 
     val coroutineScope = rememberCoroutineScope()
 
-    val numbers = remember { mutableStateListOf<String>() }
     val sheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
@@ -116,7 +115,7 @@ fun HomeScreen(toSettings: () -> Unit) {
                         }
                         false -> {
                             FloatingActionButton(onClick = {
-                                context.startSmsService(if (appSettings.debugMode) Constants.DEBUG_NUMBERS else numbers)
+                                context.startSmsService(if (appSettings.debugMode) Constants.DEBUG_NUMBERS else testNumbers.toList())
                                 Toast.makeText(
                                     context,
                                     "Сервис запущен",
