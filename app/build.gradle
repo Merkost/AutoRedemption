@@ -1,6 +1,9 @@
 plugins {
+    id 'kotlin-android'
+    id 'kotlin-kapt'
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -71,5 +74,39 @@ dependencies {
 
     // optional - Multiprocess support
     implementation "androidx.work:work-multiprocess:$work_version"
-}
 
+    // Preferences DataStore
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+    implementation 'androidx.preference:preference-ktx:1.2.0' //support fo SharedPrefs
+    //implementation "androidx.datastore:datastore-preferences-core:1.0.0"
+
+    //Retrofit
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+    implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2"
+    implementation 'com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0'
+    implementation "com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.6"
+
+    //Navigation
+    implementation "androidx.navigation:navigation-compose:2.5.1"
+
+    implementation 'com.google.dagger:hilt-android:2.43.2'
+    kapt 'com.google.dagger:hilt-compiler:2.43.2'
+
+    //KOIN DEPENDENCY INJECTION
+
+    // Current version
+    def koin_version = '3.1.4'
+    // Koin Core features
+    api "io.insert-koin:koin-core:$koin_version"
+    // Koin main features for Android
+    api "io.insert-koin:koin-android:$koin_version"
+    // Java Compatibility
+    api "io.insert-koin:koin-android-compat:$koin_version"
+    // Jetpack WorkManager
+    api "io.insert-koin:koin-androidx-workmanager:$koin_version"
+    // Navigation Graph
+    api "io.insert-koin:koin-androidx-navigation:$koin_version"
+    // Jetpack Compose
+    api "io.insert-koin:koin-androidx-compose:$koin_version"
+}
