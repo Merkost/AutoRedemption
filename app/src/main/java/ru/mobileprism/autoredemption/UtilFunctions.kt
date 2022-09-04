@@ -18,25 +18,26 @@ fun Context.startSmsService(numbers: List<String>) {
         serviceIntent.putExtra("numbers", numbers.toTypedArray())
         applicationContext.startForegroundService(serviceIntent)
 
-        try {
-            val packageName = packageName
-            val pm = getSystemService(ComponentActivity.POWER_SERVICE) as PowerManager
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                val intent = Intent().apply {
-                    action = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS/*ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS*/
-                    data = Uri.parse("package:$packageName")
-                }
-                startActivity(intent)
-            }
-        } catch (e: ActivityNotFoundException) {
-            e.printStackTrace()
-        }
-
     }
-
 }
 
 fun Context.stopService() {
     val serviceIntent = Intent(this, ForegroundService::class.java)
     stopService(serviceIntent)
+}
+
+fun Context.disableBatteryOptimizations() {
+    try {
+        val packageName = packageName
+        val pm = getSystemService(ComponentActivity.POWER_SERVICE) as PowerManager
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            val intent = Intent().apply {
+                action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                data = Uri.parse("package:$packageName")
+            }
+            startActivity(intent)
+        }
+    } catch (e: ActivityNotFoundException) {
+        e.printStackTrace()
+    }
 }

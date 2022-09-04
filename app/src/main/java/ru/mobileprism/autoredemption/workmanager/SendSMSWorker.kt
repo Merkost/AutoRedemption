@@ -2,19 +2,28 @@ package ru.mobileprism.autoredemption.workmanager
 
 import android.content.Context
 import android.telephony.SmsManager
-import android.widget.Toast
+import androidx.compose.runtime.collectAsState
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import ru.mobileprism.autoredemption.R
+import ru.mobileprism.autoredemption.datastore.AppSettings
+import ru.mobileprism.autoredemption.datastore.AppSettingsEntity
+import java.time.LocalDateTime
 import java.util.*
 
-class SendSMSWorker(private val appContext: Context, workerParams: WorkerParameters):
-    CoroutineWorker(appContext, workerParams) {
+class SendSMSWorker(private val appContext: Context, workerParams: WorkerParameters) :
+    CoroutineWorker(appContext, workerParams), KoinComponent {
 
-    private val smsManager = SmsManager.getDefault() as SmsManager
+    private val settings: AppSettings by inject()
+
+    private val smsManager = appContext.getSystemService(SmsManager::class.java)
 
     companion object {
         const val NAME: String = "SendSMSWorker"
@@ -22,13 +31,22 @@ class SendSMSWorker(private val appContext: Context, workerParams: WorkerParamet
     }
 
     override suspend fun doWork(): Result {
-        setForeground(showNotification())
-        delay(5000L)
+        setForegroundAsync(showNotification())
+        val smsSettings = settings.appSettings.first()
 
         val numbers = inputData.getStringArray(NUMBERS_ARG)
         numbers?.let {
             it.forEach { number ->
-                smsManager.sendTextMessage(number, null, "sms message", null, null)
+                val text = ""
+                smsManager.sendTextMessage(
+                    number,
+                    null,
+                    if (smsSettings.timeInText) LocalDateTime.now()
+                        .toString() + " " + text else text/* + " " + smsSettings.smsMessage*/,
+                    null,
+                    null
+                )
+                delay(500)
             }
         }
 
@@ -42,7 +60,6 @@ class SendSMSWorker(private val appContext: Context, workerParams: WorkerParamet
             NotificationCompat.Builder(
                 applicationContext,
                 applicationContext.packageName
-                /*NotificationChannel.DEFAULT_CHANNEL_ID*/
             )
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("Отправляем ссобщения")

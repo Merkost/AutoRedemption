@@ -42,19 +42,39 @@ fun SettingsScreen(upPress: () -> Unit) {
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-
-            Row(modifier = Modifier.padding(8.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(text = "Тестовый режим")
+            SettingsRow("Тестовые номера") {
                 Checkbox(checked = appSettings.value.debugMode, onCheckedChange = {
                     coroutineScope.launch {
                         settings.saveAppSettings(appSettings.value.copy(debugMode = it))
                     }
                 })
             }
+            SettingsRow("Добавлять дату и время к тексту сообщения") {
+                Checkbox(checked = appSettings.value.timeInText, onCheckedChange = {
+                    coroutineScope.launch {
+                        settings.saveAppSettings(appSettings.value.copy(timeInText = it))
+                    }
+                })
+            }
+            /*SettingsRow("Основной текст сообщения") {
+                Checkbox(checked = appSettings.value.debugMode, onCheckedChange = {
+                    coroutineScope.launch {
+                        settings.saveAppSettings(appSettings.value.copy(debugMode = it))
+                    }
+                })
+            }*/
 
         }
 
+    }
+}
+
+@Composable
+fun SettingsRow(text: String, action: @Composable () -> Unit) {
+    Row(modifier = Modifier.padding(8.dp).fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(text = text, modifier = Modifier.weight(1f, false).padding(end = 8.dp), )
+        action()
     }
 }

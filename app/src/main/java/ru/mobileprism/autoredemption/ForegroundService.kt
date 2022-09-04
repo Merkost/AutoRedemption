@@ -3,6 +3,7 @@ package ru.mobileprism.autoredemption
 
 import android.app.*
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.IBinder
 import androidx.compose.runtime.remember
 import androidx.core.app.NotificationCompat
@@ -37,7 +38,7 @@ class ForegroundService : Service() {
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .build()
-        startForeground(1, notification)
+        startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
         //do heavy work on a background thread
 
         workManager.enqueueUniquePeriodicWork(
@@ -47,7 +48,7 @@ class ForegroundService : Service() {
 
 
         //stopSelf();
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     override fun onDestroy() {

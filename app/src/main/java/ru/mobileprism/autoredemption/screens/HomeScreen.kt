@@ -1,7 +1,14 @@
 package ru.mobileprism.autoredemption.screens
 
 import android.Manifest
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.PowerManager
+import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
@@ -106,6 +113,8 @@ fun HomeScreen(toSettings: () -> Unit) {
                         }
                         false -> {
                             FloatingActionButton(onClick = {
+                                context.disableBatteryOptimizations()
+
                                 context.startSmsService(if (appSettings.debugMode) Constants.DEBUG_NUMBERS else testNumbers.toList())
                                 Toast.makeText(
                                     context,
