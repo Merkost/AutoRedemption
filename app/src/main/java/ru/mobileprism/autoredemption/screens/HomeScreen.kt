@@ -1,14 +1,7 @@
 package ru.mobileprism.autoredemption.screens
 
 import android.Manifest
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.os.PowerManager
-import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
@@ -25,13 +18,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getSystemService
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
@@ -281,38 +272,4 @@ fun isPhoneNumValid(newValue: String): Boolean {
         }
         else -> false
     }
-}
-
-
-private fun Context.startSmsService(numbers: List<String>) {
-    if (numbers.isEmpty()) {
-        Toast.makeText(this, "Нет номеров для отправки сообщений!", Toast.LENGTH_SHORT).show()
-    } else {
-
-        val serviceIntent = Intent(this, ForegroundService::class.java)
-        serviceIntent.putExtra("inputExtra", "Сервис для автоматической отправки сообщений")
-        serviceIntent.putExtra("numbers", numbers.toTypedArray())
-        applicationContext.startForegroundService(serviceIntent)
-
-        try {
-            val packageName = packageName
-            val pm = getSystemService(ComponentActivity.POWER_SERVICE) as PowerManager
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                val intent = Intent().apply {
-                    action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                    data = Uri.parse("package:$packageName")
-                }
-                startActivity(intent)
-            }
-        } catch (e: ActivityNotFoundException) {
-            e.printStackTrace()
-        }
-
-    }
-
-}
-
-private fun Context.stopService() {
-    val serviceIntent = Intent(this, ForegroundService::class.java)
-    stopService(serviceIntent)
 }

@@ -16,10 +16,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.work.*
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import dagger.hilt.android.AndroidEntryPoint
-import ru.mobileprism.autoredemption.datastore.AppSettings
-import ru.mobileprism.autoredemption.datastore.AppSettingsImpl
 import ru.mobileprism.autoredemption.screens.HomeScreen
 import ru.mobileprism.autoredemption.screens.SettingsScreen
 import ru.mobileprism.autoredemption.ui.theme.AutoRedemptionTheme
