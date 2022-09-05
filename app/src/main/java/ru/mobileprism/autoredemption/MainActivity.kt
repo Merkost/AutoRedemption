@@ -67,7 +67,7 @@ fun DefaultPreview() {
 }
 
 fun getSendSMSWork(numbers: List<String>): PeriodicWorkRequest =
-    PeriodicWorkRequestBuilder<SendSMSWorker>(10, TimeUnit.MINUTES)
+    PeriodicWorkRequestBuilder<SendSMSWorker>(15, TimeUnit.MINUTES)
         .setInputData(
             Data.Builder()
                 .putStringArray(SendSMSWorker.NUMBERS_ARG, numbers.toTypedArray())

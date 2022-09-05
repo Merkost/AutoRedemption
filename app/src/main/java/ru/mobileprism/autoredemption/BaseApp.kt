@@ -29,10 +29,27 @@ class BaseApp : Application() {
 
 
         // Create the NotificationChannel
+        createMainNotificationChannel()
+        createServiceNotificationChannel()
+    }
+
+    private fun createMainNotificationChannel() {
         val name = applicationContext.packageName
         val descriptionText = applicationContext.packageName
         val importance = NotificationManager.IMPORTANCE_HIGH
         val mChannel = NotificationChannel(applicationContext.packageName, name, importance)
+        mChannel.description = descriptionText
+        // Register the channel with the system; you can't change the importance
+        // or other notification behaviors after this
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(mChannel)
+    }
+
+    private fun createServiceNotificationChannel() {
+        val name = ForegroundService.CHANNEL_ID
+        val descriptionText = applicationContext.packageName
+        val importance = NotificationManager.IMPORTANCE_NONE
+        val mChannel = NotificationChannel(ForegroundService.CHANNEL_ID, name, importance)
         mChannel.description = descriptionText
         // Register the channel with the system; you can't change the importance
         // or other notification behaviors after this
