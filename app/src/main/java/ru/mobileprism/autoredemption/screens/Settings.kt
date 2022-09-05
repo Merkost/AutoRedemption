@@ -23,6 +23,7 @@ fun SettingsScreen(upPress: () -> Unit) {
     val settings: AppSettings = get()
     val appSettings = settings.appSettings.collectAsState(initial = AppSettingsEntity())
 
+
     Scaffold(
         modifier = Modifier,
         topBar = {
@@ -56,6 +57,17 @@ fun SettingsScreen(upPress: () -> Unit) {
                     }
                 })
             }
+           /*SettingsRow("Задержка между отправками сообщений") {
+               OutlinedTextField(value = appSettings.value.messagesDelay.toString(),
+                   onValueChange = { newDelay ->
+                   if (newDelay.toLongOrNull()) {
+                       coroutineScope.launch {
+                           settings.saveAppSettings(appSettings.value.copy(messagesDelay = it))
+                       }
+                   }
+               })
+
+            }*/
             /*SettingsRow("Основной текст сообщения") {
                 Checkbox(checked = appSettings.value.debugMode, onCheckedChange = {
                     coroutineScope.launch {
@@ -71,10 +83,15 @@ fun SettingsScreen(upPress: () -> Unit) {
 
 @Composable
 fun SettingsRow(text: String, action: @Composable () -> Unit) {
-    Row(modifier = Modifier.padding(8.dp).fillMaxWidth(),
+    Row(modifier = Modifier
+        .padding(8.dp)
+        .padding(horizontal = 4.dp)
+        .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(text = text, modifier = Modifier.weight(1f, false).padding(end = 8.dp), )
+        Text(text = text, modifier = Modifier
+            .weight(1f, false)
+            .padding(end = 8.dp), )
         action()
     }
 }

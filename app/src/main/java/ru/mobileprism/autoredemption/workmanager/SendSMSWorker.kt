@@ -16,7 +16,10 @@ import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.datastore.AppSettings
 import ru.mobileprism.autoredemption.datastore.AppSettingsEntity
 import java.time.LocalDateTime
+import java.time.Period
+import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.time.Duration
 
 class SendSMSWorker(private val appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams), KoinComponent {
@@ -33,25 +36,37 @@ class SendSMSWorker(private val appContext: Context, workerParams: WorkerParamet
     override suspend fun doWork(): Result {
         setForegroundAsync(showNotification())
         val smsSettings = settings.appSettings.first()
+        val now = LocalDateTime.now()
+        val lastTime = settings.lastTimeSmsSent.first()
 
-        val numbers = inputData.getStringArray(NUMBERS_ARG)
-        numbers?.let {
-            it.forEach { number ->
-                val text = ""
-                smsManager.sendTextMessage(
-                    number,
-                    null,
-                    if (smsSettings.timeInText) LocalDateTime.now()
-                        .toString() + " " + text else text/* + " " + smsSettings.smsMessage*/,
-                    null,
-                    null
-                )
-                delay(500)
+        val dur = java.time.Duration.between(lastTime, now).toMinutes()
+
+        if (dur < 14) {
+
+            settings.saveLastTimeSmsSent(LocalDateTime.now())
+
+            val numbers = inputData.getStringArray(NUMBERS_ARG)
+            numbers?.let {
+                it.forEach { number ->
+                    val text = ""
+                    smsManager.sendTextMessage(
+                        number,
+                        null,
+                        if (smsSettings.timeInText) LocalDateTime.now()
+                            .toString() + " " + text else text/* + " " + smsSettings.smsMessage*/,
+                        null,
+                        null
+                    )
+                    delay(500)
+                }
             }
+            return Result.success()
+        } else {
+            return Result.failure()
         }
 
         // Indicate whether the work finished successfully with the Result
-        return Result.success()
+        //return Result.success()
     }
 
     private fun showNotification(): ForegroundInfo {
