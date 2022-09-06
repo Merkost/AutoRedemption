@@ -65,28 +65,3 @@ fun DefaultPreview() {
         HomeScreen {}
     }
 }
-
-fun getSendSMSWork(numbers: List<String>): PeriodicWorkRequest =
-    PeriodicWorkRequestBuilder<SendSMSWorker>(15, TimeUnit.MINUTES)
-        .setInputData(
-            Data.Builder()
-                .putStringArray(SendSMSWorker.NUMBERS_ARG, numbers.toTypedArray())
-                .build()
-        )
-        .setConstraints(
-            Constraints.Builder()
-                //.setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                .build()
-        )
-        .apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                setBackoffCriteria(BackoffPolicy.EXPONENTIAL, Duration.ofSeconds(5))
-            }
-        }.build()
-
-
-@Suppress("DEPRECATION") // Deprecated for third party Services.
-fun <T> Context.isServiceRunning(service: Class<T>) =
-    (getSystemService(ACTIVITY_SERVICE) as ActivityManager)
-        .getRunningServices(Integer.MAX_VALUE)
-        .any { it.service.className == service.name }

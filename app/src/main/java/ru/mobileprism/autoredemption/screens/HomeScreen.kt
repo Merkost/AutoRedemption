@@ -20,6 +20,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -45,10 +46,9 @@ fun HomeScreen(toSettings: () -> Unit) {
 
     val settings: AppSettings = get()
     val appSettings by settings.appSettings.collectAsState(AppSettingsEntity())
-    val testNumbers by settings.testNumbers.collectAsState(emptySet())
 
     val context = LocalContext.current
-    val isServiceRunning = remember { mutableStateOf(false) }
+    val isServiceRunning = rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(key1 = Unit) {
         isServiceRunning.value =
@@ -59,18 +59,7 @@ fun HomeScreen(toSettings: () -> Unit) {
         Manifest.permission.SEND_SMS
     )
 
-    DisposableEffect(Unit) {
-        smsPermissionState.launchPermissionRequest()
-        onDispose { }
-    }
-
-    DisposableEffect(key1 = context) {
-
-        onDispose { }
-    }
-
     val coroutineScope = rememberCoroutineScope()
-
     val sheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
@@ -83,9 +72,11 @@ fun HomeScreen(toSettings: () -> Unit) {
         sheetContent = {
             AddNumSheet(sheetState = sheetState, onAdd = { number ->
                 coroutineScope.launch {
-                    if (testNumbers.contains(number)) {
+                    if (appSettings.numbers.contains(number)) {
                         Toast.makeText(context, "Номер есть в списке", Toast.LENGTH_SHORT).show()
-                    } else settings.saveTestNumbers(testNumbers.plus(number))
+                    } else {
+                        settings.saveAppSettings(appSettings.copy(numbers = appSettings.numbers + number))
+                    }
                 }
             })
         }) {
@@ -94,42 +85,39 @@ fun HomeScreen(toSettings: () -> Unit) {
             modifier = Modifier,
             floatingActionButtonPosition = FabPosition.Center,
             floatingActionButton = {
-                Crossfade(targetState = isServiceRunning.value) {
-                    when (it) {
+                FloatingActionButton(onClick = {
+                    when (isServiceRunning.value) {
                         true -> {
-                            FloatingActionButton(
-                                backgroundColor = MaterialTheme.colors.error,
-                                onClick = {
-                                    context.stopService()
-                                    Toast.makeText(
-                                        context,
-                                        "Сервис остановлен",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    isServiceRunning.value = false
-                                }) {
-                                Icon(Icons.Default.Close, "")
-                            }
+                            context.stopService()
+                            context.showToast("Сервис остановлен")
+
+                            isServiceRunning.value = false
                         }
                         false -> {
-                            FloatingActionButton(onClick = {
-                                context.disableBatteryOptimizations()
+                            context.disableBatteryOptimizations()
+                            if (smsPermissionState.hasPermission) {
+                                context.startSmsService()
+                                context.showToast("Сервис запущен")
 
-                                context.startSmsService(if (appSettings.debugMode) Constants.DEBUG_NUMBERS else testNumbers.toList())
-                                Toast.makeText(
-                                    context,
-                                    "Сервис запущен",
-                                    Toast.LENGTH_SHORT
-                                ).show()
                                 isServiceRunning.value = true
-                            }) {
-                                Row(modifier = Modifier.padding(horizontal = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            } else {
+                                smsPermissionState.launchPermissionRequest()
+                            }
+                        }
+                    }
+                }) {
+                    Crossfade(targetState = isServiceRunning.value) {
+                        when (it) {
+                            true -> Icon(Icons.Default.Close, "")
+                            false ->
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
                                     Text(text = "Начать отправку SMS")
                                     Icon(Icons.Default.Send, "")
                                 }
-                            }
                         }
                     }
                 }
@@ -161,11 +149,11 @@ fun HomeScreen(toSettings: () -> Unit) {
                         )
                     }
                 } else {
-                    testNumbers.forEach { number ->
+                    appSettings.numbers.forEach { number ->
                         NumberItem(number,
                             onDelete = {
                                 coroutineScope.launch {
-                                    settings.saveTestNumbers(testNumbers.minus(number))
+                                    settings.saveAppSettings(appSettings.copy(numbers = appSettings.numbers - number))
                                 }
                             })
                     }
@@ -174,6 +162,8 @@ fun HomeScreen(toSettings: () -> Unit) {
         }
     }
 }
+
+
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -256,7 +246,7 @@ fun NumberItem(number: String, onDelete: (() -> Unit)?) {
     Column {
         Row(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(12.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -264,7 +254,8 @@ fun NumberItem(number: String, onDelete: (() -> Unit)?) {
             Text(text = number)
             onDelete?.let {
                 IconButton(onClick = { onDelete() }) {
-                    Icon(Icons.Default.Delete, "")
+                    Icon(Icons.Default.Delete, "",
+                        tint = MaterialTheme.colors.error)
                 }
             }
         }
