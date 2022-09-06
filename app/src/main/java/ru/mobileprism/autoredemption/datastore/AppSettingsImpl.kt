@@ -24,7 +24,6 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
         private val MESSAGES_DELAY = longPreferencesKey("MESSAGES_DELAY_KEY")
 
 
-
     }
 
     override val appSettings: Flow<AppSettingsEntity> = context.dataStore.data
@@ -48,7 +47,7 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
     override val lastTimeSmsSent: Flow<LocalDateTime> = context.dataStore.data
         .map { preferences ->
             kotlin.runCatching { LocalDateTime.parse(preferences[LAST_TIME_SAVED]) }
-                .getOrNull() ?: LocalDateTime.now().minusDays(2)
+                .getOrNull() ?: LocalDateTime.now().minusDays(1)
         }
     override val messagesDelay: Flow<Long> = context.dataStore.data
         .map { preferences ->

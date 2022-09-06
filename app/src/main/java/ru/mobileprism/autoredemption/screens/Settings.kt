@@ -2,15 +2,20 @@ package ru.mobileprism.autoredemption.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
@@ -22,6 +27,16 @@ fun SettingsScreen(upPress: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val settings: AppSettings = get()
     val appSettings = settings.appSettings.collectAsState(initial = AppSettingsEntity())
+
+    val numbersDelay = remember(appSettings.value) {
+        mutableStateOf(
+            TextFieldValue(
+                text = appSettings.value.messagesDelay.toString(),
+                selection = TextRange(appSettings.value.messagesDelay.toString().length),
+                composition = TextRange(appSettings.value.messagesDelay.toString().length)
+            )
+        )
+    }
 
 
     Scaffold(
@@ -57,16 +72,56 @@ fun SettingsScreen(upPress: () -> Unit) {
                     }
                 })
             }
-           /*SettingsRow("Задержка между отправками сообщений") {
-               OutlinedTextField(value = appSettings.value.messagesDelay.toString(),
-                   onValueChange = { newDelay ->
-                   if (newDelay.toLongOrNull()) {
-                       coroutineScope.launch {
-                           settings.saveAppSettings(appSettings.value.copy(messagesDelay = it))
-                       }
-                   }
-               })
+            SettingsRow("Задержка между отправками сообщений") {
 
+                OutlinedTextField(
+                    shape = RoundedCornerShape(8.dp),
+                    value = numbersDelay.value,
+                    onValueChange = { newDelay ->
+                        if (newDelay.text.toLongOrNull() != null && newDelay.text.toLongOrNull() in 0L..100000L) {
+                            coroutineScope.launch {
+                                settings.saveAppSettings(appSettings.value.copy(messagesDelay = newDelay.text.toLong()))
+                            }
+                        } else if (newDelay.text.isEmpty()) {
+                            numbersDelay.value = numbersDelay.value.copy(
+                                text = "0",
+                                selection = TextRange(0, 1)
+                            )
+                            coroutineScope.launch {
+                                settings.saveAppSettings(appSettings.value.copy(messagesDelay = 0L))
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(0.5f),
+                    /*.onFocusChanged { focusState ->
+                        if (focusState.isFocused) {
+                            numbersDelay.value = numbersDelay.value.copy(
+                                selection = TextRange(0,numbersDelay.value.text.length),
+                            )
+                        }
+                    },*/
+                    trailingIcon = {
+                        Text(text = "мс")
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+            }
+            /*SettingsColumn("Текст SMS") {
+                TextField(
+                    placeholder = {
+                       Text(text = "Сообщение")
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    value = appSettings.value.messageText,
+                    onValueChange = { newText ->
+                        coroutineScope.launch {
+                            settings.saveAppSettings(appSettings.value.copy(messageText = newText))
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }*/
             /*SettingsRow("Основной текст сообщения") {
                 Checkbox(checked = appSettings.value.debugMode, onCheckedChange = {
@@ -82,16 +137,41 @@ fun SettingsScreen(upPress: () -> Unit) {
 }
 
 @Composable
-fun SettingsRow(text: String, action: @Composable () -> Unit) {
-    Row(modifier = Modifier
-        .padding(8.dp)
-        .padding(horizontal = 4.dp)
-        .fillMaxWidth(),
+fun SettingsRow(text: String, action: @Composable RowScope.() -> Unit) {
+    Row(
+        modifier = Modifier
+            .padding(8.dp)
+            .padding(horizontal = 4.dp)
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(text = text, modifier = Modifier
-            .weight(1f, false)
-            .padding(end = 8.dp), )
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .weight(1f, false),
+        )
+        action()
+    }
+}
+
+@Composable
+fun SettingsColumn(text: String, action: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .padding(horizontal = 4.dp)
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier
+                //.padding(end = 8.dp)
+                //.weight(1f, false),
+        )
         action()
     }
 }

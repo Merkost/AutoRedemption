@@ -30,7 +30,7 @@ class ForegroundService : Service() {
 
         workManager.enqueueUniquePeriodicWork(
             SendSMSWorker.NAME, ExistingPeriodicWorkPolicy.KEEP,
-            getSendSMSWork(numbers?.toList() ?: listOf())
+            SendSMSWorker.getSendSMSWork(numbers?.toList() ?: listOf())
         )
 
         //stopSelf();
@@ -75,5 +75,7 @@ class ForegroundService : Service() {
     companion object {
         const val CHANNEL_ID = "ForegroundServiceChannel"
     }
+
+
 
 }
