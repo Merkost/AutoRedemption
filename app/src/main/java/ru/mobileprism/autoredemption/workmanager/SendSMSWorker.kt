@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Build
 import android.telephony.SmsManager
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import androidx.work.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -12,24 +14,23 @@ import org.koin.core.component.inject
 import ru.mobileprism.autoredemption.Constants
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.datastore.AppSettings
+import ru.mobileprism.autoredemption.getSmsManager
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class SendSMSWorker(private val appContext: Context, workerParams: WorkerParameters) :
+class SendSMSWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams), KoinComponent {
 
     private val settings: AppSettings by inject()
-
-    private val smsManager = appContext.getSystemService(SmsManager::class.java)
+    private val smsManager = appContext.getSmsManager()
 
     companion object {
-        fun getSendSMSWork(numbers: List<String>): PeriodicWorkRequest =
+        fun getSendSMSWork(): PeriodicWorkRequest =
             PeriodicWorkRequestBuilder<SendSMSWorker>(15, TimeUnit.MINUTES)
                 .setInputData(
                     Data.Builder()
-                        .putStringArray(NUMBERS_ARG, numbers.toTypedArray())
                         .build()
                 )
                 .setConstraints(

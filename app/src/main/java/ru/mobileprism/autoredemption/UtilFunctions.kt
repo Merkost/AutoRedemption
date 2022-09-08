@@ -6,8 +6,10 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import android.telephony.SmsManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 
@@ -17,6 +19,12 @@ fun <T> Context.isServiceRunning(service: Class<T>) =
     (getSystemService(Service.ACTIVITY_SERVICE) as ActivityManager)
         .getRunningServices(Integer.MAX_VALUE)
         .any { it.service.className == service.name }
+
+fun Context.getSmsManager(): SmsManager {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        applicationContext.getSystemService<SmsManager>(SmsManager::class.java)
+    } else SmsManager.getDefault()
+}
 
 fun Context.showToast(s: String) {
     Toast.makeText(
@@ -30,7 +38,11 @@ fun Context.startSmsService() {
     val serviceIntent = Intent(this, ForegroundService::class.java)
     serviceIntent.putExtra("inputExtra", "Сервис для автоматической отправки сообщений")
     //serviceIntent.putExtra("numbers", numbers.toTypedArray())
-    applicationContext.startForegroundService(serviceIntent)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        startForegroundService(serviceIntent)
+    } else {
+        startService(serviceIntent)
+    }
 }
 
 fun Context.stopService() {
