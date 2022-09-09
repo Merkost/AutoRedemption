@@ -9,6 +9,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,13 +19,14 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.crazylegend.crashyreporter.CrashyReporter
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.mobileprism.autoredemption.datastore.AppSettings
 import ru.mobileprism.autoredemption.datastore.AppSettingsEntity
 
 @Composable
-fun SettingsScreen(upPress: () -> Unit) {
+fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit,) {
     val coroutineScope = rememberCoroutineScope()
     val settings: AppSettings = get()
     val appSettings = settings.appSettings.collectAsState(initial = AppSettingsEntity())
@@ -38,7 +41,6 @@ fun SettingsScreen(upPress: () -> Unit) {
         )
     }
 
-
     Scaffold(
         modifier = Modifier,
         topBar = {
@@ -48,7 +50,15 @@ fun SettingsScreen(upPress: () -> Unit) {
                 IconButton(onClick = upPress) {
                     Icon(Icons.Default.ArrowBack, Icons.Default.ArrowBack.name)
                 }
-            })
+            },
+                actions = {
+                    IconButton(onClick = {
+                        //as a list of strings
+                        toLogs()
+                    }) {
+                        Icon(Icons.Default.List, "")
+                    }
+                })
         }
     ) {
 
@@ -74,7 +84,7 @@ fun SettingsScreen(upPress: () -> Unit) {
             }
             SettingsRow("Задержка между отправками сообщений") {
 
-                OutlinedTextField(
+                TextField(
                     shape = RoundedCornerShape(8.dp),
                     value = numbersDelay.value,
                     onValueChange = { newDelay ->
@@ -85,14 +95,14 @@ fun SettingsScreen(upPress: () -> Unit) {
                         } else if (newDelay.text.isEmpty()) {
                             numbersDelay.value = numbersDelay.value.copy(
                                 text = "0",
-                                selection = TextRange(0, 1)
+                                selection = TextRange(1)
                             )
                             coroutineScope.launch {
                                 settings.saveAppSettings(appSettings.value.copy(messagesDelay = 0L))
                             }
                         }
                     },
-                    modifier = Modifier.weight(0.5f),
+                    modifier = Modifier.weight(0.8f),
                     /*.onFocusChanged { focusState ->
                         if (focusState.isFocused) {
                             numbersDelay.value = numbersDelay.value.copy(
@@ -149,8 +159,8 @@ fun SettingsRow(text: String, action: @Composable RowScope.() -> Unit) {
         Text(
             text = text,
             modifier = Modifier
-                .padding(end = 8.dp)
-                .weight(1f, false),
+                .weight(1f, false)
+                .padding(end = 8.dp),
         )
         action()
     }
@@ -169,8 +179,8 @@ fun SettingsColumn(text: String, action: @Composable ColumnScope.() -> Unit) {
         Text(
             text = text,
             modifier = Modifier
-                //.padding(end = 8.dp)
-                //.weight(1f, false),
+            //.padding(end = 8.dp)
+            //.weight(1f, false),
         )
         action()
     }
