@@ -22,8 +22,10 @@ fun <T> Context.isServiceRunning(service: Class<T>) =
 
 fun Context.getSmsManager(): SmsManager {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        applicationContext.getSystemService<SmsManager>(SmsManager::class.java)
-    } else SmsManager.getDefault()
+        getSystemService<SmsManager>(SmsManager::class.java)
+    } else {
+        SmsManager.getDefault()
+    }
 }
 
 fun Context.showToast(s: String) {

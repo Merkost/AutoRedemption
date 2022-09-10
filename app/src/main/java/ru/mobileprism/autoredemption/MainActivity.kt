@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.work.*
 import ru.mobileprism.autoredemption.screens.HomeScreen
+import ru.mobileprism.autoredemption.screens.LogsScreen
 import ru.mobileprism.autoredemption.screens.SettingsScreen
 import ru.mobileprism.autoredemption.ui.theme.AutoRedemptionTheme
 import ru.mobileprism.autoredemption.workmanager.SendSMSWorker
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 object MainDestinations {
+    val LOGS: String = "LOGS"
     val SETTINGS: String = "SETTINGS"
     val HOME: String = "HOME"
 }
@@ -49,7 +51,14 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(MainDestinations.SETTINGS) {
-                        SettingsScreen(upPress = navController::popBackStack)
+                        SettingsScreen(upPress = navController::popBackStack,
+                            toLogs = {
+                                navController.navigate(MainDestinations.LOGS)
+                            })
+                    }
+
+                    composable(MainDestinations.LOGS) {
+                        LogsScreen(navController::popBackStack)
                     }
 
                 }

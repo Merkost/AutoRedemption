@@ -1,6 +1,7 @@
 package ru.mobileprism.autoredemption.screens
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -17,9 +18,7 @@ import com.crazylegend.crashyreporter.CrashyReporter
 @Composable
 fun LogsScreen(upPress: () -> Unit) {
 
-    val logs = remember {
-        CrashyReporter.getLogsAsStringsAndPurge()
-    }
+    val logs = remember { CrashyReporter.getLogsAsStringsAndPurge() }
 
     Scaffold(topBar = {
         TopAppBar(title = {
