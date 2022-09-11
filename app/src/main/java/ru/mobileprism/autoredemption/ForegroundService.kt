@@ -5,6 +5,7 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
 import androidx.core.app.NotificationCompat
@@ -19,18 +20,17 @@ class ForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        val input = intent.getStringExtra("inputExtra")
-        val numbers = intent.getStringArrayExtra("numbers")
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        //val input = intent.getStringExtra("inputExtra")
+        //val numbers = intent.getStringArrayExtra("numbers")
         setNotification()
         //do heavy work on a background thread
 
         workManager.enqueueUniquePeriodicWork(
             SendSMSWorker.NAME, ExistingPeriodicWorkPolicy.KEEP,
-            SendSMSWorker.getSendSMSWork(numbers?.toList() ?: listOf())
+            SendSMSWorker.getSendSMSWork()
         )
 
         //stopSelf();
@@ -48,9 +48,15 @@ class ForegroundService : Service() {
             .setContentTitle("SMS-Сервис активен")
             //.setContentText(input)
             .setSmallIcon(R.mipmap.ic_launcher_foreground)
+            .setOngoing(true)
             .setContentIntent(pendingIntent)
             .build()
-        startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            startForeground(1, notification)
+        } else {
+            startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        }
     }
 
     override fun onDestroy() {
@@ -64,8 +70,10 @@ class ForegroundService : Service() {
     override fun onTaskRemoved(rootIntent: Intent?) {
         //create an intent that you want to start again.
         val intent = Intent(applicationContext, ForegroundService::class.java)
-        val pendingIntent = PendingIntent.getService(this, 1, intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getService(
+            this, 1, intent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+        )
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager[AlarmManager.RTC_WAKEUP, SystemClock.elapsedRealtime() + 5000] =
             pendingIntent
@@ -75,7 +83,6 @@ class ForegroundService : Service() {
     companion object {
         const val CHANNEL_ID = "ForegroundServiceChannel"
     }
-
 
 
 }
