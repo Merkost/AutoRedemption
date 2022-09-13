@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -26,9 +27,10 @@ import ru.mobileprism.autoredemption.datastore.AppSettings
 import ru.mobileprism.autoredemption.datastore.AppSettingsEntity
 
 @Composable
-fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit,) {
+fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val settings: AppSettings = get()
+    val context = LocalContext.current
     val appSettings = settings.appSettings.collectAsState(initial = AppSettingsEntity())
 
     val numbersDelay = remember(appSettings.value) {
@@ -40,6 +42,11 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit,) {
             )
         )
     }
+
+    val currentVersion = remember {
+        context.packageManager.getPackageInfo(context.packageName, 0).versionName
+    }
+
 
     Scaffold(
         modifier = Modifier,
@@ -66,7 +73,8 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit,) {
             modifier = Modifier
                 .padding(it)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             SettingsRow("Тестовые номера") {
                 Checkbox(checked = appSettings.value.debugMode, onCheckedChange = {
@@ -141,7 +149,13 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit,) {
                 })
             }*/
 
+
+            Text(
+                text = "Версия $currentVersion",
+                modifier = Modifier.padding(4.dp).weight(1f, true)
+            )
         }
+
 
     }
 }

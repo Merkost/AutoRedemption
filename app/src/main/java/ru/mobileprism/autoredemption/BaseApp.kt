@@ -3,6 +3,7 @@ package ru.mobileprism.autoredemption
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.os.Build
 import dagger.hilt.android.HiltAndroidApp
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -23,20 +24,24 @@ class BaseApp : Application() {
                 listOf(
                     koinAppModule,
 
-                )
+                    )
             )
         }
 
 
         // Create the NotificationChannel
-        createMainNotificationChannel()
-        createServiceNotificationChannel()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createMainNotificationChannel()
+            createServiceNotificationChannel()
+        }
+
+
     }
 
     private fun createMainNotificationChannel() {
         val name = applicationContext.packageName
         val descriptionText = applicationContext.packageName
-        val importance = NotificationManager.IMPORTANCE_HIGH
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
         val mChannel = NotificationChannel(applicationContext.packageName, name, importance)
         mChannel.description = descriptionText
         // Register the channel with the system; you can't change the importance
@@ -48,7 +53,7 @@ class BaseApp : Application() {
     private fun createServiceNotificationChannel() {
         val name = ForegroundService.CHANNEL_ID
         val descriptionText = applicationContext.packageName
-        val importance = NotificationManager.IMPORTANCE_NONE
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
         val mChannel = NotificationChannel(ForegroundService.CHANNEL_ID, name, importance)
         mChannel.description = descriptionText
         // Register the channel with the system; you can't change the importance
