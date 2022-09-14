@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">АвтоВыкуп</string>
+    <string name="stop">Остановить</string>
 </resources>
