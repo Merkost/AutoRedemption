@@ -53,7 +53,7 @@ class BaseApp : Application() {
     private fun createServiceNotificationChannel() {
         val name = ForegroundService.CHANNEL_ID
         val descriptionText = applicationContext.packageName
-        val importance = NotificationManager.IMPORTANCE_HIGH
+        val importance = NotificationManager.IMPORTANCE_NONE
         val mChannel = NotificationChannel(ForegroundService.CHANNEL_ID, name, importance)
         mChannel.description = descriptionText
         // Register the channel with the system; you can't change the importance
