@@ -3,13 +3,16 @@ package ru.mobileprism.autoredemption.workmanager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import ru.mobileprism.autoredemption.Constants
-import ru.mobileprism.autoredemption.startSmsService
+import android.util.Log
+import ru.mobileprism.autoredemption.ForegroundService
 
 class DeviceBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        Log.v("log_tag", "Action :: "+intent.action);
         if (Intent.ACTION_BOOT_COMPLETED == intent.action) {
-            context.startSmsService()
+           // context.startSmsService()
+            val serviceIntent = Intent(context, ForegroundService::class.java)
+            context.startService(serviceIntent)
         }
     }
 }

@@ -10,8 +10,13 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.telephony.SmsManager
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.core.content.ContextCompat
+
+
+
 
 
 @Suppress("DEPRECATION") // Deprecated for third party Services.
@@ -41,9 +46,13 @@ fun Context.startSmsService() {
     serviceIntent.putExtra("inputExtra", "Сервис для автоматической отправки сообщений")
     //serviceIntent.putExtra("numbers", numbers.toTypedArray())
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        startForegroundService(serviceIntent)
+        ContextCompat.startForegroundService(this, serviceIntent)
+        Log.d("AUTOREDEMPTION", "startForegroundService received")
+
     } else {
         startService(serviceIntent)
+        Log.d("AUTOREDEMPTION", "startService received")
+
     }
 }
 
