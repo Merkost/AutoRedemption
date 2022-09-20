@@ -56,6 +56,8 @@ fun HomeScreen(toSettings: () -> Unit) {
             context.isServiceRunning(ForegroundService::class.java)
     }
 
+
+
     val smsPermissionState = rememberPermissionState(
         Manifest.permission.SEND_SMS
     )
@@ -96,6 +98,7 @@ fun HomeScreen(toSettings: () -> Unit) {
                         }
                         false -> {
                             context.disableBatteryOptimizations()
+                            context.autoStart()
                             if (smsPermissionState.hasPermission) {
                                 context.startSmsService()
                                 context.showToast("Сервис запущен")
