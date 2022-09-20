@@ -2,19 +2,16 @@ package ru.mobileprism.autoredemption.workmanager
 
 import android.content.Context
 import android.os.Build
-import android.telephony.SmsManager
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import androidx.work.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import ru.mobileprism.autoredemption.Constants
+import ru.mobileprism.autoredemption.utils.Constants
 import ru.mobileprism.autoredemption.R
-import ru.mobileprism.autoredemption.datastore.AppSettings
-import ru.mobileprism.autoredemption.getSmsManager
+import ru.mobileprism.autoredemption.model.datastore.AppSettings
+import ru.mobileprism.autoredemption.utils.getSmsManager
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*

@@ -1,4 +1,4 @@
-package ru.mobileprism.autoredemption.datastore
+package ru.mobileprism.autoredemption.model.datastore
 
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime

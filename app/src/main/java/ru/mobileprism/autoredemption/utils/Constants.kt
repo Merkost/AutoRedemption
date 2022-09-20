@@ -1,4 +1,4 @@
-package ru.mobileprism.autoredemption
+package ru.mobileprism.autoredemption.utils
 
 object Constants {
     const val DEFAULT_MESSAGES_DELAY: Long = 500

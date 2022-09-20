@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import com.crazylegend.crashyreporter.CrashyReporter
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
-import ru.mobileprism.autoredemption.datastore.AppSettings
-import ru.mobileprism.autoredemption.datastore.AppSettingsEntity
+import ru.mobileprism.autoredemption.model.datastore.AppSettings
+import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
 
 @Composable
 fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {

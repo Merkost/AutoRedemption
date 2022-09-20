@@ -1,4 +1,4 @@
-package ru.mobileprism.autoredemption
+package ru.mobileprism.autoredemption.utils
 
 import android.telephony.PhoneNumberUtils
 import android.text.Selection

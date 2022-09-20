@@ -1,16 +1,14 @@
-package ru.mobileprism.autoredemption.datastore
+package ru.mobileprism.autoredemption.model.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import ru.mobileprism.autoredemption.Constants
+import ru.mobileprism.autoredemption.utils.Constants
 import java.time.LocalDateTime
-import javax.inject.Inject
 
 class AppSettingsImpl(private val context: Context) : AppSettings {
 

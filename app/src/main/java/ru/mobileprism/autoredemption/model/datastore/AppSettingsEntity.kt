@@ -1,4 +1,4 @@
-package ru.mobileprism.autoredemption.datastore
+package ru.mobileprism.autoredemption.model.datastore
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes

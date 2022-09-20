@@ -1,4 +1,4 @@
-package ru.mobileprism.autoredemption
+package ru.mobileprism.autoredemption.utils
 
 import android.app.ActivityManager
 import android.app.Service
@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
+import ru.mobileprism.autoredemption.ForegroundService
 
 
 @Suppress("DEPRECATION") // Deprecated for third party Services.

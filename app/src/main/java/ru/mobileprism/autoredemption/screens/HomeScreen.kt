@@ -1,14 +1,7 @@
 package ru.mobileprism.autoredemption.screens
 
 import android.Manifest
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.os.PowerManager
-import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
@@ -37,8 +30,9 @@ import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.mobileprism.autoredemption.*
-import ru.mobileprism.autoredemption.datastore.AppSettings
-import ru.mobileprism.autoredemption.datastore.AppSettingsEntity
+import ru.mobileprism.autoredemption.model.datastore.AppSettings
+import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
+import ru.mobileprism.autoredemption.utils.*
 
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterialApi::class)
