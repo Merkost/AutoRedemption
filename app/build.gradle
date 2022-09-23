@@ -4,6 +4,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.dagger.hilt.android'
+    id("com.apollographql.apollo3").version("3.6.0")
 }
 
 android {
@@ -13,8 +14,8 @@ android {
         applicationId "ru.mobileprism.autoredemption"
         minSdk 25
         targetSdk 33
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 5
+        versionName "0.0.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -90,10 +91,20 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.6"
 
     //Navigation
-    implementation "androidx.navigation:navigation-compose:2.5.1"
+    implementation "androidx.navigation:navigation-compose:2.5.2"
 
     implementation 'com.google.dagger:hilt-android:2.43.2'
     kapt 'com.google.dagger:hilt-compiler:2.43.2'
+
+
+    //APOLLO GRAPHQL
+    implementation("com.apollographql.apollo3:apollo-runtime:3.6.0")
+
+    // optional: if you want to use the normalized cache
+    implementation("com.apollographql.apollo3:apollo-normalized-cache-sqlite:3.6.0")
+    // optional: if you just want the generated models and parsers and write your own HTTP code/cache code, you can remove apollo-runtime
+    // and use apollo-api instead
+    //implementation("com.apollographql.apollo3:apollo-api:3.6.0")
 
     //KOIN DEPENDENCY INJECTION
 
@@ -111,4 +122,8 @@ dependencies {
     api "io.insert-koin:koin-androidx-navigation:$koin_version"
     // Jetpack Compose
     api "io.insert-koin:koin-androidx-compose:$koin_version"
+}
+
+apollo {
+    packageName.set("ru.mobileprism.autoredemption")
 }
