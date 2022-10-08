@@ -6,7 +6,9 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import ru.mobileprism.autoredemption.utils.Constants
 import java.time.LocalDateTime
 
@@ -24,11 +26,12 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
 
     }
 
-    override val appSettings: Flow<AppSettingsEntity> = context.dataStore.data
+    override val appSettingsEntity: Flow<AppSettingsEntity> = context.dataStore.data
         .map { preferences ->
             Gson().fromJson(preferences[APP_SETTINGS], AppSettingsEntity::class.java)
                 ?: AppSettingsEntity()
         }
+
 
     override suspend fun saveAppSettings(appSettings: AppSettingsEntity) {
         context.dataStore.edit { preferences ->
@@ -37,10 +40,10 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
     }
 
 
-    override val testNumbers: Flow<Set<String>> = context.dataStore.data
+    /*override val testNumbers: Flow<Set<String>> = context.dataStore.data
         .map { preferences ->
             preferences[TEST_NUMBERS] ?: emptySet()
-        }
+        }*/
 
     override val lastTimeSmsSent: Flow<LocalDateTime> = context.dataStore.data
         .map { preferences ->

@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">АвтоВыкуп</string>
     <string name="stop">Остановить</string>
+    <string name="sms_was_sent">Код был отправлен на номер</string>
+    <string name="app_description">Автоматически отправляйте сообщения о покупке авто при снижении цены</string>
+    <string name="proceed">Продолжить</string>
+    <string name="api_error_message">Ошибка при обработке ответа от сервера</string>
+    <string name="wrong_phone_number_format">Неверный формат номера телефона</string>
+    <string name="try_again_message">Попробуйте еще раз</string>
+    <string name="label_ok">ОК</string>
+    <string name="cancel">Отменить</string>
+    <string name="loading">Загрузка</string>
 </resources>

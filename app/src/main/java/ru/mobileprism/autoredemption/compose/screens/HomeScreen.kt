@@ -1,4 +1,4 @@
-package ru.mobileprism.autoredemption.screens
+package ru.mobileprism.autoredemption.compose.screens
 
 import android.Manifest
 import android.widget.Toast
@@ -6,6 +6,9 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,10 +32,12 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
 import ru.mobileprism.autoredemption.*
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
 import ru.mobileprism.autoredemption.utils.*
+import ru.mobileprism.autoredemption.viewmodels.HomeViewModel
 
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterialApi::class)
@@ -40,15 +45,22 @@ import ru.mobileprism.autoredemption.utils.*
 fun HomeScreen(toSettings: () -> Unit) {
 
     val settings: AppSettings = get()
-    val appSettings by settings.appSettings.collectAsState(AppSettingsEntity())
+    val viewModel: HomeViewModel = getViewModel()
+    val appSettingsEntity by settings.appSettingsEntity.collectAsState(AppSettingsEntity())
 
     val context = LocalContext.current
     val isServiceRunning = rememberSaveable { mutableStateOf(false) }
+    val lazyState = rememberLazyListState()
+
 
     LaunchedEffect(key1 = Unit) {
         isServiceRunning.value =
             context.isServiceRunning(ForegroundService::class.java)
     }
+
+    /*LaunchedEffect(appSettingsEntity.testNumbers) {
+        lazyState.animateScrollToItem(appSettingsEntity.testNumbers.size-1)
+    }*/
 
 
 
@@ -69,10 +81,11 @@ fun HomeScreen(toSettings: () -> Unit) {
         sheetContent = {
             AddNumSheet(sheetState = sheetState, onAdd = { number ->
                 coroutineScope.launch {
-                    if (appSettings.numbers.contains(number)) {
+                    if (appSettingsEntity.numbers.contains(number)) {
                         Toast.makeText(context, "Номер есть в списке", Toast.LENGTH_SHORT).show()
                     } else {
-                        settings.saveAppSettings(appSettings.copy(numbers = appSettings.numbers + number))
+                        /*settings.saveAppSettings(appSettingsEntity.copy(numbers = appSettingsEntity.numbers + number))*/
+                        viewModel.addRealNumber(number)
                     }
                 }
             })
@@ -91,8 +104,8 @@ fun HomeScreen(toSettings: () -> Unit) {
                             isServiceRunning.value = false
                         }
                         false -> {
-                            context.disableBatteryOptimizations()
-                            context.autoStart()
+                            //context.autoStart()
+
                             if (smsPermissionState.hasPermission) {
                                 context.startSmsService()
                                 context.showToast("Сервис запущен")
@@ -100,6 +113,8 @@ fun HomeScreen(toSettings: () -> Unit) {
                                 isServiceRunning.value = true
                             } else {
                                 smsPermissionState.launchPermissionRequest()
+                                context.showToast("Необходимо разрешение на отправку уведомлений!")
+
                             }
                         }
                     }
@@ -123,9 +138,11 @@ fun HomeScreen(toSettings: () -> Unit) {
             topBar = {
                 TopAppBar(title = { Text(text = "АвтоВыкуп") },
                     actions = {
-                        IconButton(enabled = appSettings.debugMode.not(), onClick = {
-                            coroutineScope.launch {
-                                sheetState.show()
+                        IconButton(onClick = {
+                            if (appSettingsEntity.testMode.not()) {
+                                coroutineScope.launch { sheetState.show() }
+                            } else {
+                                viewModel.addTestNumber()
                             }
                         }) { Icon(Icons.Default.Add, "") }
                         IconButton(onClick = toSettings) {
@@ -134,33 +151,43 @@ fun HomeScreen(toSettings: () -> Unit) {
                     })
             }
         ) {
-            Column(
+            LazyColumn(
+                state = lazyState,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
+                    .fillMaxSize()
                     .padding(it)
-                    .verticalScroll(rememberScrollState())
+
             ) {
-                if (appSettings.debugMode) {
-                    Constants.DEBUG_NUMBERS.forEach { number ->
+                if (appSettingsEntity.testMode) {
+                    item {
+                        Row(modifier = Modifier.padding(8.dp)) {
+                            Text(text = "Тестовый режим!", style = MaterialTheme.typography.body1)
+                        }
+                    }
+                    if (appSettingsEntity.testNumbers.isEmpty())
+                        item {
+                            Row(modifier = Modifier.padding(32.dp)) {
+                                Text(text = "Нажмите на \"+\", чтобы добавить тестовые номера")
+                            }
+                        }
+                    items(appSettingsEntity.testNumbers.toList().reversed()) { number ->
                         NumberItem(
                             number,
-                            onDelete = null
+                            onDelete = { viewModel.deleteTestNumber(number) }
                         )
                     }
                 } else {
-                    appSettings.numbers.forEach { number ->
+                    items(appSettingsEntity.numbers.reversed()) { number ->
                         NumberItem(number,
-                            onDelete = {
-                                coroutineScope.launch {
-                                    settings.saveAppSettings(appSettings.copy(numbers = appSettings.numbers - number))
-                                }
-                            })
+                            onDelete = { viewModel.deleteRealNumber(number) })
                     }
                 }
+                item { Spacer(modifier = Modifier.size(200.dp)) }
             }
         }
     }
 }
-
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
@@ -252,8 +279,10 @@ fun NumberItem(number: String, onDelete: (() -> Unit)?) {
             Text(text = number)
             onDelete?.let {
                 IconButton(onClick = { onDelete() }) {
-                    Icon(Icons.Default.Delete, "",
-                        tint = MaterialTheme.colors.error)
+                    Icon(
+                        Icons.Default.Delete, "",
+                        tint = MaterialTheme.colors.error
+                    )
                 }
             }
         }

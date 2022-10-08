@@ -1,11 +1,11 @@
-package ru.mobileprism.autoredemption.screens
+package ru.mobileprism.autoredemption.compose.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.R
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -26,42 +27,61 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.viewModel
+import ru.mobileprism.autoredemption.R
+import ru.mobileprism.autoredemption.compose.custom.ModalLoadingDialog
+import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.PhoneNumberVisualTransformation
+import ru.mobileprism.autoredemption.utils.showError
+import ru.mobileprism.autoredemption.viewmodels.PhoneEnteringViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(onNext: (/*PhoneRegisterEntity*/) -> Unit) {
+fun LoginScreen(onNext: (Any) -> Unit) {
 
-    //val viewModel: PhoneEnteringViewModel by viewModel()
+    val viewModel: PhoneEnteringViewModel by viewModel()
     val context = LocalContext.current
 
-    //val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val phoneNum = viewModel.phoneNum.collectAsState()
 
-    val phoneNum = remember { mutableStateOf("+7") }
+
     var invalidPhoneDialog by remember { mutableStateOf(false) }
 
-    /*LaunchedEffect(uiState) {
+    LaunchedEffect(uiState) {
         when (val state = uiState) {
             is BaseViewState.Success -> {
                 onNext(state.data)
                 viewModel.resetState()
             }
             is BaseViewState.Error -> {
-                showError(context.applicationContext, state.text)
+                context.applicationContext.showError(state.text)
             }
             else -> {}
         }
-    }*/
+    }
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val onReady: () -> Unit = {
         keyboardController?.hide()
-        onNext()
-        /*if (viewModel.isPhoneError.value || phoneNum.value.length != 12)
-            invalidPhoneDialog = true
-        else viewModel.authentificate()*/
+        if (viewModel.isPhoneSucceed.value) viewModel.authenticate()
+        else invalidPhoneDialog = true
     }
+
+    ModalLoadingDialog(
+        onDismiss = { viewModel.cancelLoading() },
+        isLoading = uiState is BaseViewState.Loading
+    )
+
+    if (invalidPhoneDialog)
+        AlertDialog(onDismissRequest = { invalidPhoneDialog = false },
+            title = { Text(stringResource(R.string.wrong_phone_number_format)) },
+            text = { Text(stringResource(R.string.try_again_message)) },
+            confirmButton = {
+                Button(onClick = { invalidPhoneDialog = false }) {
+                    Text(stringResource(R.string.label_ok))
+                }
+            })
 
     Scaffold(
         modifier = Modifier
@@ -79,9 +99,11 @@ fun LoginScreen(onNext: (/*PhoneRegisterEntity*/) -> Unit) {
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(text = "АвтоБот", style = MaterialTheme.typography.h5)
-
-                Text(text = "Автоматически отправляйте сообщения о покупке авто при снижении цены")
+                Text(
+                    text = stringResource(id = R.string.app_name),
+                    style = MaterialTheme.typography.h5
+                )
+                Text(text = stringResource(R.string.app_description))
             }
 
             Column(
@@ -93,13 +115,12 @@ fun LoginScreen(onNext: (/*PhoneRegisterEntity*/) -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     value = phoneNum.value,
                     onValueChange = { newValue: String ->
-                        if (phoneNum.value.take(2) == "+7"/*viewModel.isPhoneNumValid(newValue)*/)
-                            phoneNum.value = newValue
+                        viewModel.onPhoneSet(newValue)
                     },
-                    /*readOnly = uiState is BaseViewState.Loading,*/
+                    readOnly = uiState is BaseViewState.Loading,
                     leadingIcon = {
                         Image(
-                            painterResource(ru.mobileprism.autoredemption.R.drawable.russian_flag),
+                            painterResource(R.drawable.russian_flag),
                             "",
                             modifier = Modifier.size(25.dp)
                         )
@@ -109,9 +130,7 @@ fun LoginScreen(onNext: (/*PhoneRegisterEntity*/) -> Unit) {
                             phoneNum.value.length > 2,
                             enter = fadeIn(), exit = fadeOut()
                         ) {
-                            IconButton(onClick = {
-                                /*if (uiState !is BaseViewState.Loading)*/ phoneNum.value = "+7"
-                            }) {
+                            IconButton(onClick = viewModel::resetPhoneNum) {
                                 Icon(Icons.Default.Close, Icons.Default.Close.name)
                             }
                         }
@@ -128,19 +147,22 @@ fun LoginScreen(onNext: (/*PhoneRegisterEntity*/) -> Unit) {
                         keyboardController?.hide()
                         onReady()
                     }),
-                    /*isError = viewModel.isPhoneError.value*/
+                    isError = viewModel.isPhoneError.value,
                     visualTransformation = PhoneNumberVisualTransformation()
                 )
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
                 Button(
                     modifier = Modifier,
-                    content = {
-                        Text(text = "Продолжить")
-                    },
+                    content = { Text(text = stringResource(R.string.proceed)) },
                     onClick = onReady
                 )
             }
-
 
         }
 

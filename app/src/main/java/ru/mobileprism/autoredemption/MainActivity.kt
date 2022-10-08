@@ -1,10 +1,6 @@
 package ru.mobileprism.autoredemption
 
 import android.annotation.SuppressLint
-import android.app.ActivityManager
-import android.content.Context
-import android.content.Context.ACTIVITY_SERVICE
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,17 +12,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.work.*
-import ru.mobileprism.autoredemption.screens.HomeScreen
-import ru.mobileprism.autoredemption.screens.LoginScreen
-import ru.mobileprism.autoredemption.screens.LogsScreen
-import ru.mobileprism.autoredemption.screens.SettingsScreen
+import ru.mobileprism.autoredemption.compose.screens.*
 import ru.mobileprism.autoredemption.ui.theme.AutoRedemptionTheme
-import ru.mobileprism.autoredemption.workmanager.SendSMSWorker
-import java.time.Duration
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 object MainDestinations {
+    val SMS_CONFIRM = "SMS"
     val LOGIN: String = "LOGIN"
     val LOGS: String = "LOGS"
     val SETTINGS: String = "SETTINGS"
@@ -49,6 +39,12 @@ class MainActivity : ComponentActivity() {
 
                     composable(MainDestinations.LOGIN) {
                         LoginScreen {
+                            navController.navigate(MainDestinations.SMS_CONFIRM)
+                        }
+                    }
+
+                    composable(MainDestinations.SMS_CONFIRM) {
+                        SmsConfirmScreen {
                             navController.navigate(MainDestinations.HOME) {
                                 popUpTo(MainDestinations.LOGIN) {
                                     inclusive = true

@@ -19,6 +19,7 @@ import androidx.activity.ComponentActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import ru.mobileprism.autoredemption.ForegroundService
+import ru.mobileprism.autoredemption.R
 
 
 @Suppress("DEPRECATION") // Deprecated for third party Services.
@@ -122,4 +123,12 @@ fun Context.autoStart() {
     } catch (e: Exception) {
         Log.e("exc", e.toString())
     }
+}
+
+fun Context.showToast(text: String, length: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(applicationContext, text, length).show()
+}
+
+fun Context.showError(text: String?) {
+    showToast(text ?: getString(R.string.api_error_message))
 }

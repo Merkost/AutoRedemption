@@ -8,7 +8,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import ru.mobileprism.autoredemption.utils.Constants
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.utils.getSmsManager
@@ -55,10 +54,10 @@ class SendSMSWorker(appContext: Context, workerParams: WorkerParameters) :
     override suspend fun doWork(): Result {
         //val numbers = inputData.getStringArray(NUMBERS_ARG)
         setForegroundAsync(showNotification())
-        val smsSettings = settings.appSettings.first()
+        val smsSettings = settings.appSettingsEntity.first()
         val now = LocalDateTime.now()
         val lastTime = settings.lastTimeSmsSent.first()
-        val numbers: List<String> = if (smsSettings.debugMode) Constants.DEBUG_NUMBERS
+        val numbers: List<String> = if (smsSettings.testMode) smsSettings.testNumbers.toList()
         else smsSettings.numbers
 
         val dur = java.time.Duration.between(lastTime, now).abs().toMinutes()

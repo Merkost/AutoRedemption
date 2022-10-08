@@ -1,37 +1,34 @@
-package ru.mobileprism.autoredemption.screens
+package ru.mobileprism.autoredemption.compose.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.crazylegend.crashyreporter.CrashyReporter
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
+import ru.mobileprism.autoredemption.utils.disableBatteryOptimizations
 
 @Composable
 fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val settings: AppSettings = get()
     val context = LocalContext.current
-    val appSettings = settings.appSettings.collectAsState(initial = AppSettingsEntity())
+    val appSettings = settings.appSettingsEntity.collectAsState(initial = AppSettingsEntity())
 
     val numbersDelay = remember(appSettings.value) {
         mutableStateOf(
@@ -77,9 +74,9 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             SettingsRow("Тестовые номера") {
-                Checkbox(checked = appSettings.value.debugMode, onCheckedChange = {
+                Checkbox(checked = appSettings.value.testMode, onCheckedChange = {
                     coroutineScope.launch {
-                        settings.saveAppSettings(appSettings.value.copy(debugMode = it))
+                        settings.saveAppSettings(appSettings.value.copy(testMode = it))
                     }
                 })
             }
@@ -126,10 +123,17 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
                     )
                 )
             }
-            /*SettingsColumn("Текст SMS") {
+            /*SettingsColumn("Показывать уведомления при каждой отправке смс?") {
+                Checkbox(checked = appSettings.value.notificationOnWork, onCheckedChange = {
+                    coroutineScope.launch {
+                        settings.saveAppSettings(appSettings.value.copy(timeInText = it))
+                    }
+                })
+            }*/
+            /*SettingsRow("Основной текст сообщения") {
                 TextField(
                     placeholder = {
-                       Text(text = "Сообщение")
+                        Text(text = "Сообщение")
                     },
                     shape = RoundedCornerShape(8.dp),
                     value = appSettings.value.messageText,
@@ -141,18 +145,13 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                 )
             }*/
-            /*SettingsRow("Основной текст сообщения") {
-                Checkbox(checked = appSettings.value.debugMode, onCheckedChange = {
-                    coroutineScope.launch {
-                        settings.saveAppSettings(appSettings.value.copy(debugMode = it))
-                    }
-                })
-            }*/
 
 
             Text(
                 text = "Версия $currentVersion",
-                modifier = Modifier.padding(4.dp).weight(1f, true)
+                modifier = Modifier
+                    .padding(4.dp)
+                    .weight(1f, true)
             )
         }
 

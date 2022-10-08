@@ -4,8 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import ru.mobileprism.autoredemption.ForegroundService
-import ru.mobileprism.autoredemption.startSmsService
+import ru.mobileprism.autoredemption.utils.startSmsService
 
 class DeviceBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

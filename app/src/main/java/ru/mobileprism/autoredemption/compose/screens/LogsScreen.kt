@@ -1,4 +1,4 @@
-package ru.mobileprism.autoredemption.screens
+package ru.mobileprism.autoredemption.compose.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.navigationBarsPadding

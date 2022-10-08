@@ -25,12 +25,9 @@ class ForegroundService : Service() {
             intent?.action == ACTION_STOP_SERVICE -> {
 
                 Log.d("ForegroundService", "Called to cancel service")
-
                 workManager.cancelUniqueWork(SendSMSWorker.NAME)
-
                 stopForeground(true)
                 stopSelf()
-
                 return START_NOT_STICKY
             }
             else -> {

@@ -1,12 +1,9 @@
 package ru.mobileprism.autoredemption.model.datastore
 
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.ExperimentalTime
-
 data class AppSettingsEntity(
-    val debugMode: Boolean = true,
+    val testMode: Boolean = true,
     val numbers: List<String> = listOf(),
+    val testNumbers: Set<String> = setOf("0"),
     val messagesDelay: Long = 500,
     val messageText: String = "SMS",
     val timeInText: Boolean = true,
