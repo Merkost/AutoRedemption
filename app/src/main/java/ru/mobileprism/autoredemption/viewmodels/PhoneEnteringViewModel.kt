@@ -1,5 +1,6 @@
 package ru.mobileprism.autoredemption.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -10,14 +11,15 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
+import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
+import ru.mobileprism.autoredemption.model.repository.AuthRepository
 import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.Constants
 import ru.mobileprism.autoredemption.utils.Constants.PHONE_DEFAULT_VALUE
 
-class PhoneEnteringViewModel(val appSettings: AppSettings) : ViewModel() {
+class PhoneEnteringViewModel(val authRepository: AuthRepository) : ViewModel() {
 
-
-    private val _uiState = MutableStateFlow<BaseViewState<Any>?>(null)
+    private val _uiState = MutableStateFlow<BaseViewState<PhoneAuthEntity>?>(null)
     val uiState = _uiState.asStateFlow()
 
     private val _phoneNum = MutableStateFlow(PHONE_DEFAULT_VALUE)
@@ -28,10 +30,8 @@ class PhoneEnteringViewModel(val appSettings: AppSettings) : ViewModel() {
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     val isPhoneSucceed = phoneNum.map {
-        phoneNum.value.length == 12 && isPhoneNumValid(it)
+        it.length == 12 && isPhoneNumValid(it)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
-
-    private var authJob: Job? = null
 
     fun onPhoneSet(newValue: String) {
         if (isPhoneNumValid(newValue)) _phoneNum.update { newValue }
@@ -47,32 +47,33 @@ class PhoneEnteringViewModel(val appSettings: AppSettings) : ViewModel() {
         }
     }
 
+    private var authJob: Job? = null
+
     fun resetPhoneNum() {
         _phoneNum.update { "+7" }
     }
 
     fun authenticate() {
         authJob = viewModelScope.launch {
+            val phoneNumber = phoneNum.value
             _uiState.update { BaseViewState.Loading() }
-            val currentPhoneNum = phoneNum.value
-            /*loginRepository.getPhoneResponse(phone = currentPhoneNum).collect { result ->
-                when (result) {
-                    is ResultWrapper.NetworkError -> {
-                        _uiState.value = BaseViewState.Error(null)
-                        showNetworkError()
-                    }
-                    is ResultWrapper.GenericError-> {
-                        _uiState.value = BaseViewState.Error(text = result.data?.description)
-                    }
-                    is ResultWrapper.Success -> {
-                        val regEntity = PhoneRegisterEntity(
-                            password = result.data.password ?: "",
-                            phone = currentPhoneNum
+            val result = authRepository.verifyPhone(phoneNumber).single().fold(
+                onSuccess = { phoneResult ->
+                    // TODO: get code from message
+                    _uiState.update {
+                        BaseViewState.Success(
+                            PhoneAuthEntity(
+                                password = phoneResult.message,
+                                phone = phoneNumber
+                            )
                         )
-                        _uiState.value = BaseViewState.Success(regEntity)
                     }
+                },
+                onFailure = { error ->
+                    _uiState.update { BaseViewState.Error(error.message) }
                 }
-            }*/
+            )
+            Log.d(Constants.AUTH_TAG, result.toString())
         }
     }
 

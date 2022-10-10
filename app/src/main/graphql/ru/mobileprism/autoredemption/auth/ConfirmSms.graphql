@@ -1,0 +1,16 @@
+mutation ConfirmSms($phone: String!, $code: String!) {
+  confirmSms(phone: $phone, code: $code) {
+    token
+    user {
+      _id
+      phone
+      createdAt
+      subscriptionStatus {
+        isActive
+        subscriptionEnds
+      }
+      firstname
+      lastname
+    }
+  }
+}

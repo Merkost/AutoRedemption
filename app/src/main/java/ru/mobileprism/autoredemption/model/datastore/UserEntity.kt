@@ -1,13 +1,21 @@
 package ru.mobileprism.autoredemption.model.datastore
 
-data class UserEntity(
-    val phoneNum: String?,
-    val email: String?,
-    val userType: UserType = UserType.FREE
-)
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-enum class UserType {
-    PAID,
-    FREE,
-    TRIAL
-}
+
+@Parcelize
+data class UserEntity(
+    val _id: String,
+    val phone: String,
+    val createdAt: String,
+    val subscriptionStatus: SubscriptionStatus,
+    val firstname: String?,
+    val lastname: String?,
+) : Parcelable
+
+@Parcelize
+data class SubscriptionStatus(
+    val isActive: Boolean,
+    val subscriptionEnds: String,
+) : Parcelable

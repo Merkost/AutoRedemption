@@ -4,56 +4,46 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.work.*
+import androidx.navigation.navigation
 import ru.mobileprism.autoredemption.compose.screens.*
 import ru.mobileprism.autoredemption.ui.theme.AutoRedemptionTheme
 
 object MainDestinations {
-    val SMS_CONFIRM = "SMS"
-    val LOGIN: String = "LOGIN"
+    val LOGIN_ROUTE: String = "LOGIN"
     val LOGS: String = "LOGS"
     val SETTINGS: String = "SETTINGS"
     val HOME: String = "HOME"
 }
 
-class MainActivity : ComponentActivity() {
 
+class MainActivity : ComponentActivity() {
     @SuppressLint("BatteryLife")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             AutoRedemptionTheme {
                 val navController = rememberNavController()
+                val upPress: () -> Unit = {
+                    navController.popBackStack()
+                }
 
                 NavHost(
                     navController = navController,
-                    startDestination = MainDestinations.LOGIN
+                    startDestination = MainDestinations.LOGIN_ROUTE
                 ) {
 
-                    composable(MainDestinations.LOGIN) {
-                        LoginScreen {
-                            navController.navigate(MainDestinations.SMS_CONFIRM)
-                        }
+                    navigation(
+                        route = MainDestinations.LOGIN_ROUTE,
+                        startDestination = LoginDestinations.PHONE_ENTERING_ROUTE,
+                    ) {
+                        addLoginGraph(navController, upPress = upPress)
                     }
 
-                    composable(MainDestinations.SMS_CONFIRM) {
-                        SmsConfirmScreen {
-                            navController.navigate(MainDestinations.HOME) {
-                                popUpTo(MainDestinations.LOGIN) {
-                                    inclusive = true
-                                }
-                            }
-                        }
-                    }
-
-                    //Phone entering
                     composable(MainDestinations.HOME) {
                         HomeScreen { navController.navigate(MainDestinations.SETTINGS) }
                     }
@@ -73,7 +63,15 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
+
+
 }
+
+
+
+
 
 @Preview(showBackground = true)
 @Composable

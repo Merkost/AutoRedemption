@@ -1,0 +1,6 @@
+mutation VerifyPhone($phone: String!) {
+  verifyPhone(phone: $phone) {
+    success
+    message
+  }
+}

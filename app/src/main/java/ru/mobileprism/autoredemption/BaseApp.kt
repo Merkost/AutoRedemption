@@ -10,6 +10,7 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import ru.mobileprism.autoredemption.di.koinAppModule
+import ru.mobileprism.autoredemption.di.networkModule
 
 @HiltAndroidApp
 class BaseApp : Application() {
@@ -22,6 +23,7 @@ class BaseApp : Application() {
             androidContext(this@BaseApp)
             modules(
                 listOf(
+                    networkModule,
                     koinAppModule,
 
                     )
