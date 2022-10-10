@@ -1,0 +1,50 @@
+type SubscriptionStatus {
+  isActive: Boolean!
+
+  subscriptionEnds: String!
+}
+
+type User {
+  _id: ID!
+
+  phone: String!
+
+  createdAt: String!
+
+  subscriptionStatus: SubscriptionStatus!
+
+  firstname: String
+
+  lastname: String
+}
+
+type VerifyPhoneResponse {
+  success: Boolean!
+
+  message: String!
+}
+
+type AuthResponse {
+  token: String!
+
+  user: User!
+}
+
+type Query {
+  getUsers: [User]
+
+  getUserById(_id: ID!): User
+
+  getUserByPhone(phone: String!): User
+}
+
+type Mutation {
+  verifyPhone(phone: String!): VerifyPhoneResponse
+
+  confirmSms(phone: String!, code: String!): AuthResponse
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
