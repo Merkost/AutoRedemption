@@ -120,6 +120,13 @@ dependencies {
     api "io.insert-koin:koin-androidx-navigation:$koin_version"
     // Jetpack Compose
     api "io.insert-koin:koin-androidx-compose:$koin_version"
+
+
+    //ConstraintLayout
+    api "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+
+
+    
 }
 
 apollo {
