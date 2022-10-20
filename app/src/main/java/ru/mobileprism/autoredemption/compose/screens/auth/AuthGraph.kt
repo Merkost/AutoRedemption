@@ -1,9 +1,10 @@
 package ru.mobileprism.autoredemption.compose.screens
 
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import ru.mobileprism.autoredemption.MainDestinations
+import ru.mobileprism.autoredemption.compose.MainDestinations
 import ru.mobileprism.autoredemption.compose.screens.auth.PhoneEnteringScreen
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.utils.navigate
@@ -21,8 +22,8 @@ object LoginArguments {
 }
 
 
-fun NavGraphBuilder.addLoginGraph(
-    navController: NavHostController,
+fun NavGraphBuilder.addAuthGraph(
+    navController: NavController,
     upPress: () -> Unit
 ) {
     composable(LoginDestinations.PHONE_ENTERING_ROUTE) {
