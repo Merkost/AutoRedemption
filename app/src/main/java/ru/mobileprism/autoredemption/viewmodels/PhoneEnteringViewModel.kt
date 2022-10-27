@@ -16,6 +16,8 @@ import ru.mobileprism.autoredemption.model.repository.AuthRepository
 import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.Constants
 import ru.mobileprism.autoredemption.utils.Constants.PHONE_DEFAULT_VALUE
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 class PhoneEnteringViewModel(val authRepository: AuthRepository) : ViewModel() {
 
@@ -59,11 +61,13 @@ class PhoneEnteringViewModel(val authRepository: AuthRepository) : ViewModel() {
             _uiState.update { BaseViewState.Loading() }
             val result = authRepository.verifyPhone(phoneNumber).single().fold(
                 onSuccess = { phoneResult ->
-                    // TODO: get code from message
+                    // TODO: check if empty @phoneResult.message
+                    val code = extractDigits(phoneResult.message)
+
                     _uiState.update {
                         BaseViewState.Success(
                             PhoneAuthEntity(
-                                password = phoneResult.message,
+                                password = code,
                                 phone = phoneNumber
                             )
                         )
@@ -84,5 +88,13 @@ class PhoneEnteringViewModel(val authRepository: AuthRepository) : ViewModel() {
     fun cancelLoading() {
         authJob?.cancel()
         resetState()
+    }
+
+    private fun extractDigits(str: String): String {
+        val p: Pattern = Pattern.compile("(\\d{6})")
+        val m: Matcher = p.matcher(str)
+        return if (m.find()) {
+            m.group(0) ?: ""
+        } else ""
     }
 }

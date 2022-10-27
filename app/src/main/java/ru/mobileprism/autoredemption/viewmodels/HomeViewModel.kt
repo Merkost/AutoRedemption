@@ -11,19 +11,8 @@ import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
 class HomeViewModel(val appSettings: AppSettings) : ViewModel() {
 
 
-    private val appSettingsEntity = MutableStateFlow(AppSettingsEntity())
-
-    init {
-        setFlowListeners()
-    }
-
-    private fun setFlowListeners() {
-        viewModelScope.launch {
-            appSettings.appSettingsEntity.collect {
-                appSettingsEntity.value = it
-            }
-        }
-    }
+    private val appSettingsEntity = appSettings.appSettingsEntity
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AppSettingsEntity())
 
 
     fun addRealNumber(number: String) {
