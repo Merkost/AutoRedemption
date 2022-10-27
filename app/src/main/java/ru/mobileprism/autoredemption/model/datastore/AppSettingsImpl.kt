@@ -6,9 +6,7 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import ru.mobileprism.autoredemption.utils.Constants
 import java.time.LocalDateTime
 
@@ -18,6 +16,9 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("appSettings")
 
+        private val CURRENT_USER = stringPreferencesKey("USER_KEY")
+        private val TOKEN = stringPreferencesKey("TOKEN_KEY")
+
         private val APP_SETTINGS = stringPreferencesKey("APP_SETTINGS_KEY")
         private val TEST_NUMBERS = stringSetPreferencesKey("TEST_NUMBERS_KEY")
         private val LAST_TIME_SAVED = stringPreferencesKey("LAST_TIME_SAVED_KEY")
@@ -26,16 +27,44 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
 
     }
 
+    override val getCurrentUserNullable: Flow<UserEntity?> = context.dataStore.data
+        .map { preferences ->
+            Gson().fromJson(preferences[CURRENT_USER], UserEntity::class.java)
+                ?: null
+        }
+
+    override val getCurrentUser: Flow<UserEntity> = context.dataStore.data
+        .map { preferences ->
+            Gson().fromJson(preferences[CURRENT_USER], UserEntity::class.java)
+                ?: UserEntity()
+        }
+
     override val appSettingsEntity: Flow<AppSettingsEntity> = context.dataStore.data
         .map { preferences ->
             Gson().fromJson(preferences[APP_SETTINGS], AppSettingsEntity::class.java)
                 ?: AppSettingsEntity()
         }
 
+    override val getUserToken: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[TOKEN] ?: ""
+        }
 
     override suspend fun saveAppSettings(appSettings: AppSettingsEntity) {
         context.dataStore.edit { preferences ->
             preferences[APP_SETTINGS] = Gson().toJson(appSettings)
+        }
+    }
+
+    override suspend fun saveCurrentUser(user: UserEntity) {
+        context.dataStore.edit { preferences ->
+            preferences[CURRENT_USER] = Gson().toJson(user)
+        }
+    }
+
+    override suspend fun saveUserToken(token: String) {
+        context.dataStore.edit { preferences ->
+            preferences[TOKEN] = token
         }
     }
 

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">АвтоВыкуп</string>
     <string name="stop">Остановить</string>
-    <string name="sms_was_sent">Код был отправлен на номер</string>
+    <string name="sms_was_sent">Код был отправлен на номер:</string>
     <string name="app_description">Автоматически отправляйте сообщения о покупке авто при снижении цены</string>
     <string name="proceed">Продолжить</string>
     <string name="api_error_message">Ошибка при обработке ответа от сервера</string>
@@ -10,4 +10,11 @@
     <string name="label_ok">ОК</string>
     <string name="cancel">Отменить</string>
     <string name="loading">Загрузка</string>
+    <string name="main">Главная</string>
+    <string name="profile">Профиль</string>
+    <string name="no">Нет</string>
+    <string name="yes">Да</string>
+    <string name="notification_permissions_required">Необходимо разрешение на показ уведомлений</string>
+    <string name="allow">Разрешить</string>
+    <string name="scenarios">Сценарии</string>
 </resources>
