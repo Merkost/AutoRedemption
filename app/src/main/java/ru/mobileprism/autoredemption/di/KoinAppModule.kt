@@ -22,7 +22,7 @@ val koinAppModule = module {
     }
 
     viewModel { PhoneEnteringViewModel(authRepository = get()) }
-    viewModel { SmsVerificationViewModel(it.get(), authRepository = get()) }
+    viewModel { SmsVerificationViewModel(appSettings = get(), authRepository = get(), phoneAuth = get()) }
 
 
 }

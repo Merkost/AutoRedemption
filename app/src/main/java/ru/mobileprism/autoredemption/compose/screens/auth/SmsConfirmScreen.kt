@@ -34,6 +34,8 @@ import ru.mobileprism.autoredemption.viewmodels.SmsVerificationViewModel
 import org.koin.androidx.compose.viewModel
 import org.koin.core.parameter.parametersOf
 import ru.mobileprism.autoredemption.R
+import ru.mobileprism.autoredemption.compose.custom.MainButton
+import ru.mobileprism.autoredemption.compose.custom.ModalLoadingDialog
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.utils.BaseViewState
 
@@ -47,6 +49,11 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, onNext: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
     val smsCode = viewModel.smsCode.collectAsState()
     val retrySecs = viewModel.retrySecs.collectAsState()
+
+    ModalLoadingDialog(
+        onDismiss = { viewModel.cancelLoading() },
+        isLoading = uiState is BaseViewState.Loading
+    )
 
     /*LaunchedEffect(uiState) {
         when (val state = uiState) {
@@ -90,6 +97,12 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, onNext: () -> Unit) {
                     append(
                         AnnotatedString(context.getString(R.string.sms_was_sent) + " ${phoneAuth.phone}")
                     )
+                    addStyle(
+                        SpanStyle(
+                            fontSize = MaterialTheme.typography.h4.fontSize,
+                            ), start = 0,
+                        end = context.getString(R.string.sms_was_sent).length
+                    )
 
                     addStyle(
                         SpanStyle(
@@ -102,7 +115,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, onNext: () -> Unit) {
                     )
                 })
                 Spacer(modifier = Modifier.size(16.dp))
-                Text(text = "Введите его ниже", style = MaterialTheme.typography.body2)
+                Text(text = "Введите его ниже", style = MaterialTheme.typography.body1)
 
             }
 
@@ -131,11 +144,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, onNext: () -> Unit) {
                             }
                         }
                     },
-                    textStyle = TextStyle(
-                        MaterialTheme.colors.onSurface, fontSize = 24.sp,
-                        textAlign = TextAlign.Start, fontWeight = FontWeight.SemiBold,
-                        letterSpacing = 4.sp,
-                    ),
+                    textStyle = MaterialTheme.typography.h5,
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
@@ -146,17 +155,15 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, onNext: () -> Unit) {
                     }),
                     isError = viewModel.isError.value
                 )
-                Crossfade(targetState = retrySecs.value) { secs ->
-                    when(secs) {
-                        0 -> {
-                            TextButton(onClick = viewModel::retry) {
-                                Text(text = "Запросить код повторно")
-                            }
+                when (retrySecs.value) {
+                    0 -> {
+                        TextButton(onClick = viewModel::retry) {
+                            Text(text = "Запросить код повторно")
                         }
-                        else -> {
-                            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.disabled) {
-                                Text(text = "Запросить код повторно можно через: ${secs ?: ""}")
-                            }
+                    }
+                    else -> {
+                        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.disabled) {
+                            Text(text = "Запросить код повторно можно через: ${retrySecs.value}")
                         }
                     }
                 }
@@ -168,7 +175,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, onNext: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Button(
+                MainButton(
                     modifier = Modifier,
                     content = {
                         Text(text = "Продолжить")

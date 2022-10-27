@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.viewModel
 import ru.mobileprism.autoredemption.R
+import ru.mobileprism.autoredemption.compose.custom.MainButton
 import ru.mobileprism.autoredemption.compose.custom.ModalLoadingDialog
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.utils.BaseViewState
@@ -106,7 +107,7 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
             ) {
                 Text(
                     text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.h5
+                    style = MaterialTheme.typography.h4,
                 )
                 Text(text = stringResource(R.string.app_description))
             }
@@ -162,7 +163,7 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Button(
+                MainButton(
                     modifier = Modifier,
                     content = { Text(text = stringResource(R.string.proceed)) },
                     onClick = onReady
@@ -173,3 +174,4 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
 
     }
 }
+

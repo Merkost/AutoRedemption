@@ -4,15 +4,12 @@ import android.Manifest
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -42,7 +39,7 @@ import ru.mobileprism.autoredemption.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun HomeScreen(toSettings: () -> Unit) {
+fun MainScreen(upPress: () -> Unit, toSettings: () -> Unit) {
 
     val settings: AppSettings = get()
     val viewModel: HomeViewModel = getViewModel()
@@ -57,11 +54,6 @@ fun HomeScreen(toSettings: () -> Unit) {
         isServiceRunning.value =
             context.isServiceRunning(ForegroundService::class.java)
     }
-
-    /*LaunchedEffect(appSettingsEntity.testNumbers) {
-        lazyState.animateScrollToItem(appSettingsEntity.testNumbers.size-1)
-    }*/
-
 
 
     val smsPermissionState = rememberPermissionState(
@@ -93,48 +85,6 @@ fun HomeScreen(toSettings: () -> Unit) {
 
         Scaffold(
             modifier = Modifier,
-            floatingActionButtonPosition = FabPosition.Center,
-            floatingActionButton = {
-                FloatingActionButton(modifier = Modifier.animateContentSize(), onClick = {
-                    when (isServiceRunning.value) {
-                        true -> {
-                            context.stopService()
-                            context.showToast("Сервис остановлен")
-
-                            isServiceRunning.value = false
-                        }
-                        false -> {
-                            //context.autoStart()
-
-                            if (smsPermissionState.hasPermission) {
-                                context.startSmsService()
-                                context.showToast("Сервис запущен")
-
-                                isServiceRunning.value = true
-                            } else {
-                                smsPermissionState.launchPermissionRequest()
-                                context.showToast("Необходимо разрешение на отправку уведомлений!")
-
-                            }
-                        }
-                    }
-                }) {
-                    Crossfade(targetState = isServiceRunning.value) {
-                        when (it) {
-                            true -> Icon(Icons.Default.Close, "")
-                            false ->
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    Text(text = "Начать отправку SMS")
-                                    Icon(Icons.Default.Send, "")
-                                }
-                        }
-                    }
-                }
-            },
             topBar = {
                 TopAppBar(title = { Text(text = "АвтоВыкуп") },
                     actions = {
@@ -151,42 +101,103 @@ fun HomeScreen(toSettings: () -> Unit) {
                     })
             }
         ) {
-            LazyColumn(
-                state = lazyState,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
+            Column() {
+                LazyColumn(
+                    state = lazyState,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .weight(1f, true)
+                        .padding(it)
 
-            ) {
-                if (appSettingsEntity.testMode) {
-                    item {
-                        Row(modifier = Modifier.padding(8.dp)) {
-                            Text(text = "Тестовый режим!", style = MaterialTheme.typography.body1)
-                        }
-                    }
-                    if (appSettingsEntity.testNumbers.isEmpty())
+                ) {
+                    if (appSettingsEntity.testMode) {
                         item {
-                            Row(modifier = Modifier.padding(32.dp)) {
-                                Text(text = "Нажмите на \"+\", чтобы добавить тестовые номера")
+                            Row(modifier = Modifier.padding(8.dp)) {
+                                Text(
+                                    text = "Тестовый режим!",
+                                    style = MaterialTheme.typography.body1
+                                )
                             }
                         }
-                    items(appSettingsEntity.testNumbers.toList().reversed()) { number ->
-                        NumberItem(
-                            number,
-                            onDelete = { viewModel.deleteTestNumber(number) }
-                        )
+                        if (appSettingsEntity.testNumbers.isEmpty())
+                            item {
+                                Row(modifier = Modifier.padding(32.dp)) {
+                                    Text(text = "Нажмите на \"+\", чтобы добавить тестовые номера")
+                                }
+                            }
+                        items(appSettingsEntity.testNumbers.toList().reversed()) { number ->
+                            NumberItem(
+                                number,
+                                onDelete = { viewModel.deleteTestNumber(number) }
+                            )
+                        }
+                    } else {
+                        items(appSettingsEntity.numbers.reversed()) { number ->
+                            NumberItem(number,
+                                onDelete = { viewModel.deleteRealNumber(number) })
+                        }
                     }
-                } else {
-                    items(appSettingsEntity.numbers.reversed()) { number ->
-                        NumberItem(number,
-                            onDelete = { viewModel.deleteRealNumber(number) })
+                    item { ListSpacer() }
+                }
+
+                Button(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
+                    onClick = {
+                        when (isServiceRunning.value) {
+                            true -> {
+                                context.stopService()
+                                context.showToast("Сервис остановлен")
+
+                                isServiceRunning.value = false
+                            }
+                            false -> {
+                                context.autoStart()
+
+                                if (smsPermissionState.hasPermission) {
+                                    context.startSmsService()
+                                    context.showToast("Сервис запущен")
+
+                                    isServiceRunning.value = true
+                                } else {
+                                    smsPermissionState.launchPermissionRequest()
+                                    context.showToast("Необходимо разрешение на отправку уведомлений!")
+
+                                }
+                            }
+                        }
+                    }) {
+
+                    when (isServiceRunning.value) {
+                        true -> {
+                            Box {
+                                Icon(Icons.Default.Close, "")
+                            }
+                        }
+                        false -> {
+                            Box {
+
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Text(text = "Начать отправку SMS")
+                                    Icon(Icons.Default.Send, "")
+                                }
+                            }
+                        }
                     }
                 }
-                item { Spacer(modifier = Modifier.size(200.dp)) }
             }
         }
     }
+}
+
+@Composable
+fun ListSpacer() {
+    Spacer(modifier = Modifier.size(180.dp))
 }
 
 
