@@ -4,15 +4,15 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
-import dagger.hilt.android.HiltAndroidApp
+import androidx.annotation.RequiresApi
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import ru.mobileprism.autoredemption.di.koinAppModule
 import ru.mobileprism.autoredemption.di.networkModule
+import ru.mobileprism.autoredemption.workmanager.ForegroundService
 
-@HiltAndroidApp
 class BaseApp : Application() {
 
     override fun onCreate() {
@@ -25,7 +25,6 @@ class BaseApp : Application() {
                 listOf(
                     networkModule,
                     koinAppModule,
-
                     )
             )
         }
@@ -40,6 +39,7 @@ class BaseApp : Application() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun createMainNotificationChannel() {
         val name = applicationContext.packageName
         val descriptionText = applicationContext.packageName
@@ -52,6 +52,7 @@ class BaseApp : Application() {
         notificationManager.createNotificationChannel(mChannel)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun createServiceNotificationChannel() {
         val name = ForegroundService.CHANNEL_ID
         val descriptionText = applicationContext.packageName

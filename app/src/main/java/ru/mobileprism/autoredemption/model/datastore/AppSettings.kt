@@ -17,7 +17,7 @@ interface AppSettings {
     //val smsSettings: Flow<SmsSettingsEntity>
     val lastTimeSmsSent: Flow<LocalDateTime>
     val messagesDelay: Flow<Long>
-    suspend fun saveCurrentUser(user: UserEntity)
+    suspend fun saveCurrentUser(user: UserEntity?)
     suspend fun saveUserToken(token: String)
     suspend fun saveMessagesDelay(timeMillis: Long)
     suspend fun saveLastTimeSmsSent(dateTime: LocalDateTime)

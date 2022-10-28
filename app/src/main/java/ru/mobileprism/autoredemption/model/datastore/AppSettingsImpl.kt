@@ -29,8 +29,8 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
 
     override val getCurrentUserNullable: Flow<UserEntity?> = context.dataStore.data
         .map { preferences ->
-            Gson().fromJson(preferences[CURRENT_USER], UserEntity::class.java)
-                ?: null
+            val user = Gson().fromJson(preferences[CURRENT_USER], UserEntity::class.java)
+            user
         }
 
     override val getCurrentUser: Flow<UserEntity> = context.dataStore.data
@@ -56,7 +56,7 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
         }
     }
 
-    override suspend fun saveCurrentUser(user: UserEntity) {
+    override suspend fun saveCurrentUser(user: UserEntity?) {
         context.dataStore.edit { preferences ->
             preferences[CURRENT_USER] = Gson().toJson(user)
         }
