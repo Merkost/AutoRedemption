@@ -21,7 +21,7 @@ import ru.mobileprism.autoredemption.resources
  */
 object MainDestinations {
     val HOME = "home"
-    val LOGIN_ROUTE: String = "LOGIN"
+    val AUTH_ROUTE: String = "LOGIN"
     val REGISTRATION_ROUTE: String = "REGISTRATION"
     val LOGS: String = "LOGS"
     val SETTINGS: String = "SETTINGS"

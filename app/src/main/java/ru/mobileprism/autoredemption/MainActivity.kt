@@ -3,45 +3,99 @@ package ru.mobileprism.autoredemption
 import android.app.NotificationManager
 import android.content.Context
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import ru.mobileprism.autoredemption.utils.checkNotificationPolicyAccess
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import ru.mobileprism.autoredemption.compose.AutoBotApp
-import kotlinx.coroutines.InternalCoroutinesApi
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import ru.mobileprism.autoredemption.compose.MainDestinations
 import ru.mobileprism.autoredemption.compose.screens.*
+import ru.mobileprism.autoredemption.compose.screens.auth.AuthState
 import ru.mobileprism.autoredemption.ui.theme.AutoRedemptionTheme
 
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalPermissionsApi::class,
-        ExperimentalAnimationApi::class, ExperimentalMaterialApi::class,
-        InternalCoroutinesApi::class
-    )
+
+
+    companion object {
+        const val splashFadeDurationMillis = 350
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val viewModel: MainActivityViewModel = getViewModel()
+        val authState = viewModel.authState
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        installSplashScreen().apply {
+            setKeepOnScreenCondition { authState.value == null }
+            setOnExitAnimationListener { splashScreenViewProvider ->
+                // Get icon instance and start a fade out animation
+                if (Build.VERSION.SDK_INT >= 31) {
+                    splashScreenViewProvider.view
+                        .animate()
+                        .setDuration(splashFadeDurationMillis.toLong())
+                        .alpha(0f)
+                        .start()
+                }
+
+                splashScreenViewProvider.iconView
+                    .animate()
+                    .setDuration(splashFadeDurationMillis.toLong())
+                    .alpha(0f)
+                    /*.scaleX(50f)
+                    .scaleY(50f)*/
+                    .withEndAction {
+                        splashScreenViewProvider.remove()
+                        if (Build.VERSION.SDK_INT < 31) {
+                            setContent {
+                                Distribution(authState.collectAsState())
+                            }
+                        }
+                    }
+                    .start()
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= 31) {
+            setContent {
+                Distribution(authState.collectAsState())
+            }
+        }
+
+    }
+
+    @Composable
+    fun Distribution(authState: State<AuthState?>) {
 
         val notificationManager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        setContent {
-            AutoRedemptionTheme {
-                checkNotificationPolicyAccess(notificationManager, this)
-                AutoBotApp()
+        AutoRedemptionTheme {
+            Crossfade(targetState = authState.value) { auth ->
+                when (auth) {
+                    AuthState.Logged -> {
+                        checkNotificationPolicyAccess(notificationManager, this)
+                        AutoBotApp()
+                    }
+                    AuthState.NotLogged, null -> {
+                        AutoBotApp(startRoute = MainDestinations.AUTH_ROUTE)
+                    }
+                }
             }
         }
     }
+
 }
 
 
