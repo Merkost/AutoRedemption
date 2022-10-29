@@ -3,7 +3,6 @@ package ru.mobileprism.autoredemption.compose.screens
 import android.Manifest
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,15 +25,16 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
-import ru.mobileprism.autoredemption.*
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
 import ru.mobileprism.autoredemption.utils.*
 import ru.mobileprism.autoredemption.viewmodels.HomeViewModel
+import ru.mobileprism.autoredemption.workmanager.ForegroundService
 
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterialApi::class)
@@ -155,7 +155,7 @@ fun MainScreen(upPress: () -> Unit, toSettings: () -> Unit) {
                             false -> {
                                 context.autoStart()
 
-                                if (smsPermissionState.hasPermission) {
+                                if (smsPermissionState.status.isGranted) {
                                     context.startSmsService()
                                     context.showToast("Сервис запущен")
 

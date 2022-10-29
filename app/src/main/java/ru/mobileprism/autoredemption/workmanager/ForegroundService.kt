@@ -1,4 +1,4 @@
-package ru.mobileprism.autoredemption
+package ru.mobileprism.autoredemption.workmanager
 
 
 import android.app.*
@@ -13,7 +13,8 @@ import androidx.core.app.NotificationCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkManager
 import com.crazylegend.crashyreporter.CrashyReporter
-import ru.mobileprism.autoredemption.workmanager.SendSMSWorker
+import ru.mobileprism.autoredemption.MainActivity
+import ru.mobileprism.autoredemption.R
 
 
 class ForegroundService : Service() {

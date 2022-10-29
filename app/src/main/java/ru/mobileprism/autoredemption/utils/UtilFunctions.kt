@@ -16,9 +16,9 @@ import android.telephony.SmsManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
-import ru.mobileprism.autoredemption.ForegroundService
+import ru.mobileprism.autoredemption.workmanager.ForegroundService
 import ru.mobileprism.autoredemption.R
 
 
@@ -127,6 +127,12 @@ fun Context.autoStart() {
 
 fun Context.showToast(text: String, length: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(applicationContext, text, length).show()
+}
+
+fun Context.showError(errorState: BaseViewState.Error) {
+    errorState.stringRes?.let {
+        showToast(getString(it))
+    } ?: showToast(errorState.text ?: getString(R.string.api_error_message))
 }
 
 fun Context.showError(text: String?) {

@@ -1,5 +1,6 @@
 package ru.mobileprism.autoredemption.compose.screens.home
 
+import android.util.Config.PROFILE
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -29,11 +30,6 @@ import ru.mobileprism.autoredemption.compose.screens.MainScreen
 import ru.mobileprism.autoredemption.model.datastore.UserEntity
 import ru.mobileprism.autoredemption.type.User
 
-@ExperimentalCoroutinesApi
-@ExperimentalPermissionsApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@InternalCoroutinesApi
 fun NavGraphBuilder.addHomeGraph(
     navController: NavController,
     modifier: Modifier = Modifier,
@@ -61,12 +57,9 @@ fun NavGraphBuilder.addHomeGraph(
 
 @Composable
 fun ScenariosScreen(upPress: () -> Unit) {
-    val coroutineScope = rememberCoroutineScope()
-    val user = remember {
-        mutableStateOf(UserEntity())
-    }
 
     Scaffold {
+
     }
 
 }
@@ -79,8 +72,8 @@ enum class HomeSections(
     val route: String
 ) {
     MAIN(R.string.main, Icons.Outlined.Home, "home/main"),
+    SCENARIOS(R.string.scenarios, Icons.Outlined.Menu, "home/scenarios"),
     PROFILE(R.string.profile, Icons.Outlined.Person, "home/profile"),
-    SCENARIOS(R.string.scenarios, Icons.Outlined.Menu, "home/scenarios")
 }
 
 @Composable

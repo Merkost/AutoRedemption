@@ -2,10 +2,10 @@ package ru.mobileprism.autoredemption.compose.screens
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import ru.mobileprism.autoredemption.compose.MainDestinations
 import ru.mobileprism.autoredemption.compose.screens.auth.PhoneEnteringScreen
+import ru.mobileprism.autoredemption.compose.screens.auth.SmsConfirmScreen
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.utils.navigate
 import ru.mobileprism.autoredemption.utils.requiredArg
@@ -34,9 +34,9 @@ fun NavGraphBuilder.addAuthGraph(
 
     composable(LoginDestinations.SMS_CONFIRM_ROUTE) {
         val phoneAuthEntity = it.requiredArg<PhoneAuthEntity>(LoginArguments.PHONE_AUTH)
-        SmsConfirmScreen(phoneAuthEntity) {
+        SmsConfirmScreen(phoneAuthEntity, upPress = upPress) {
             navController.navigate(MainDestinations.HOME) {
-                popUpTo(MainDestinations.LOGIN_ROUTE) {
+                popUpTo(MainDestinations.AUTH_ROUTE) {
                     inclusive = true
                 }
             }

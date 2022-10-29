@@ -14,5 +14,5 @@ object Constants {
     const val AUTH_TAG = "AUTHENTICATION"
 
     val isDebug: Boolean
-        get() = false/*BuildConfig.DEBUG*/
+        get() = true/*BuildConfig.DEBUG*/
 }

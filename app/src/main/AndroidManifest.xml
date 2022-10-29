@@ -15,8 +15,6 @@
     <application
         android:name=".BaseApp"
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
@@ -36,7 +34,7 @@
             </intent-filter>
         </receiver>
         <service
-            android:name=".ForegroundService"
+            android:name=".workmanager.ForegroundService"
             android:enabled="true"
             android:foregroundServiceType="phoneCall"
             android:exported="false">

@@ -17,4 +17,5 @@
     <string name="notification_permissions_required">Необходимо разрешение на показ уведомлений</string>
     <string name="allow">Разрешить</string>
     <string name="scenarios">Сценарии</string>
+    <string name="server_error">Не удается связаться с сервером. Повторите попытку позже.</string>
 </resources>

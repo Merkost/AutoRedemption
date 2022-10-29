@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CrueltyFree
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -56,11 +57,8 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
                 viewModel.resetState()
             }
             is BaseViewState.Error -> {
-                context.applicationContext.showError(state.text)
-                if (Constants.isDebug) {
-                    onNext(PhoneAuthEntity("","+70009990090"))
-                    viewModel.resetState()
-                }
+                context.applicationContext.showError(state)
+                viewModel.resetState()
             }
             else -> {}
         }
@@ -93,10 +91,20 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding()
-            .imePadding()
+            .imePadding(),
+        topBar = {
+            AuthTopAppBar(actions = {
+                IconButton(onClick = { viewModel.loginTestUser() }) {
+                    Icon(Icons.Default.CrueltyFree, "")
+                }
+            })
+        }
     ) {
+
         Column(
-            modifier = Modifier.padding(30.dp),
+            modifier = Modifier
+                .padding(30.dp)
+                .padding(it),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {

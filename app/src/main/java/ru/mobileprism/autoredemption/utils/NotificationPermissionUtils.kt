@@ -16,7 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationManagerCompat
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.compose.custom.DefaultDialog
 
@@ -26,15 +28,11 @@ fun checkNotificationPolicyAccess(
     notificationManager: NotificationManager,
     context: Context
 ): Boolean {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        if (notificationManager.areNotificationsEnabled()) {
-            return true
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) PermissionDialog(context)
-            else OldPermissionDialog(context = context)
-        }
-    } else if (NotificationManagerCompat.from(context).areNotificationsEnabled().not()) {
-        OldPermissionDialog(context)
+    if (notificationManager.areNotificationsEnabled()) {
+        return true
+    } else {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) PermissionDialog(context)
+        else OldPermissionDialog(context = context)
     }
     return false
 }
@@ -47,8 +45,8 @@ private fun PermissionDialog(context: Context) {
     val smsPermissions =
         rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
 
-    LaunchedEffect(smsPermissions.hasPermission) {
-        if (smsPermissions.hasPermission) {
+    LaunchedEffect(smsPermissions.status) {
+        if (smsPermissions.status.isGranted) {
             openDialog.value = false
         }
     }
@@ -61,7 +59,7 @@ private fun PermissionDialog(context: Context) {
             positiveButtonText = stringResource(R.string.allow),
             negativeButtonText = stringResource(R.string.cancel),
             onPositiveClick = {
-                if (smsPermissions.shouldShowRationale) {
+                if (smsPermissions.status.shouldShowRationale) {
                     context.startSmsSettings()
                 } else {
                     smsPermissions.launchPermissionRequest()
