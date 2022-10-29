@@ -18,6 +18,20 @@ type User {
   lastname: String
 }
 
+type Admin {
+  _id: ID!
+
+  phone: String!
+
+  createdAt: String!
+
+  readOnly: Boolean!
+
+  firstname: String
+
+  lastname: String
+}
+
 type VerifyPhoneResponse {
   success: Boolean!
 
@@ -30,18 +44,30 @@ type AuthResponse {
   user: User!
 }
 
+type AdminAuthResponse {
+  token: String!
+
+  admin: Admin!
+}
+
 type Query {
   getUsers: [User]
 
-  getUserById(_id: ID!): User
-
-  getUserByPhone(phone: String!): User
+  getUser(_id: ID!): User
 }
 
 type Mutation {
+  verifyAdminPhone(phone: String!): VerifyPhoneResponse
+
+  confirmAdminSms(phone: String!, code: String!): AdminAuthResponse
+
   verifyPhone(phone: String!): VerifyPhoneResponse
 
   confirmSms(phone: String!, code: String!): AuthResponse
+
+  updateUser(phone: String, firstname: String, lastname: String): User
+
+  deleteUser(_id: ID!): String
 }
 
 schema {

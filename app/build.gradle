@@ -5,7 +5,7 @@ plugins {
     id 'kotlin-kapt'
     id 'org.jetbrains.kotlin.android'
 //    id 'com.google.dagger.hilt.android'
-    id("com.apollographql.apollo3").version("3.6.0")
+    id "com.apollographql.apollo3" version "3.6.0"
 }
 
 android {
@@ -38,7 +38,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerExtensionVersion = compose_compiler
     }
     packagingOptions {
         resources {
@@ -145,6 +145,9 @@ dependencies {
 
     //CollectAsStateWithLifecycle
     implementation "androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha03"
+
+    //MaterialTheme
+    implementation 'com.google.android.material:material:1.7.0'
 
 
 }
