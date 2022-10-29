@@ -11,7 +11,7 @@ data class UserEntity(
     val _id: String = "0",
     val phone: String = "+71234567890",
     val createdAt: String = OffsetDateTime.now().toString(),
-    val subscriptionStatus: SubscriptionStatus? = SubscriptionStatus(false, OffsetDateTime.now()),
+    val subscriptionStatus: SubscriptionStatus? = SubscriptionStatus(false, OffsetDateTime.now().toString()),
     val firstname: String? = null,
     val lastname: String? = null,
 ) : Parcelable
@@ -19,5 +19,5 @@ data class UserEntity(
 @Parcelize
 data class SubscriptionStatus(
     val isActive: Boolean,
-    val subscriptionEnds: OffsetDateTime,
+    val subscriptionEnds: String,
 ) : Parcelable
