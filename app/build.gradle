@@ -140,6 +140,12 @@ dependencies {
     //SplashScreen
     implementation "androidx.core:core-splashscreen:1.0.0"
 
+    //Accompanist
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
+
+    //CollectAsStateWithLifecycle
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha03"
+
 
 }
 

@@ -1,10 +1,12 @@
 package ru.mobileprism.autoredemption.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 
 private val DarkColorPalette = darkColors(
     primary = Purple200,
@@ -37,6 +39,21 @@ fun AutoRedemptionTheme(
     } else {
         LightColorPalette
     }
+
+    val systemUiController = rememberSystemUiController()
+    SideEffect {
+        systemUiController.apply {
+            if (darkTheme) {
+                setSystemBarsColor(color = colors.surface)
+                //setStatusBarColor(color = colors.primaryVariant)
+            } else {
+                setSystemBarsColor(color = colors.surface)
+                //setStatusBarColor(color = colors.primary)
+            }
+        }
+
+    }
+
 
     MaterialTheme(
         colors = colors,
