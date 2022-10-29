@@ -19,7 +19,6 @@ object UserMapper {
                 mapDbSubscriptionStatus(subscriptionStatus),
                 firstname,
                 lastname,
-
                 )
         }
 

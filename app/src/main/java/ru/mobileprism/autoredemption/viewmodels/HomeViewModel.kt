@@ -12,7 +12,7 @@ class HomeViewModel(val appSettings: AppSettings) : ViewModel() {
 
 
     private val appSettingsEntity = appSettings.appSettingsEntity
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AppSettingsEntity())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, AppSettingsEntity())
 
 
     fun addRealNumber(number: String) {

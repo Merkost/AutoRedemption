@@ -1,28 +1,48 @@
 package ru.mobileprism.autoredemption.di
 
-import ru.mobileprism.autoredemption.viewmodels.SmsVerificationViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import ru.mobileprism.autoredemption.MainActivityViewModel
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsImpl
 import ru.mobileprism.autoredemption.model.repository.AuthRepository
 import ru.mobileprism.autoredemption.model.repository.AuthRepositoryImpl
-import ru.mobileprism.autoredemption.viewmodels.HomeViewModel
-import ru.mobileprism.autoredemption.viewmodels.PhoneEnteringViewModel
+import ru.mobileprism.autoredemption.utils.CurrentUserHandler
+import ru.mobileprism.autoredemption.viewmodels.*
+import java.util.logging.Logger
 
 val koinAppModule = module {
 
     single<AppSettings> { AppSettingsImpl(androidContext()) }
 
-    factory<AuthRepository> { AuthRepositoryImpl(get()) }
+
+    single<AuthRepository> { AuthRepositoryImpl(get()) }
+
+    single<AuthManager> { AuthManagerImpl(appSettings = get()) }
+
+    single { CurrentUserHandler(appSettings = get()) }
+
+    viewModel {
+        MainActivityViewModel(appSettings = get())
+    }
+
+    viewModel {
+        ProfileViewModel(authManager = get())
+    }
 
     viewModel {
         HomeViewModel(appSettings = get())
     }
 
-    viewModel { PhoneEnteringViewModel(authRepository = get()) }
-    viewModel { SmsVerificationViewModel(appSettings = get(), authRepository = get(), phoneAuth = get()) }
+    viewModel { PhoneEnteringViewModel(authRepository = get(), authManager = get()) }
+    viewModel {
+        SmsVerificationViewModel(
+            authManager = get(),
+            authRepository = get(),
+            phoneAuth = get()
+        )
+    }
 
 
 }

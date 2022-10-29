@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import ru.mobileprism.autoredemption.compose.screens.auth.AuthState
 import ru.mobileprism.autoredemption.utils.Constants
 import java.time.LocalDateTime
 
@@ -27,11 +28,16 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
 
     }
 
-    override val getCurrentUserNullable: Flow<UserEntity?> = context.dataStore.data
+    override val authState: Flow<AuthState> = context.dataStore.data
         .map { preferences ->
             val user = Gson().fromJson(preferences[CURRENT_USER], UserEntity::class.java)
-            user
+            val token = preferences[TOKEN]
+
+            if (user == null || token == null) { AuthState.NotLogged }
+            else AuthState.Logged
         }
+
+
 
     override val getCurrentUser: Flow<UserEntity> = context.dataStore.data
         .map { preferences ->
@@ -45,9 +51,9 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
                 ?: AppSettingsEntity()
         }
 
-    override val getUserToken: Flow<String> = context.dataStore.data
+    override val getUserToken: Flow<String?> = context.dataStore.data
         .map { preferences ->
-            preferences[TOKEN] ?: ""
+            preferences[TOKEN]
         }
 
     override suspend fun saveAppSettings(appSettings: AppSettingsEntity) {
@@ -62,9 +68,9 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
         }
     }
 
-    override suspend fun saveUserToken(token: String) {
+    override suspend fun saveUserToken(token: String?) {
         context.dataStore.edit { preferences ->
-            preferences[TOKEN] = token
+            preferences[TOKEN]
         }
     }
 

@@ -10,7 +10,7 @@ import java.time.OffsetDateTime
 data class UserEntity(
     val _id: String = "0",
     val phone: String = "+71234567890",
-    val createdAt: String = LocalDateTime.now().toString(),
+    val createdAt: String = OffsetDateTime.now().toString(),
     val subscriptionStatus: SubscriptionStatus? = SubscriptionStatus(false, OffsetDateTime.now()),
     val firstname: String? = null,
     val lastname: String? = null,

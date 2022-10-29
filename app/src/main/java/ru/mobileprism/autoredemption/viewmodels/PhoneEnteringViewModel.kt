@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ru.mobileprism.autoredemption.R
+import ru.mobileprism.autoredemption.model.ServerError
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
@@ -19,7 +21,10 @@ import ru.mobileprism.autoredemption.utils.Constants.PHONE_DEFAULT_VALUE
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-class PhoneEnteringViewModel(val authRepository: AuthRepository) : ViewModel() {
+class PhoneEnteringViewModel(
+    private val authRepository: AuthRepository,
+    private val authManager: AuthManager
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BaseViewState<PhoneAuthEntity>?>(null)
     val uiState = _uiState.asStateFlow()
@@ -74,10 +79,14 @@ class PhoneEnteringViewModel(val authRepository: AuthRepository) : ViewModel() {
                     }
                 },
                 onFailure = { error ->
-                    _uiState.update { BaseViewState.Error(error.message) }
+                    if (error is ServerError) {
+                        _uiState.update { BaseViewState.Error(error.message, stringRes = R.string.server_error) }
+                    } else {
+                        // TODO:  
+                        _uiState.update { BaseViewState.Error(error.message) }
+                    }
                 }
             )
-            Log.d(Constants.AUTH_TAG, result.toString())
         }
     }
 
@@ -96,5 +105,11 @@ class PhoneEnteringViewModel(val authRepository: AuthRepository) : ViewModel() {
         return if (m.find()) {
             m.group(0) ?: ""
         } else ""
+    }
+
+    fun loginTestUser() {
+        viewModelScope.launch {
+            authManager.loginTestUser()
+        }
     }
 }
