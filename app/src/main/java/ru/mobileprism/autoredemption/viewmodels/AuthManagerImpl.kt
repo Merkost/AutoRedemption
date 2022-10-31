@@ -1,28 +1,26 @@
 package ru.mobileprism.autoredemption.viewmodels
 
-import kotlinx.coroutines.flow.Flow
-import ru.mobileprism.autoredemption.ConfirmSmsMutation
-import ru.mobileprism.autoredemption.VerifyPhoneMutation
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
+import ru.mobileprism.autoredemption.model.datastore.UserDatastore
 import ru.mobileprism.autoredemption.model.datastore.UserEntity
 
-class AuthManagerImpl(private val appSettings: AppSettings): AuthManager {
+class AuthManagerImpl(private val userDatastore: UserDatastore): AuthManager {
 
-    private val testUser = UserEntity()
 
     override suspend fun saveUserWithToken(user: UserEntity, token: String) {
-        appSettings.saveCurrentUser(user)
-        appSettings.saveUserToken(token)
+        userDatastore.saveCurrentUser(user)
+        userDatastore.saveUserToken(token)
     }
 
     override suspend fun loginTestUser() {
-        appSettings.saveCurrentUser(testUser)
-        appSettings.saveUserToken("")
+        userDatastore.saveUserToken("test")
+        userDatastore.saveCurrentUser(UserEntity())
+
     }
 
     override suspend fun logout() {
-        appSettings.saveCurrentUser(null)
-        appSettings.saveUserToken("")
+        userDatastore.saveCurrentUser(null)
+        userDatastore.saveUserToken(null)
     }
 
 }

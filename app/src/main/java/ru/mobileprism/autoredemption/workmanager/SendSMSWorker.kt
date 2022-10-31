@@ -94,7 +94,7 @@ class SendSMSWorker(appContext: Context, workerParams: WorkerParameters) :
                 applicationContext,
                 applicationContext.packageName
             )
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setContentTitle("Отправляем сообщения")
                 .setProgress(100, 0, true)
                 .setOngoing(true)

@@ -8,14 +8,15 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
+import ru.mobileprism.autoredemption.model.datastore.UserDatastore
 import ru.mobileprism.autoredemption.model.datastore.UserEntity
 
-class CurrentUserHandler(appSettings: AppSettings): LifecycleEventObserver {
+class CurrentUserHandler(userDatastore: UserDatastore): LifecycleEventObserver {
 
     private val job = SupervisorJob()
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
-    val currentUser = appSettings.getCurrentUser
+    val currentUser = userDatastore.getCurrentUser
         .stateIn(coroutineScope, SharingStarted.Eagerly, UserEntity())
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {

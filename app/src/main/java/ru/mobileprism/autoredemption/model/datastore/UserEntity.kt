@@ -4,6 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
+import java.time.ZonedDateTime
 
 
 @Parcelize

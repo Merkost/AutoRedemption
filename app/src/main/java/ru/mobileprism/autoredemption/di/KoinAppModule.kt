@@ -6,25 +6,27 @@ import org.koin.dsl.module
 import ru.mobileprism.autoredemption.MainActivityViewModel
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsImpl
+import ru.mobileprism.autoredemption.model.datastore.UserDatastore
+import ru.mobileprism.autoredemption.model.datastore.UserDatastoreImpl
 import ru.mobileprism.autoredemption.model.repository.AuthRepository
 import ru.mobileprism.autoredemption.model.repository.AuthRepositoryImpl
 import ru.mobileprism.autoredemption.utils.CurrentUserHandler
 import ru.mobileprism.autoredemption.viewmodels.*
-import java.util.logging.Logger
 
 val koinAppModule = module {
 
     single<AppSettings> { AppSettingsImpl(androidContext()) }
+    single<UserDatastore> { UserDatastoreImpl(androidContext()) }
 
 
     single<AuthRepository> { AuthRepositoryImpl(get()) }
 
-    single<AuthManager> { AuthManagerImpl(appSettings = get()) }
+    single<AuthManager> { AuthManagerImpl(userDatastore = get()) }
 
-    single { CurrentUserHandler(appSettings = get()) }
+    single { CurrentUserHandler(userDatastore = get()) }
 
     viewModel {
-        MainActivityViewModel(appSettings = get())
+        MainActivityViewModel(userDatastore = get())
     }
 
     viewModel {

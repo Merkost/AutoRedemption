@@ -23,12 +23,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.InternalCoroutinesApi
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.compose.MainDestinations
 import ru.mobileprism.autoredemption.compose.screens.MainScreen
-import ru.mobileprism.autoredemption.model.datastore.UserEntity
-import ru.mobileprism.autoredemption.type.User
 
 fun NavGraphBuilder.addHomeGraph(
     navController: NavController,

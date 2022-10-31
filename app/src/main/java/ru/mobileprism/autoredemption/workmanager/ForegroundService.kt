@@ -65,7 +65,7 @@ class ForegroundService : Service() {
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("SMS-Сервис активен")
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .addAction(R.drawable.ic_launcher_foreground, getString(R.string.stop), pStopSelf)
+            .addAction(R.mipmap.ic_launcher_foreground, getString(R.string.stop), pStopSelf)
             //.setContentText(input)
             .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setOngoing(true)

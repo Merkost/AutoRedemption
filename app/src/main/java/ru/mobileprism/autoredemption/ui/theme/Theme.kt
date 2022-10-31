@@ -44,11 +44,11 @@ fun AutoRedemptionTheme(
     SideEffect {
         systemUiController.apply {
             if (darkTheme) {
-                setSystemBarsColor(color = colors.surface)
-                //setStatusBarColor(color = colors.primaryVariant)
+                //setSystemBarsColor(color = colors.surface)
+                setStatusBarColor(color = colors.surface)
             } else {
-                setSystemBarsColor(color = colors.surface)
-                //setStatusBarColor(color = colors.primary)
+                setSystemBarsColor(color = colors.primaryVariant)
+                //setStatusBarColor(color = colors.primaryVariant)
             }
         }
 

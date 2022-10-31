@@ -27,7 +27,7 @@ object UserMapper {
     ) = with(subscriptionStatus) {
         SubscriptionStatus(
             isActive,
-            OffsetDateTime.now()
+            OffsetDateTime.now().toString()
             // TODO:  subscriptionEnds.toOffsetDateTime
         )
     }

@@ -20,6 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import ru.mobileprism.autoredemption.workmanager.ForegroundService
 import ru.mobileprism.autoredemption.R
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 
 @Suppress("DEPRECATION") // Deprecated for third party Services.
@@ -138,3 +140,9 @@ fun Context.showError(errorState: BaseViewState.Error) {
 fun Context.showError(text: String?) {
     showToast(text ?: getString(R.string.api_error_message))
 }
+
+val String.toLocalDateTimeOrNull: LocalDateTime?
+    get() = kotlin.runCatching { LocalDateTime.parse(this) }.getOrNull()
+
+val String.toZonedDateTimeOrNull: ZonedDateTime?
+    get() = kotlin.runCatching { ZonedDateTime.parse(this) }.getOrNull()

@@ -1,5 +1,6 @@
 package ru.mobileprism.autoredemption.viewmodels
 
+import kotlinx.coroutines.flow.Flow
 import ru.mobileprism.autoredemption.model.datastore.UserEntity
 
 interface AuthManager {

@@ -8,14 +8,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.StateFlow
 import ru.mobileprism.autoredemption.utils.checkNotificationPolicyAccess
 import ru.mobileprism.autoredemption.compose.AutoBotApp
 import org.koin.androidx.viewmodel.ext.android.getViewModel
@@ -29,76 +31,72 @@ class MainActivity : ComponentActivity() {
 
 
     companion object {
-        const val splashFadeDurationMillis = 350
+        const val splashFadeDurationMillis = 300
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val viewModel: MainActivityViewModel = getViewModel()
-        var authState : AuthState? = null
+        var authState: AuthState? = null
 
         lifecycleScope.launchWhenCreated {
-            viewModel.authState.collect {
-                authState = it
-            }
+            viewModel.authState.collect { authState = it }
         }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        val splashWasDisplayed = savedInstanceState != null
+        if(!splashWasDisplayed) {
+            installSplashScreen().apply {
+                setKeepOnScreenCondition { authState == null }
 
-        installSplashScreen().apply {
-            setKeepOnScreenCondition { authState == null }
-            setOnExitAnimationListener { splashScreenViewProvider ->
-                // Get icon instance and start a fade out animation
-                if (Build.VERSION.SDK_INT >= 31) {
+                setOnExitAnimationListener { splashScreenViewProvider ->
+                    // Get icon instance and start a fade out animation
                     splashScreenViewProvider.view
                         .animate()
                         .setDuration(splashFadeDurationMillis.toLong())
                         .alpha(0f)
                         .start()
-                }
 
-                splashScreenViewProvider.iconView
-                    .animate()
-                    .setDuration(splashFadeDurationMillis.toLong())
-                    .alpha(0f)
-                    /*.scaleX(50f)
+                    splashScreenViewProvider.iconView
+                        .animate()
+                        .setDuration(splashFadeDurationMillis.toLong())
+                        .alpha(0f)
+                        /*.scaleX(50f)
                     .scaleY(50f)*/
-                    .withEndAction {
-                        splashScreenViewProvider.remove()
-//                        if (Build.VERSION.SDK_INT < 31) {
+                        .withEndAction {
+                            splashScreenViewProvider.remove()
                             setContent {
-                                Distribution(viewModel.authState.collectAsState().value)
+                                AutoRedemptionTheme {
+                                    Distribution(viewModel.authState.collectAsState().value)
+                                }
                             }
-//                        }
-                    }
-                    .start()
+                        }
+                        .start()
+                }
+            }
+        } else {
+            setTheme(R.style.Theme_AnimatedSplashScreen)
+            setContent {
+                AutoRedemptionTheme {
+                    Distribution(viewModel.authState.collectAsState().value)
+                }
             }
         }
-//        if (Build.VERSION.SDK_INT >= 31) {
-//            setContent {
-//                Distribution(authState.collectAsState())
-//            }
-//        }
 
     }
 
     @Composable
     fun Distribution(authState: AuthState?) {
+        when (authState) {
+            AuthState.Logged -> {
+                val notificationManager: NotificationManager =
+                    getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val notificationManager: NotificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        AutoRedemptionTheme {
-            Crossfade(targetState = authState) { auth ->
-                when (auth) {
-                    AuthState.Logged -> {
-                        checkNotificationPolicyAccess(notificationManager, this)
-                        AutoBotApp()
-                    }
-                    AuthState.NotLogged, null -> {
-                        AutoBotApp(startRoute = MainDestinations.AUTH_ROUTE)
-                    }
-                }
+                checkNotificationPolicyAccess(notificationManager, this)
+                AutoBotApp()
+            }
+            AuthState.NotLogged, null -> {
+                AutoBotApp(startRoute = MainDestinations.AUTH_ROUTE)
             }
         }
     }
