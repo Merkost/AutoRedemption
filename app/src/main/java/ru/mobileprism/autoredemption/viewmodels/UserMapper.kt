@@ -7,15 +7,16 @@ import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 
 val String.toOffsetDateTime: OffsetDateTime
-    get() = ZonedDateTime.parse(this).toOffsetDateTime()
+    get() = OffsetDateTime.parse(this)
 
 object UserMapper {
     fun mapDbUser(user: ConfirmSmsMutation.User) =
         with(user) {
+            // TODO: createdAt fix
             UserEntity(
                 _id,
                 phone,
-                createdAt,
+                OffsetDateTime.now().toString()/*createdAt*/,
                 mapDbSubscriptionStatus(subscriptionStatus),
                 firstname,
                 lastname,

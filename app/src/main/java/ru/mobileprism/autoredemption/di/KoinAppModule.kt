@@ -30,7 +30,7 @@ val koinAppModule = module {
     }
 
     viewModel {
-        ProfileViewModel(authManager = get())
+        ProfileViewModel(authManager = get(), userDatastore = get())
     }
 
     viewModel {

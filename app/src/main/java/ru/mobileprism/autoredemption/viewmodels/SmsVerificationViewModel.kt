@@ -109,6 +109,7 @@ class SmsVerificationViewModel(
         viewModelScope.launch {
             _uiState.value = BaseViewState.Loading()
             delay(RETRY_DELAY)
+            // TODO: properly resend sms
             checkSmsCode()
         }
     }

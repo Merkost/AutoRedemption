@@ -35,11 +35,9 @@ import ru.mobileprism.autoredemption.viewmodels.toOffsetDateTime
 
 @Composable
 fun ProfileScreen(upPress: () -> Unit) {
-    val profileViewModel: ProfileViewModel = getViewModel()
+    val viewModel: ProfileViewModel = getViewModel()
 
-    val user = remember {
-        mutableStateOf(profileViewModel.currentUser)
-    }
+    val user = viewModel.currentUser.collectAsState()
 
     Scaffold(
         modifier = Modifier,
@@ -76,7 +74,7 @@ fun ProfileScreen(upPress: () -> Unit) {
 //            Text(text = user.value.toString())
 
             CircleButton(
-                onClick = { profileViewModel.logout() },
+                onClick = { viewModel.logout() },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(text = "Выйти из аккаунта")
