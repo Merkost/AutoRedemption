@@ -32,7 +32,6 @@ import ru.mobileprism.autoredemption.compose.custom.MainButton
 import ru.mobileprism.autoredemption.compose.custom.ModalLoadingDialog
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.utils.BaseViewState
-import ru.mobileprism.autoredemption.utils.Constants
 import ru.mobileprism.autoredemption.utils.PhoneNumberVisualTransformation
 import ru.mobileprism.autoredemption.utils.showError
 import ru.mobileprism.autoredemption.viewmodels.PhoneEnteringViewModel
@@ -67,7 +66,6 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val onReady: () -> Unit = {
-        keyboardController?.hide()
         if (isPhoneSucceed.value) viewModel.authenticate()
         else invalidPhoneDialog = true
     }
@@ -103,14 +101,15 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
 
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(30.dp)
                 .padding(it),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
 
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier,
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
@@ -131,7 +130,7 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
                     onValueChange = { newValue: String ->
                         viewModel.onPhoneSet(newValue)
                     },
-                    readOnly = uiState is BaseViewState.Loading,
+//                    readOnly = uiState is BaseViewState.Loading,
                     leadingIcon = {
                         Image(
                             painterResource(R.drawable.russian_flag),
@@ -165,18 +164,12 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
                     visualTransformation = PhoneNumberVisualTransformation()
                 )
             }
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
 
-                MainButton(
-                    modifier = Modifier,
-                    content = { Text(text = stringResource(R.string.proceed)) },
-                    onClick = onReady
-                )
-            }
+            MainButton(
+                modifier = Modifier.weight(1f, false),
+                content = { Text(text = stringResource(R.string.proceed)) },
+                onClick = onReady
+            )
 
         }
 

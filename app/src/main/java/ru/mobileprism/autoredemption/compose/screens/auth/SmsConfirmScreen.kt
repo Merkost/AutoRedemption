@@ -44,17 +44,17 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
     val viewModel: SmsVerificationViewModel by viewModel(parameters = { parametersOf(phoneAuth) })
     val context = LocalContext.current
 
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState = viewModel.uiState.collectAsState()
     val smsCode = viewModel.smsCode.collectAsState()
     val retrySecs = viewModel.retrySecs.collectAsState()
 
     ModalLoadingDialog(
         onDismiss = { viewModel.cancelLoading() },
-        isLoading = uiState is BaseViewState.Loading
+        isLoading = uiState.value is BaseViewState.Loading
     )
 
-    LaunchedEffect(uiState) {
-        when (val state = uiState) {
+    LaunchedEffect(uiState.value) {
+        when (val state = uiState.value) {
             is BaseViewState.Success -> {
                 onNext()
                 viewModel.resetState()
@@ -65,13 +65,6 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
             }
             else -> {}
         }
-    }
-
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    val onReady: () -> Unit = {
-        keyboardController?.hide()
-        viewModel.login()
     }
 
     Scaffold(
@@ -85,14 +78,15 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
     ) {
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(30.dp)
                 .padding(it),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
 
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier,
                 verticalArrangement = Arrangement.Center
             ) {
 
@@ -102,7 +96,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                     )
                     addStyle(
                         SpanStyle(
-                            fontSize = MaterialTheme.typography.h4.fontSize,
+                            fontSize = MaterialTheme.typography.h5.fontSize,
                         ), start = 0,
                         end = context.getString(R.string.sms_was_sent).length
                     )
@@ -125,8 +119,8 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
             val (textFieldCode) = remember { FocusRequester.createRefs() }
 
             Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center,
+                modifier = Modifier,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
@@ -135,7 +129,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                         .focusRequester(textFieldCode),
                     value = smsCode.value,
                     onValueChange = viewModel::onSmsCodeValueChange,
-                    readOnly = uiState is BaseViewState.Loading,
+//                    readOnly = uiState.value is BaseViewState.Loading,
                     singleLine = true,
                     trailingIcon = {
                         AnimatedVisibility(
@@ -153,27 +147,31 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                         imeAction = ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(onDone = {
-                        keyboardController?.hide()
-                        onReady()
+                        viewModel.login()
+
                     }),
                     isError = viewModel.isError.value
                 )
                 when (retrySecs.value) {
                     0 -> {
                         TextButton(onClick = viewModel::retry) {
-                            Text(text = "Запросить код повторно")
+                            Text(text = "Запросить код повторно",
+                                style = MaterialTheme.typography.body2)
                         }
                     }
                     else -> {
                         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.disabled) {
-                            Text(text = "Запросить код повторно можно через: ${retrySecs.value}")
+                            Text(
+                                text = "Повторный запрос (${retrySecs.value})",
+                                style = MaterialTheme.typography.body2
+                            )
                         }
                     }
                 }
 
             }
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f, false),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -183,7 +181,8 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                     content = {
                         Text(text = "Продолжить")
                     },
-                    onClick = onReady
+                    onClick =         viewModel::login
+
                 )
             }
 

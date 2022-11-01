@@ -15,7 +15,7 @@ object Constants {
     const val AUTH_TAG = "AUTHENTICATION"
 
     val isDebug: Boolean
-        get() = true/*BuildConfig.DEBUG*/
+        get() = false/*BuildConfig.DEBUG*/
 
     //Time
     val DAY_MONTH_YEAR_TIME = DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm")
