@@ -67,10 +67,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
         }
     }
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-
     val onReady: () -> Unit = {
-        keyboardController?.hide()
         viewModel.login()
     }
 
@@ -85,14 +82,15 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
     ) {
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(30.dp)
                 .padding(it),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
 
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier,
                 verticalArrangement = Arrangement.Center
             ) {
 
@@ -102,7 +100,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                     )
                     addStyle(
                         SpanStyle(
-                            fontSize = MaterialTheme.typography.h4.fontSize,
+                            fontSize = MaterialTheme.typography.h5.fontSize,
                         ), start = 0,
                         end = context.getString(R.string.sms_was_sent).length
                     )
@@ -125,8 +123,8 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
             val (textFieldCode) = remember { FocusRequester.createRefs() }
 
             Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center,
+                modifier = Modifier,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
@@ -153,7 +151,6 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                         imeAction = ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(onDone = {
-                        keyboardController?.hide()
                         onReady()
                     }),
                     isError = viewModel.isError.value
@@ -161,19 +158,23 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                 when (retrySecs.value) {
                     0 -> {
                         TextButton(onClick = viewModel::retry) {
-                            Text(text = "Запросить код повторно")
+                            Text(text = "Запросить код повторно",
+                                style = MaterialTheme.typography.body2)
                         }
                     }
                     else -> {
                         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.disabled) {
-                            Text(text = "Запросить код повторно можно через: ${retrySecs.value}")
+                            Text(
+                                text = "Повторный запрос (${retrySecs.value})",
+                                style = MaterialTheme.typography.body2
+                            )
                         }
                     }
                 }
 
             }
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f, false),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

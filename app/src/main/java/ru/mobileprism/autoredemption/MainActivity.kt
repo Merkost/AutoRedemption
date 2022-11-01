@@ -25,6 +25,7 @@ import ru.mobileprism.autoredemption.compose.MainDestinations
 import ru.mobileprism.autoredemption.compose.screens.*
 import ru.mobileprism.autoredemption.compose.screens.auth.AuthState
 import ru.mobileprism.autoredemption.ui.theme.AutoRedemptionTheme
+import ru.mobileprism.autoredemption.utils.BaseViewState
 
 
 class MainActivity : ComponentActivity() {
@@ -45,36 +46,42 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val splashWasDisplayed = savedInstanceState != null
-        if(!splashWasDisplayed) {
-            installSplashScreen().apply {
-                setKeepOnScreenCondition { authState == null }
 
-                setOnExitAnimationListener { splashScreenViewProvider ->
-                    // Get icon instance and start a fade out animation
+        installSplashScreen().apply {
+            setKeepOnScreenCondition {
+                authState == null
+            }
+            setOnExitAnimationListener { splashScreenViewProvider ->
+                // Get icon instance and start a fade out animation
+                if (Build.VERSION.SDK_INT >= 31) {
                     splashScreenViewProvider.view
                         .animate()
                         .setDuration(splashFadeDurationMillis.toLong())
                         .alpha(0f)
                         .start()
+                }
 
-                    splashScreenViewProvider.iconView
-                        .animate()
-                        .setDuration(splashFadeDurationMillis.toLong())
-                        .alpha(0f)
-                        /*.scaleX(50f)
+                splashScreenViewProvider.iconView
+                    .animate()
+                    .setDuration(splashFadeDurationMillis.toLong())
+                    .alpha(0f)
+                    /*.scaleX(50f)
                     .scaleY(50f)*/
-                        .withEndAction {
-                            splashScreenViewProvider.remove()
+                    .withEndAction {
+                        splashScreenViewProvider.remove()
+                        if (Build.VERSION.SDK_INT < 31) {
                             setContent {
                                 AutoRedemptionTheme {
                                     Distribution(viewModel.authState.collectAsState().value)
                                 }
                             }
                         }
-                        .start()
-                }
+                    }
+                    .start()
             }
-        } else {
+        }
+
+        if (Build.VERSION.SDK_INT >= 31) {
             setTheme(R.style.Theme_AnimatedSplashScreen)
             setContent {
                 AutoRedemptionTheme {
@@ -82,6 +89,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
 
     }
 

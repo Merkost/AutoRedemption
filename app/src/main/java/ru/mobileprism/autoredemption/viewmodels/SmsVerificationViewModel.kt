@@ -70,7 +70,6 @@ class SmsVerificationViewModel(
         if (isNewSmsCodeValid(newValue)) {
             _smsCode.value = newValue
             if (newValue.length == 6) {
-                _uiState.value = BaseViewState.Loading()
                 login()
             }
         }
