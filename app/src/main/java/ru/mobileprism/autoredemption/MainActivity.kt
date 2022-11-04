@@ -28,6 +28,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
@@ -134,8 +137,8 @@ class MainActivity : ComponentActivity() {
                 val notificationManager: NotificationManager =
                     getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-                checkNotificationPolicyAccess(notificationManager, this)
-
+                val appSettings: AppSettings = get()
+                val chosenSimCardFromSettings = appSettings.selectedSimId.collectAsState(null)
 
                 val requiredPermissions = rememberMultiplePermissionsState(
                     listOf(
@@ -144,14 +147,25 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
-                if (notificationManager.areNotificationsEnabled().not()
-                    || requiredPermissions.allPermissionsGranted.not()
+                if (requiredPermissions.allPermissionsGranted.not() || chosenSimCardFromSettings.value == null
                 ) {
                     AutoBotTheme {
                         PermissionsScreen()
+                        /*Dialog(
+                            onDismissRequest = { *//*TODO*//* },
+                            properties = DialogProperties(
+                                dismissOnBackPress = false,
+                                dismissOnClickOutside = false,
+                                securePolicy = SecureFlagPolicy.SecureOff,
+                            )
+                        ) {
+                            PermissionsScreen()
+                        }*/
                     }
                 } else {
                     AutoRedemptionTheme() {
+                        checkNotificationPolicyAccess(notificationManager, this)
+
                         AutoBotApp()
                     }
                 }
@@ -171,14 +185,7 @@ fun PermissionsScreen() {
     val notificationManager: NotificationManager =
         context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
-    var showNotificationsDialog by remember { mutableStateOf(false) }
     var areNotificationsEnabled by remember { mutableStateOf(notificationManager.areNotificationsEnabled()) }
-
-
-    if (showNotificationsDialog) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) PermissionDialog(context)
-        else OldPermissionDialog(context = context)
-    }
 
     LaunchedEffect(Unit) {
         if (notificationManager.areNotificationsEnabled()) {
@@ -238,16 +245,6 @@ fun PermissionsScreen() {
                 },
                 text = "Разрешение на отправку СМС сообщений",
                 isPermissionGranted = sendSmsPermission.status.isGranted
-            )
-
-
-            ActionCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(50.dp),
-                onClick = { showNotificationsDialog = true },
-                text = "Разрешение на показ уведомлений",
-                isPermissionGranted = areNotificationsEnabled
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
