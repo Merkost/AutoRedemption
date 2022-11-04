@@ -1,11 +1,9 @@
-package ru.mobileprism.autoredemption.compose.screens
+package ru.mobileprism.autoredemption.compose.screens.auth
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import ru.mobileprism.autoredemption.compose.MainDestinations
-import ru.mobileprism.autoredemption.compose.screens.auth.PhoneEnteringScreen
-import ru.mobileprism.autoredemption.compose.screens.auth.SmsConfirmScreen
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.utils.navigate
 import ru.mobileprism.autoredemption.utils.requiredArg

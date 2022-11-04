@@ -9,10 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,18 +18,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
-import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import ru.mobileprism.autoredemption.compose.custom.CircleButton
-import ru.mobileprism.autoredemption.model.datastore.AppSettings
-import ru.mobileprism.autoredemption.model.datastore.UserEntity
 import ru.mobileprism.autoredemption.utils.Constants.DAY_MONTH_YEAR_TIME
-import ru.mobileprism.autoredemption.utils.toLocalDateTimeOrNull
-import ru.mobileprism.autoredemption.utils.toZonedDateTimeOrNull
 import ru.mobileprism.autoredemption.viewmodels.ProfileViewModel
 import ru.mobileprism.autoredemption.viewmodels.toOffsetDateTime
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(upPress: () -> Unit) {
     val viewModel: ProfileViewModel = getViewModel()
@@ -84,6 +76,7 @@ fun ProfileScreen(upPress: () -> Unit) {
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AutoBotTextField(
     value: String,

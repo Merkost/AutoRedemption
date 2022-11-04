@@ -2,8 +2,6 @@ package ru.mobileprism.autoredemption.compose
 
 import android.content.res.Resources
 import android.os.Parcelable
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -36,14 +34,13 @@ object Arguments {
  */
 @Composable
 fun rememberAppStateHolder(
-    scaffoldState: ScaffoldState = rememberScaffoldState(),
     navController: NavHostController = rememberNavController(),
 //    snackbarManager: SnackbarManager = SnackbarManager,
     resources: Resources = resources(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) =
-    remember(scaffoldState, navController, /*snackbarManager, */resources, coroutineScope) {
-        AppStateHolder(scaffoldState, navController, /*snackbarManager, */resources, coroutineScope)
+    remember(navController, /*snackbarManager, */resources, coroutineScope) {
+        AppStateHolder(navController, /*snackbarManager, */resources, coroutineScope)
     }
 
 /**
@@ -51,7 +48,7 @@ fun rememberAppStateHolder(
  */
 @Stable
 class AppStateHolder(
-    val scaffoldState: ScaffoldState,
+//    val scaffoldState: ScaffoldState,
     val navController: NavHostController,
 //    private val snackbarManager: SnackbarManager,
     private val resources: Resources,

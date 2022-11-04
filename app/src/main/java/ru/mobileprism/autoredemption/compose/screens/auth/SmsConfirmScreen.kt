@@ -6,10 +6,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -37,7 +39,7 @@ import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.showError
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: () -> Unit) {
 
@@ -96,14 +98,14 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                     )
                     addStyle(
                         SpanStyle(
-                            fontSize = MaterialTheme.typography.h5.fontSize,
+                            fontSize = MaterialTheme.typography.headlineMedium.fontSize,
                         ), start = 0,
                         end = context.getString(R.string.sms_was_sent).length
                     )
 
                     addStyle(
                         SpanStyle(
-                            color = MaterialTheme.colors.primary,
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp,
 
@@ -112,7 +114,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                     )
                 })
                 Spacer(modifier = Modifier.size(16.dp))
-                Text(text = "Введите его ниже", style = MaterialTheme.typography.body1)
+                Text(text = "Введите его ниже", style = MaterialTheme.typography.bodyMedium)
 
             }
 
@@ -141,7 +143,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                             }
                         }
                     },
-                    textStyle = MaterialTheme.typography.h5,
+                    textStyle = MaterialTheme.typography.headlineMedium,
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
@@ -156,14 +158,14 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                     0 -> {
                         TextButton(onClick = viewModel::retry) {
                             Text(text = "Запросить код повторно",
-                                style = MaterialTheme.typography.body2)
+                                style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                     else -> {
                         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.disabled) {
                             Text(
                                 text = "Повторный запрос (${retrySecs.value})",
-                                style = MaterialTheme.typography.body2
+                                style = MaterialTheme.typography.bodyMedium
                             )
                         }
                     }
@@ -192,6 +194,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthTopAppBar(upPress: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
     TopAppBar(
@@ -204,7 +207,7 @@ fun AuthTopAppBar(upPress: (() -> Unit)? = null, actions: @Composable RowScope.(
                 }
             }
         },
-        elevation = 0.dp,
-        backgroundColor = Color.Transparent
+//        elevation = 0.dp,
+//        backgroundColor = Color.Transparent
     )
 }

@@ -7,10 +7,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CrueltyFree
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -36,7 +36,7 @@ import ru.mobileprism.autoredemption.utils.PhoneNumberVisualTransformation
 import ru.mobileprism.autoredemption.utils.showError
 import ru.mobileprism.autoredemption.viewmodels.PhoneEnteringViewModel
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
 
@@ -114,7 +114,7 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
             ) {
                 Text(
                     text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.h4,
+                    style = MaterialTheme.typography.headlineSmall,
                 )
                 Text(text = stringResource(R.string.app_description))
             }
@@ -149,7 +149,7 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
                         }
                     },
                     textStyle = TextStyle(
-                        MaterialTheme.colors.onSurface, fontSize = 24.sp,
+                        MaterialTheme.colorScheme.onSurface, fontSize = 24.sp,
                         textAlign = TextAlign.Start, fontWeight = FontWeight.SemiBold
                     ),
                     keyboardOptions = KeyboardOptions.Default.copy(

@@ -22,8 +22,8 @@ class ForegroundService : Service() {
     private val workManager = WorkManager.getInstance(this)
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when {
-            intent?.action == ACTION_STOP_SERVICE -> {
+        when (intent?.action) {
+            ACTION_STOP_SERVICE -> {
 
                 Log.d("ForegroundService", "Called to cancel service")
                 workManager.cancelUniqueWork(SendSMSWorker.NAME)
