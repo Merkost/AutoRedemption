@@ -40,7 +40,7 @@ fun checkNotificationPolicyAccess(
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-private fun PermissionDialog(context: Context) {
+internal fun PermissionDialog(context: Context) {
     val openDialog = remember { mutableStateOf(true) }
     val smsPermissions =
         rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
@@ -74,7 +74,7 @@ private fun PermissionDialog(context: Context) {
 
 
 @Composable
-private fun OldPermissionDialog(context: Context) {
+internal fun OldPermissionDialog(context: Context) {
     val openDialog = remember { mutableStateOf(true) }
 
     if (openDialog.value) {

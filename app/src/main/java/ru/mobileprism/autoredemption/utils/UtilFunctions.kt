@@ -13,16 +13,31 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.telephony.SmsManager
+import android.telephony.SubscriptionManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.flow.first
 import ru.mobileprism.autoredemption.workmanager.ForegroundService
 import ru.mobileprism.autoredemption.R
+import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
+
+fun Context.launchAppSettings() {
+    try {
+        val intent = Intent()
+        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        val uri = Uri.fromParts("package", packageName, null)
+        intent.data = uri
+        startActivity(intent)
+    } catch (e: Exception) {
+        // TODO:
+        Log.w("TAG", e.message ?: "")
+    }
+}
 
 @Suppress("DEPRECATION") // Deprecated for third party Services.
 fun <T> Context.isServiceRunning(service: Class<T>) =
@@ -30,11 +45,39 @@ fun <T> Context.isServiceRunning(service: Class<T>) =
         .getRunningServices(Integer.MAX_VALUE)
         .any { it.service.className == service.name }
 
-fun Context.getSmsManager(): SmsManager {
+fun Context.getDefaultSmsManager(): SmsManager {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         getSystemService<SmsManager>(SmsManager::class.java)
     } else {
         SmsManager.getDefault()
+    }
+}
+
+fun Context.getSmsManager(subscriptionId: Int): SmsManager {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        getSystemService<SmsManager>(SmsManager::class.java).createForSubscriptionId(subscriptionId)
+    } else {
+        SmsManager.getSmsManagerForSubscriptionId(subscriptionId)
+    }
+}
+
+suspend fun Context.tryGetExactSmsManager(appSettings: AppSettings): SmsManager {
+    val subscriptionId = appSettings.selectedSimId.first()
+    return subscriptionId?.let {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            getSystemService<SmsManager>(SmsManager::class.java).createForSubscriptionId(subscriptionId)
+        } else {
+            SmsManager.getSmsManagerForSubscriptionId(subscriptionId)
+        }
+    } ?: getDefaultSmsManager()
+
+}
+
+fun Context.getSubscriptionManager(): SubscriptionManager {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        getSystemService<SubscriptionManager>(SubscriptionManager::class.java)
+    } else {
+        SubscriptionManager.from(this)
     }
 }
 

@@ -1,5 +1,7 @@
 package ru.mobileprism.autoredemption.compose.screens
 
+import android.Manifest
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,12 +19,16 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
+import ru.mobileprism.autoredemption.ChooseSimScreen
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
-import ru.mobileprism.autoredemption.utils.disableBatteryOptimizations
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
@@ -122,6 +128,17 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
                         keyboardType = KeyboardType.Number
                     )
                 )
+            }
+
+            SettingsColumn(text = "Выбор сим карты") {
+                val readSimPermission = rememberPermissionState(permission = Manifest.permission.READ_PHONE_STATE)
+                if (readSimPermission.status.isGranted.not()) {
+                    IconButton(onClick = { readSimPermission.launchPermissionRequest() }) {
+                        Text(text = "Необходимо разрешение!")
+                    }
+                } else {
+                    ChooseSimScreen()
+                }
             }
             /*SettingsColumn("Показывать уведомления при каждой отправке смс?") {
                 Checkbox(checked = appSettings.value.notificationOnWork, onCheckedChange = {

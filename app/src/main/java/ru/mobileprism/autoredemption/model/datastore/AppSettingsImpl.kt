@@ -19,6 +19,8 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("appSettings")
 
+
+        private val SELECTED_SIM = intPreferencesKey("SELECTED_SIM_KEY")
         private val APP_SETTINGS = stringPreferencesKey("APP_SETTINGS_KEY")
         private val TEST_NUMBERS = stringSetPreferencesKey("TEST_NUMBERS_KEY")
         private val LAST_TIME_SAVED = stringPreferencesKey("LAST_TIME_SAVED_KEY")
@@ -33,6 +35,18 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
             Gson().fromJson(preferences[APP_SETTINGS], AppSettingsEntity::class.java)
                 ?: AppSettingsEntity()
         }
+
+    override val selectedSimId: Flow<Int?> = context.dataStore.data
+        .map { preferences ->
+            preferences[SELECTED_SIM]
+        }
+
+    override suspend fun saveSelectedSimId(selectedSimId: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[SELECTED_SIM] = selectedSimId
+        }
+    }
+
 
     override suspend fun saveAppSettings(appSettings: AppSettingsEntity) {
         context.dataStore.edit { preferences ->
@@ -55,6 +69,7 @@ class AppSettingsImpl(private val context: Context) : AppSettings {
         .map { preferences ->
             preferences[MESSAGES_DELAY] ?: Constants.DEFAULT_MESSAGES_DELAY
         }
+
 
     override suspend fun saveMessagesDelay(timeMillis: Long) {
         context.dataStore.edit { preferences ->

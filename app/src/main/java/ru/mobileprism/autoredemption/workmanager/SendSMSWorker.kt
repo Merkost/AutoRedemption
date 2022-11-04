@@ -10,7 +10,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
-import ru.mobileprism.autoredemption.utils.getSmsManager
+import ru.mobileprism.autoredemption.utils.tryGetExactSmsManager
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -20,7 +20,6 @@ class SendSMSWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams), KoinComponent {
 
     private val settings: AppSettings by inject()
-    private val smsManager = appContext.getSmsManager()
 
     companion object {
         fun getSendSMSWork(): PeriodicWorkRequest =
@@ -54,6 +53,8 @@ class SendSMSWorker(appContext: Context, workerParams: WorkerParameters) :
     override suspend fun doWork(): Result {
         //val numbers = inputData.getStringArray(NUMBERS_ARG)
         setForegroundAsync(showNotification())
+        val smsManager = applicationContext.tryGetExactSmsManager(settings)
+
         val smsSettings = settings.appSettingsEntity.first()
         val now = LocalDateTime.now()
         val lastTime = settings.lastTimeSmsSent.first()
