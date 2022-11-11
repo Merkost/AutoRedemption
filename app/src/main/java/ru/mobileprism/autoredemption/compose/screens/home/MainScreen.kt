@@ -1,4 +1,4 @@
-package ru.mobileprism.autoredemption.compose.screens
+package ru.mobileprism.autoredemption.compose.screens.home
 
 import android.Manifest
 import android.widget.Toast
@@ -12,6 +12,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -37,7 +46,9 @@ import ru.mobileprism.autoredemption.viewmodels.HomeViewModel
 import ru.mobileprism.autoredemption.workmanager.ForegroundService
 
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterialApi::class, ExperimentalMaterialApi::class
+)
 @Composable
 fun MainScreen(upPress: () -> Unit, toSettings: () -> Unit) {
 
@@ -115,7 +126,7 @@ fun MainScreen(upPress: () -> Unit, toSettings: () -> Unit) {
                             Row(modifier = Modifier.padding(8.dp)) {
                                 Text(
                                     text = "Тестовый режим!",
-                                    style = MaterialTheme.typography.body1
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
                             }
                         }
@@ -201,7 +212,7 @@ fun ListSpacer() {
 }
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class,)
 @Composable
 fun AddNumSheet(sheetState: ModalBottomSheetState, onAdd: (String) -> Unit) {
     val focusRequester = remember { FocusRequester() }
@@ -220,8 +231,8 @@ fun AddNumSheet(sheetState: ModalBottomSheetState, onAdd: (String) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Добавление нового номера")
-        OutlinedTextField(
+        androidx.compose.material.Text(text = "Добавление нового номера")
+        androidx.compose.material.OutlinedTextField(
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -240,7 +251,7 @@ fun AddNumSheet(sheetState: ModalBottomSheetState, onAdd: (String) -> Unit) {
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(enabled = numToAdd.value.length == 12, onClick = {
+            androidx.compose.material.Button(enabled = numToAdd.value.length == 12, onClick = {
                 if (isPhoneNumValid(numToAdd.value)) {
                     onAdd(numToAdd.value)
                     numToAdd.value = "+7"
@@ -255,17 +266,17 @@ fun AddNumSheet(sheetState: ModalBottomSheetState, onAdd: (String) -> Unit) {
                 }
 
             }) {
-                Text(text = "Добавить")
+                androidx.compose.material.Text(text = "Добавить")
             }
             Spacer(modifier = Modifier.size(4.dp))
-            OutlinedButton(
+            androidx.compose.material.OutlinedButton(
                 onClick = {
                     numToAdd.value = "+7"
                     keyboardController?.hide()
                     coroutineScope.launch { sheetState.hide() }
                 },
             ) {
-                Text(text = "Отменить")
+                androidx.compose.material.Text(text = "Отменить")
             }
 
         }
@@ -292,7 +303,7 @@ fun NumberItem(number: String, onDelete: (() -> Unit)?) {
                 IconButton(onClick = { onDelete() }) {
                     Icon(
                         Icons.Default.Delete, "",
-                        tint = MaterialTheme.colors.error
+                        tint = MaterialTheme.colorScheme.error
                     )
                 }
             }

@@ -1,31 +1,23 @@
 package ru.mobileprism.autoredemption.compose.screens.home
 
-import android.util.Config.PROFILE
 import androidx.annotation.StringRes
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.compose.MainDestinations
-import ru.mobileprism.autoredemption.compose.screens.MainScreen
 
 fun NavGraphBuilder.addHomeGraph(
     navController: NavController,
@@ -52,10 +44,11 @@ fun NavGraphBuilder.addHomeGraph(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScenariosScreen(upPress: () -> Unit) {
 
-    Scaffold {
+    Scaffold() {
 
     }
 
@@ -86,10 +79,10 @@ fun AutoBotBottomBar(
     BottomAppBar(
         modifier = Modifier.fillMaxWidth(),
         content = {
-            BottomNavigation() {
+            NavigationBar() {
                 tabs.forEach { section ->
                     val selected = section == currentSection
-                    BottomNavigationItem(
+                    NavigationBarItem(
                         icon = {
                             Icon(section.icon, section.name /*tint = tint*/)
                         },

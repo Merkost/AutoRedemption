@@ -5,14 +5,24 @@ import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
+import android.content.Intent
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.res.Resources
-import android.os.Build
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
+import android.telephony.TelephonyManager
+import android.util.Log
 import android.telephony.SmsManager
 import android.telephony.SubscriptionInfo
 import android.telephony.TelephonyManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material3.*
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
@@ -28,12 +38,16 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.accompanist.permissions.*
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import ru.mobileprism.autoredemption.compose.AutoBotApp
 import com.google.accompanist.permissions.*
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
@@ -42,6 +56,11 @@ import ru.mobileprism.autoredemption.compose.AutoBotApp
 import ru.mobileprism.autoredemption.compose.MainDestinations
 import ru.mobileprism.autoredemption.compose.screens.*
 import ru.mobileprism.autoredemption.compose.screens.auth.AuthState
+import ru.mobileprism.autoredemption.compose.screens.home.MainScreen
+import ru.mobileprism.autoredemption.ui.theme.AutoBotTheme
+import ru.mobileprism.autoredemption.utils.checkNotificationPolicyAccess
+import ru.mobileprism.autoredemption.utils.getSmsManager
+import ru.mobileprism.autoredemption.utils.showToast
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.ui.theme.AutoRedemptionTheme
 import ru.mobileprism.autoredemption.ui.theme3.AutoBotTheme
@@ -92,8 +111,8 @@ class MainActivity : ComponentActivity() {
 
         setTheme(R.style.Theme_AnimatedSplashScreen)
         setContent {
-            AutoRedemptionTheme() {
-                Distribution(authState)
+            AutoBotTheme {
+                Distribution(viewModel.authState.collectAsState().value)
             }
         }
 
@@ -145,6 +164,52 @@ class MainActivity : ComponentActivity() {
             AuthState.NotLogged, null -> {
                 AutoBotApp(startRoute = MainDestinations.AUTH_ROUTE)
             }
+        }
+    }
+}
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun PermissionsScreen() {
+    val context = LocalContext.current
+    val notificationManager: NotificationManager =
+        context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+    val simsPermissions = rememberPermissionState(permission = Manifest.permission.READ_PHONE_STATE)
+
+
+    val requiredPermissions = rememberMultiplePermissionsState(
+        listOf(
+            Manifest.permission.READ_PHONE_STATE,
+        )
+    )
+
+
+    Scaffold(modifier = Modifier.systemBarsPadding()) {
+        DefaultColumn(modifier = Modifier.padding(30.dp)) {
+            ActionCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(50.dp), onClick = {
+                    if (simsPermissions.status.shouldShowRationale) {
+                        context.showToast("Необходимо выдать все разрешения в настройках")
+                        try {
+                            val intent = Intent()
+                            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                            val uri = Uri.fromParts("package", context.packageName, null)
+                            intent.data = uri
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            // TODO:
+                            Log.w("TAG", e.message ?: "")
+                        }
+                    } else {
+                        simsPermissions.launchPermissionRequest()
+                    }
+                }, text = "Разрешение на просмотр активных сим карт на устройстве",
+                isPermissionGranted = simsPermissions.status.isGranted
+            )
         }
     }
 }
@@ -251,6 +316,35 @@ fun PermissionsScreen() {
         }
     }
 
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ActionCard(
+    modifier: Modifier,
+    text: String,
+    onClick: () -> Unit,
+    isPermissionGranted: Boolean
+) {
+    Card(modifier = modifier, onClick = onClick) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = text, modifier = Modifier.weight(1f, false))
+            Icon(
+                if (isPermissionGranted) {
+                    Icons.Default.Check
+                } else {
+                    Icons.Default.Circle
+                },
+                "",
+                modifier = Modifier.padding(4.dp)
+            )
+
+
+        }
+    }
 }
 
 @SuppressLint("MissingPermission")
@@ -432,7 +526,7 @@ fun DefaultColumn(
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    AutoRedemptionTheme() {
+    AutoBotTheme {
         MainScreen({}) {}
     }
 }

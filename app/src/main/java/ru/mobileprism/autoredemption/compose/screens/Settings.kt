@@ -7,10 +7,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +28,7 @@ import ru.mobileprism.autoredemption.ChooseSimScreen
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
 
-@OptIn(ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
@@ -79,21 +79,21 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SettingsRow("Тестовые номера") {
+            SettingsRow(text = "Тестовые номера") {
                 Checkbox(checked = appSettings.value.testMode, onCheckedChange = {
                     coroutineScope.launch {
                         settings.saveAppSettings(appSettings.value.copy(testMode = it))
                     }
                 })
             }
-            SettingsRow("Добавлять дату и время к тексту сообщения") {
+            SettingsRow(text = "Добавлять дату и время к тексту сообщения") {
                 Checkbox(checked = appSettings.value.timeInText, onCheckedChange = {
                     coroutineScope.launch {
                         settings.saveAppSettings(appSettings.value.copy(timeInText = it))
                     }
                 })
             }
-            SettingsRow("Задержка между отправками сообщений") {
+            SettingsRow(text = "Задержка между отправками сообщений") {
 
                 TextField(
                     shape = RoundedCornerShape(8.dp),
@@ -177,9 +177,9 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
 }
 
 @Composable
-fun SettingsRow(text: String, action: @Composable RowScope.() -> Unit) {
+fun SettingsRow(modifier: Modifier = Modifier, text: String, action: @Composable RowScope.() -> Unit) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .padding(8.dp)
             .padding(horizontal = 4.dp)
             .fillMaxWidth(),
