@@ -13,6 +13,7 @@ import com.apollographql.apollo3.api.Mutation
 import com.apollographql.apollo3.api.json.JsonWriter
 import com.apollographql.apollo3.api.obj
 import kotlin.Boolean
+import kotlin.Int
 import kotlin.String
 import kotlin.Unit
 import ru.mobileprism.autoredemption.adapter.ConfirmSmsMutation_ResponseAdapter
@@ -58,8 +59,12 @@ public data class ConfirmSmsMutation(
     public val phone: String,
     public val createdAt: String,
     public val subscriptionStatus: SubscriptionStatus,
-    public val firstname: String?,
-    public val lastname: String?,
+    public val role: String,
+    public val city: City?,
+    public val timezone: Timezone?,
+    public val monthlyPayment: Int?,
+    public val name: String?,
+    public val comment: String?,
   )
 
   public data class SubscriptionStatus(
@@ -67,9 +72,23 @@ public data class ConfirmSmsMutation(
     public val subscriptionEnds: String,
   )
 
+  public data class City(
+    public val _id: String,
+    public val name: String,
+    public val timezone: String,
+  )
+
+  public data class Timezone(
+    public val _id: String,
+    public val label: String,
+    public val name: String,
+    public val utc: String,
+    public val msk: String,
+  )
+
   public companion object {
     public const val OPERATION_ID: String =
-        "d0712d76f91a4bad0e990dcb0dd2c1f4e255593a8e45d4af1c04be57f546ba7e"
+        "c7fd064a6cf3e9d4e379bacd86558ab59123d1e2a5c283615f900dc286ed34ca"
 
     /**
      * The minimized GraphQL document being sent to the server to save a few bytes.
@@ -86,15 +105,29 @@ public data class ConfirmSmsMutation(
      *         isActive
      *         subscriptionEnds
      *       }
-     *       firstname
-     *       lastname
+     *       role
+     *       city {
+     *         _id
+     *         name
+     *         timezone
+     *       }
+     *       timezone {
+     *         _id
+     *         label
+     *         name
+     *         utc
+     *         msk
+     *       }
+     *       monthlyPayment
+     *       name
+     *       comment
      *     }
      *   }
      * }
      */
     public val OPERATION_DOCUMENT: String
       get() =
-          "mutation ConfirmSms(${'$'}phone: String!, ${'$'}code: String!) { confirmSms(phone: ${'$'}phone, code: ${'$'}code) { token user { _id phone createdAt subscriptionStatus { isActive subscriptionEnds } firstname lastname } } }"
+          "mutation ConfirmSms(${'$'}phone: String!, ${'$'}code: String!) { confirmSms(phone: ${'$'}phone, code: ${'$'}code) { token user { _id phone createdAt subscriptionStatus { isActive subscriptionEnds } role city { _id name timezone } timezone { _id label name utc msk } monthlyPayment name comment } } }"
 
     public const val OPERATION_NAME: String = "ConfirmSms"
   }

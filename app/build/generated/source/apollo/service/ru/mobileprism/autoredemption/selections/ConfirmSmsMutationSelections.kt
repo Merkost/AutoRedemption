@@ -12,10 +12,13 @@ import com.apollographql.apollo3.api.CompiledVariable
 import com.apollographql.apollo3.api.notNull
 import kotlin.collections.List
 import ru.mobileprism.autoredemption.type.AuthResponse
+import ru.mobileprism.autoredemption.type.City
 import ru.mobileprism.autoredemption.type.GraphQLBoolean
 import ru.mobileprism.autoredemption.type.GraphQLID
+import ru.mobileprism.autoredemption.type.GraphQLInt
 import ru.mobileprism.autoredemption.type.GraphQLString
 import ru.mobileprism.autoredemption.type.SubscriptionStatus
+import ru.mobileprism.autoredemption.type.Timezone
 import ru.mobileprism.autoredemption.type.User
 
 public object ConfirmSmsMutationSelections {
@@ -26,6 +29,44 @@ public object ConfirmSmsMutationSelections {
         ).build(),
         CompiledField.Builder(
           name = "subscriptionEnds",
+          type = GraphQLString.type.notNull()
+        ).build()
+      )
+
+  private val __city: List<CompiledSelection> = listOf(
+        CompiledField.Builder(
+          name = "_id",
+          type = GraphQLString.type.notNull()
+        ).build(),
+        CompiledField.Builder(
+          name = "name",
+          type = GraphQLString.type.notNull()
+        ).build(),
+        CompiledField.Builder(
+          name = "timezone",
+          type = GraphQLString.type.notNull()
+        ).build()
+      )
+
+  private val __timezone1: List<CompiledSelection> = listOf(
+        CompiledField.Builder(
+          name = "_id",
+          type = GraphQLString.type.notNull()
+        ).build(),
+        CompiledField.Builder(
+          name = "label",
+          type = GraphQLString.type.notNull()
+        ).build(),
+        CompiledField.Builder(
+          name = "name",
+          type = GraphQLString.type.notNull()
+        ).build(),
+        CompiledField.Builder(
+          name = "utc",
+          type = GraphQLString.type.notNull()
+        ).build(),
+        CompiledField.Builder(
+          name = "msk",
           type = GraphQLString.type.notNull()
         ).build()
       )
@@ -49,11 +90,29 @@ public object ConfirmSmsMutationSelections {
         ).selections(__subscriptionStatus)
         .build(),
         CompiledField.Builder(
-          name = "firstname",
+          name = "role",
+          type = GraphQLString.type.notNull()
+        ).build(),
+        CompiledField.Builder(
+          name = "city",
+          type = City.type
+        ).selections(__city)
+        .build(),
+        CompiledField.Builder(
+          name = "timezone",
+          type = Timezone.type
+        ).selections(__timezone1)
+        .build(),
+        CompiledField.Builder(
+          name = "monthlyPayment",
+          type = GraphQLInt.type
+        ).build(),
+        CompiledField.Builder(
+          name = "name",
           type = GraphQLString.type
         ).build(),
         CompiledField.Builder(
-          name = "lastname",
+          name = "comment",
           type = GraphQLString.type
         ).build()
       )

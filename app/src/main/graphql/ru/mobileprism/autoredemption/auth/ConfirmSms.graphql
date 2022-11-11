@@ -9,8 +9,22 @@ mutation ConfirmSms($phone: String!, $code: String!) {
         isActive
         subscriptionEnds
       }
-      firstname
-      lastname
+      role
+      city {
+        _id
+        name
+        timezone
+      }
+      timezone {
+        _id
+        label
+        name
+        utc
+        msk
+      }
+      monthlyPayment
+      name
+      comment
     }
   }
 }

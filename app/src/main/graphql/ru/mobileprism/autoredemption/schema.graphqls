@@ -4,6 +4,26 @@ type SubscriptionStatus {
   subscriptionEnds: String!
 }
 
+type Timezone {
+  _id: String!
+
+  label: String!
+
+  name: String!
+
+  utc: String!
+
+  msk: String!
+}
+
+type City {
+  _id: String!
+
+  name: String!
+
+  timezone: String!
+}
+
 type User {
   _id: ID!
 
@@ -13,23 +33,17 @@ type User {
 
   subscriptionStatus: SubscriptionStatus!
 
-  firstname: String
+  role: String!
 
-  lastname: String
-}
+  city: City
 
-type Admin {
-  _id: ID!
+  timezone: Timezone
 
-  phone: String!
+  monthlyPayment: Int
 
-  createdAt: String!
+  name: String
 
-  readOnly: Boolean!
-
-  firstname: String
-
-  lastname: String
+  comment: String
 }
 
 type VerifyPhoneResponse {
@@ -44,30 +58,72 @@ type AuthResponse {
   user: User!
 }
 
-type AdminAuthResponse {
-  token: String!
+type Config {
+  _id: ID!
 
-  admin: Admin!
+  confirmSmsAttempts: Int!
+
+  confirmSmsExpiration: Int!
+
+  verifyPhoneAttempts: Int!
+
+  verifyPhoneExpiration: Int!
+
+  jwtExpiration: Int!
+}
+
+input UpdateUserInput {
+  phone: String
+
+  isActive: Boolean
+
+  subscriptionEnds: String
+
+  role: String
+
+  cityId: String
+
+  timezoneId: String
+
+  monthlyPayment: Int
+
+  name: String
+
+  comment: String
+}
+
+input UpdateConfigInput {
+  confirmSmsAttempts: Int
+
+  confirmSmsExpiration: Int
+
+  verifyPhoneAttempts: Int
+
+  verifyPhoneExpiration: Int
+
+  jwtExpiration: Int
 }
 
 type Query {
+  getUser(_id: ID!): User
+
   getUsers: [User]
 
-  getUser(_id: ID!): User
+  getCities: [City]
+
+  getTimezones: [Timezone]
 }
 
 type Mutation {
-  verifyAdminPhone(phone: String!): VerifyPhoneResponse
-
-  confirmAdminSms(phone: String!, code: String!): AdminAuthResponse
-
   verifyPhone(phone: String!): VerifyPhoneResponse
 
   confirmSms(phone: String!, code: String!): AuthResponse
 
-  updateUser(phone: String, firstname: String, lastname: String): User
-
   deleteUser(_id: ID!): String
+
+  updateUser(_id: ID!, input: UpdateUserInput): User
+
+  updateConfig(input: UpdateConfigInput): Config
 }
 
 schema {
