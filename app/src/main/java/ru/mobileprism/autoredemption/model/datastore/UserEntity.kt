@@ -2,7 +2,6 @@ package ru.mobileprism.autoredemption.model.datastore
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 
@@ -11,14 +10,33 @@ import java.time.ZonedDateTime
 data class UserEntity(
     val _id: String = "0",
     val phone: String = "+71234567890",
-    val createdAt: String = OffsetDateTime.now().toString(),
-    val subscriptionStatus: SubscriptionStatus? = SubscriptionStatus(false, OffsetDateTime.now().toString()),
-    val firstname: String? = null,
-    val lastname: String? = null,
+    val createdAt: OffsetDateTime = OffsetDateTime.now(),
+    val subscriptionStatus: SubscriptionStatus = SubscriptionStatus(false, OffsetDateTime.now()),
+    val role: String? = null,
+    val city: CityEntity? = null,
+    val timeZone: TimeZoneEntity? = null,
+    val monthlyPayment: Int? = null,
+    val name: String? = null,
+) : Parcelable
+
+@Parcelize
+class TimeZoneEntity(
+    val _id: String = "0",
+    val label: String,
+    val name: String,
+    val utc: String,
+    val msk: String,
+) : Parcelable
+
+@Parcelize
+data class CityEntity(
+    val _id: String = "0",
+    val name: String,
+    val timeZone: String,
 ) : Parcelable
 
 @Parcelize
 data class SubscriptionStatus(
     val isActive: Boolean,
-    val subscriptionEnds: String,
+    val subscriptionEnds: OffsetDateTime,
 ) : Parcelable

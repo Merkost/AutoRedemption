@@ -11,11 +11,11 @@ import kotlinx.coroutines.launch
 import ru.mobileprism.autoredemption.ConfirmSmsMutation
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.model.ServerError
-import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
+import ru.mobileprism.autoredemption.model.entities.SmsConfirmEntity
 import ru.mobileprism.autoredemption.model.repository.AuthRepository
+import ru.mobileprism.autoredemption.model.repository.fold
 import ru.mobileprism.autoredemption.utils.BaseViewState
-import ru.mobileprism.autoredemption.utils.Constants.DEFAULT_MESSAGES_DELAY
 import ru.mobileprism.autoredemption.utils.Constants.RETRY_DELAY
 import ru.mobileprism.autoredemption.utils.Constants.SMS_RESEND_AWAIT
 
@@ -33,12 +33,14 @@ class SmsVerificationViewModel(
     private val _retrySecs: MutableStateFlow<Int> = MutableStateFlow(SMS_RESEND_AWAIT)
     val retrySecs = _retrySecs.asStateFlow()
 
-    private val _uiState = MutableStateFlow<BaseViewState<ConfirmSmsMutation.ConfirmSms>?>(null)
+    private val _uiState = MutableStateFlow<BaseViewState<SmsConfirmEntity>?>(null)
     val uiState = _uiState.asStateFlow()
 
     private var loginJob: Job? = null
 
-    init { setCountDown() }
+    init {
+        setCountDown()
+    }
 
     private fun setCountDown() {
         viewModelScope.launch {
@@ -79,7 +81,7 @@ class SmsVerificationViewModel(
         _smsCode.value = ""
     }
 
-    fun login()  {
+    fun login() {
         _uiState.value = BaseViewState.Loading()
         checkSmsCode()
     }
@@ -89,16 +91,38 @@ class SmsVerificationViewModel(
         loginJob = viewModelScope.launch {
             authRepository.confirmSms(phoneAuth.phone, currentSmsCode).single().fold(
                 onSuccess = { result ->
-                    authManager.saveUserWithToken(UserMapper.mapDbUser(result.user), result.token)
-                    _uiState.update { BaseViewState.Success(result) }
+                    result.confirmSms?.let { smsResult ->
+                        _uiState.update {
+                            BaseViewState.Success(
+                                SmsConfirmEntity(
+                                    token = smsResult.token,
+                                    user = UserMapper.mapDbUser(smsResult.user),
+                                )
+                            )
+                        }
+                    } ?: _uiState.update { BaseViewState.Error(stringRes = R.string.unknown_error) }
+
                 },
-                onFailure = { error ->
-                    if (error is ServerError) {
-                        _uiState.update { BaseViewState.Error(error.message, stringRes = R.string.server_error) }
-                    } else {
-                        // TODO:
-                        _uiState.update { BaseViewState.Error(error.message) }
+                onError = { errorRes ->
+                    _uiState.update { BaseViewState.Error(stringRes = errorRes) }
+                }
+            )
+        }
+    }
+
+    fun retrySms() {
+        _retrySecs.value = SMS_RESEND_AWAIT
+        viewModelScope.launch {
+            setCountDown()
+            _uiState.value = null
+            val result = authRepository.verifyPhone(phoneAuth.phone).single().fold(
+                onSuccess = { data ->
+                    data.verifyPhone?.message?.let { smsCode ->
+                        _smsCode.update { smsCode }
                     }
+                },
+                onError = { errorRes ->
+                    _uiState.update { BaseViewState.Error(stringRes = errorRes) }
                 }
             )
         }
@@ -109,7 +133,7 @@ class SmsVerificationViewModel(
             _uiState.value = BaseViewState.Loading()
             delay(RETRY_DELAY)
             // TODO: properly resend sms
-            checkSmsCode()
+            retrySms()
         }
     }
 

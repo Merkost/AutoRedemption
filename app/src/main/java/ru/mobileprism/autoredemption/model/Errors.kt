@@ -1,3 +1,5 @@
 package ru.mobileprism.autoredemption.model
 
-class ServerError(message: String?) : Error(message)
+import com.apollographql.apollo3.exception.ApolloException
+
+class ServerError(message: String?) : ApolloException(message)

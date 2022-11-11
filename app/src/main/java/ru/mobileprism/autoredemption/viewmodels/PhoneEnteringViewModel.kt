@@ -15,9 +15,11 @@ import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.model.repository.AuthRepository
+import ru.mobileprism.autoredemption.model.repository.fold
 import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.Constants
 import ru.mobileprism.autoredemption.utils.Constants.PHONE_DEFAULT_VALUE
+import ru.mobileprism.autoredemption.utils.extractDigits
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -37,7 +39,7 @@ class PhoneEnteringViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     val isPhoneSucceed = phoneNum.map {
-        it.length == 12 && isPhoneNumValid(it)
+        /*it.length == 12 && isPhoneNumValid(it)*/true
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     fun onPhoneSet(newValue: String) {
@@ -64,10 +66,9 @@ class PhoneEnteringViewModel(
         authJob = viewModelScope.launch {
             val phoneNumber = phoneNum.value
             _uiState.update { BaseViewState.Loading() }
-            val result = authRepository.verifyPhone(phoneNumber).single().fold(
-                onSuccess = { phoneResult ->
-                    // TODO: check if empty @phoneResult.message
-                    val code = extractDigits(phoneResult.message)
+            authRepository.verifyPhone(phoneNumber).single().fold(
+                onSuccess = { data ->
+                    val code = data.verifyPhone?.message ?: ""
 
                     _uiState.update {
                         BaseViewState.Success(
@@ -78,13 +79,8 @@ class PhoneEnteringViewModel(
                         )
                     }
                 },
-                onFailure = { error ->
-                    if (error is ServerError) {
-                        _uiState.update { BaseViewState.Error(error.message, stringRes = R.string.server_error) }
-                    } else {
-                        // TODO:  
-                        _uiState.update { BaseViewState.Error(error.message) }
-                    }
+                onError = { errorRes ->
+                    _uiState.update { BaseViewState.Error(stringRes = errorRes) }
                 }
             )
         }
@@ -99,13 +95,7 @@ class PhoneEnteringViewModel(
         resetState()
     }
 
-    private fun extractDigits(str: String): String {
-        val p: Pattern = Pattern.compile("(\\d{6})")
-        val m: Matcher = p.matcher(str)
-        return if (m.find()) {
-            m.group(0) ?: ""
-        } else ""
-    }
+
 
     fun loginTestUser() {
         viewModelScope.launch {

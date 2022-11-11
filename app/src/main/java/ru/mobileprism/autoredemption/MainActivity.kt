@@ -59,25 +59,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        val smsManager = this.getDefaultSmsManager()
-//        val telephonyManager = this.getSystemService(TELEPHONY_SERVICE) as TelephonyManager
-        /*telephonyManager.createForSubscriptionId(1)*/
-
-        /*val localSubscriptionManager = SubscriptionManager.from(this)
-        if (localSubscriptionManager.activeSubscriptionInfoCount > 1) {
-            val localList: List<*> = localSubscriptionManager.activeSubscriptionInfoList
-            val simInfo = localList[simID] as SubscriptionInfo
-            SmsManager.getSmsManagerForSubscriptionId(simInfo.subscriptionId)
-                .sendTextMessage(toNum, null, smsText, null, null)
-        }
-
-        val subscriptionManager = SubscriptionManager.from(this)
-        Log.d("abc", smsManager.subscriptionId.toString())
-        smsManager.createForSubscriptionId()
-
-        Log.d("abc", subscriptionManager.activeSubscriptionInfoList.toString())*/
-
-
         val viewModel: MainActivityViewModel = getViewModel()
         var authState: AuthState? = null
 
@@ -105,16 +86,6 @@ class MainActivity : ComponentActivity() {
                     .animate()
                     .setDuration(splashFadeDurationMillis.toLong())
                     .alpha(0f)
-                    /*.scaleX(50f)
-                    .scaleY(50f)*/
-                    /*.withEndAction {
-                        splashScreenViewProvider.remove()
-                        *//*setContent {
-                            AutoRedemptionTheme {
-                                Distribution(viewModel.authState.collectAsState().value)
-                            }
-                        }*//*
-                    }*/
                     .start()
             }
         }
@@ -122,7 +93,7 @@ class MainActivity : ComponentActivity() {
         setTheme(R.style.Theme_AnimatedSplashScreen)
         setContent {
             AutoRedemptionTheme() {
-                Distribution(viewModel.authState.collectAsState().value)
+                Distribution(authState)
             }
         }
 
@@ -138,7 +109,7 @@ class MainActivity : ComponentActivity() {
                     getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
                 val appSettings: AppSettings = get()
-                val chosenSimCardFromSettings = appSettings.selectedSimId.collectAsState(null)
+                val chosenSimCardFromSettings = appSettings.selectedSimId.collectAsState(1)
 
                 val requiredPermissions = rememberMultiplePermissionsState(
                     listOf(
@@ -196,7 +167,6 @@ fun PermissionsScreen() {
     val readSimPermission =
         rememberPermissionState(permission = Manifest.permission.READ_PHONE_STATE)
     val sendSmsPermission = rememberPermissionState(permission = Manifest.permission.SEND_SMS)
-
 
     Scaffold(topBar = {
         MediumTopAppBar(

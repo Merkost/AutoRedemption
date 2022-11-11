@@ -24,6 +24,8 @@ import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 
 fun Context.launchAppSettings() {
@@ -175,10 +177,14 @@ fun Context.showToast(text: String, length: Int = Toast.LENGTH_SHORT) {
 }
 
 fun Context.showError(errorState: BaseViewState.Error) {
-    errorState.stringRes?.let {
-        showToast(getString(it))
-    } ?: if (Constants.isDebug)  showToast(errorState.text ?: getString(R.string.api_error_message))
-    else showToast(getString(R.string.api_error_message))
+    if (Constants.isDebug)  showToast(errorState.text ?: getString(R.string.api_error_message))
+    else {
+        errorState.stringRes?.let {
+            showToast(getString(it))
+        } ?: if (Constants.isDebug)  showToast(errorState.text ?: getString(R.string.api_error_message))
+        else showToast(getString(R.string.api_error_message))
+    }
+
 }
 
 fun Context.showError(text: String?) {
@@ -190,3 +196,11 @@ val String.toLocalDateTimeOrNull: LocalDateTime?
 
 val String.toZonedDateTimeOrNull: ZonedDateTime?
     get() = kotlin.runCatching { ZonedDateTime.parse(this) }.getOrNull()
+
+fun extractDigits(str: String): String {
+    val p: Pattern = Pattern.compile("(\\d{6})")
+    val m: Matcher = p.matcher(str)
+    return if (m.find()) {
+        m.group(0) ?: ""
+    } else ""
+}

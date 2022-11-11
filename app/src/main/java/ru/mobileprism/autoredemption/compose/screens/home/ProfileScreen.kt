@@ -56,7 +56,7 @@ fun ProfileScreen(upPress: () -> Unit) {
             AutoBotTextField(placeholder = "Телефон", value = user.value.phone, onValueChange = {})
             Text(
                 text = "Зарегистрирован: ${
-                    user.value.createdAt.toOffsetDateTime.format(
+                    user.value.createdAt.format(
                         DAY_MONTH_YEAR_TIME
                     )
                 }"
@@ -64,7 +64,7 @@ fun ProfileScreen(upPress: () -> Unit) {
             user.value.subscriptionStatus?.let {
                 Text(
                     text = "Подписка активна до: ${
-                        it.subscriptionEnds.toOffsetDateTime.format(
+                        it.subscriptionEnds.format(
                             DAY_MONTH_YEAR_TIME
                         )
                     }"

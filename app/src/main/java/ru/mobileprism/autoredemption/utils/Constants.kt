@@ -4,6 +4,12 @@ import ru.mobileprism.autoredemption.BuildConfig
 import java.time.format.DateTimeFormatter
 
 object Constants {
+
+    //Update scheme
+    /*
+    * ./gradlew :app:downloadApolloSchema --endpoint='http://188.120.229.170:3000/graphql' --schema=app/src/main/graphql/ru/mobileprism/autoredemption/schema.graphqls
+    * */
+
     const val apiUrl: String = "http://188.120.229.170:3000/graphql"
     const val DEFAULT_MESSAGES_DELAY: Long = 500
     const val RETRY_DELAY: Long = 200

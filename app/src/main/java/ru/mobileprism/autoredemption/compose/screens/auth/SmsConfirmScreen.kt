@@ -30,16 +30,18 @@ import androidx.compose.ui.unit.sp
 import ru.mobileprism.autoredemption.viewmodels.SmsVerificationViewModel
 import org.koin.androidx.compose.viewModel
 import org.koin.core.parameter.parametersOf
+import ru.mobileprism.autoredemption.ConfirmSmsMutation
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.compose.custom.MainButton
 import ru.mobileprism.autoredemption.compose.custom.ModalLoadingDialog
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
+import ru.mobileprism.autoredemption.model.entities.SmsConfirmEntity
 import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.showError
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: () -> Unit) {
+fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: (SmsConfirmEntity) -> Unit) {
 
     val viewModel: SmsVerificationViewModel by viewModel(parameters = { parametersOf(phoneAuth) })
     val context = LocalContext.current
@@ -56,7 +58,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
     LaunchedEffect(uiState.value) {
         when (val state = uiState.value) {
             is BaseViewState.Success -> {
-                onNext()
+                onNext(state.data)
                 viewModel.resetState()
             }
             is BaseViewState.Error -> {
@@ -175,7 +177,6 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 MainButton(
                     modifier = Modifier,
                     content = {
@@ -185,8 +186,6 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: ()
 
                 )
             }
-
-
         }
 
     }

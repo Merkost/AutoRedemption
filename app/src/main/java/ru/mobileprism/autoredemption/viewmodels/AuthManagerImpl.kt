@@ -1,6 +1,5 @@
 package ru.mobileprism.autoredemption.viewmodels
 
-import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.UserDatastore
 import ru.mobileprism.autoredemption.model.datastore.UserEntity
 
