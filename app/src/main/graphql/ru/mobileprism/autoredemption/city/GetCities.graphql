@@ -1,0 +1,14 @@
+query GetCitiesAndTimezones {
+  getCities {
+    _id
+    name
+    timezone
+  }
+  getTimezones {
+      _id
+      label
+      name
+      utc
+      msk
+    }
+}

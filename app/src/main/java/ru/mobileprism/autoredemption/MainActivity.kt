@@ -9,13 +9,12 @@ import android.content.Intent
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.res.Resources
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.telephony.TelephonyManager
 import android.util.Log
 import android.telephony.SmsManager
 import android.telephony.SubscriptionInfo
-import android.telephony.TelephonyManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -25,8 +24,6 @@ import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.*
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.PriorityHigh
 import androidx.compose.material.icons.outlined.SimCard
@@ -38,10 +35,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
@@ -57,7 +50,6 @@ import ru.mobileprism.autoredemption.compose.MainDestinations
 import ru.mobileprism.autoredemption.compose.screens.*
 import ru.mobileprism.autoredemption.compose.screens.auth.AuthState
 import ru.mobileprism.autoredemption.compose.screens.home.MainScreen
-import ru.mobileprism.autoredemption.ui.theme.AutoBotTheme
 import ru.mobileprism.autoredemption.utils.checkNotificationPolicyAccess
 import ru.mobileprism.autoredemption.utils.getSmsManager
 import ru.mobileprism.autoredemption.utils.showToast
@@ -153,11 +145,9 @@ class MainActivity : ComponentActivity() {
                         }*/
                     }
                 } else {
-                    AutoRedemptionTheme() {
                         checkNotificationPolicyAccess(notificationManager, this)
 
                         AutoBotApp()
-                    }
                 }
 //                AutoBotApp()
             }
@@ -168,7 +158,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+/*@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PermissionsScreen() {
@@ -212,7 +202,7 @@ fun PermissionsScreen() {
             )
         }
     }
-}
+}*/
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -312,37 +302,6 @@ fun PermissionsScreen() {
                     isPermissionGranted = true
                 )
             }
-
-        }
-    }
-
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ActionCard(
-    modifier: Modifier,
-    text: String,
-    onClick: () -> Unit,
-    isPermissionGranted: Boolean
-) {
-    Card(modifier = modifier, onClick = onClick) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = text, modifier = Modifier.weight(1f, false))
-            Icon(
-                if (isPermissionGranted) {
-                    Icons.Default.Check
-                } else {
-                    Icons.Default.Circle
-                },
-                "",
-                modifier = Modifier.padding(4.dp)
-            )
-
-
         }
     }
 }

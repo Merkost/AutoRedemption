@@ -110,11 +110,14 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
 
             Column(
                 modifier = Modifier,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 32.sp
+                    )
                 )
                 Text(text = stringResource(R.string.app_description))
             }

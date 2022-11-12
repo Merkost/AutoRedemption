@@ -2,7 +2,9 @@ package ru.mobileprism.autoredemption.compose.custom
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.LocalContentAlpha
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -106,7 +108,8 @@ fun DefaultDialog(
 
                 primaryText?.let {
                     CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
-                        val textStyle = MaterialTheme.typography.subtitle1
+                        val textStyle =
+                            MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold)
                         ProvideTextStyle(textStyle) {
                             Text(
                                 modifier = Modifier.constrainAs(title) {
@@ -132,7 +135,7 @@ fun DefaultDialog(
                     CompositionLocalProvider(
                         LocalContentAlpha provides ContentAlpha.medium
                     ) {
-                        val textStyle = MaterialTheme.typography.body2
+                        val textStyle = MaterialTheme.typography.bodyMedium
                         ProvideTextStyle(textStyle) {
                             Text(
                                 modifier = Modifier.constrainAs(subtitle) {

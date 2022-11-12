@@ -31,7 +31,7 @@ import ru.mobileprism.autoredemption.compose.screens.home.addHomeGraph
 fun AutoBotApp(startRoute: String = MainDestinations.HOME) {
     val appStateHolder = rememberAppStateHolder()
 
-    CheckForPermissions()
+    //CheckForPermissions()
 
 
 //    val mainViewModel: MainViewModel = getViewModel()
@@ -104,7 +104,7 @@ private fun NavGraphBuilder.NavGraph(
 
     navigation(
         route = MainDestinations.AUTH_ROUTE,
-        startDestination = LoginDestinations.PHONE_ENTERING_ROUTE,
+        startDestination = /*LoginDestinations.PHONE_ENTERING_ROUTE*/LoginDestinations.CHOOSE_CITY,
     ) {
         addAuthGraph(navController, upPress = upPress)
     }

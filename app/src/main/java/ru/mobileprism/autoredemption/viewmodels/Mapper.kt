@@ -5,12 +5,13 @@ import ru.mobileprism.autoredemption.model.datastore.CityEntity
 import ru.mobileprism.autoredemption.model.datastore.SubscriptionStatus
 import ru.mobileprism.autoredemption.model.datastore.TimeZoneEntity
 import ru.mobileprism.autoredemption.model.datastore.UserEntity
+import ru.mobileprism.autoredemption.type.City
 import java.time.OffsetDateTime
 
 val String.toOffsetDateTime: OffsetDateTime
     get() = OffsetDateTime.parse(this)
 
-object UserMapper {
+object Mapper {
     fun mapDbUser(user: ConfirmSmsMutation.User) =
         with(user) {
             // TODO: createdAt fix
@@ -46,6 +47,10 @@ object UserMapper {
             timeZone = timezone,
         )
     }
+
+    /*private fun mapCities(cities: Ci) {
+
+    }*/
 
     private fun mapDbSubscriptionStatus(
         subscriptionStatus: ConfirmSmsMutation.SubscriptionStatus

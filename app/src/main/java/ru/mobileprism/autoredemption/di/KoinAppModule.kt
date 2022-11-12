@@ -10,6 +10,8 @@ import ru.mobileprism.autoredemption.model.datastore.UserDatastore
 import ru.mobileprism.autoredemption.model.datastore.UserDatastoreImpl
 import ru.mobileprism.autoredemption.model.repository.AuthRepository
 import ru.mobileprism.autoredemption.model.repository.AuthRepositoryImpl
+import ru.mobileprism.autoredemption.model.repository.CityRepository
+import ru.mobileprism.autoredemption.model.repository.CityRepositoryImpl
 import ru.mobileprism.autoredemption.utils.CurrentUserHandler
 import ru.mobileprism.autoredemption.viewmodels.*
 
@@ -20,6 +22,7 @@ val koinAppModule = module {
 
 
     single<AuthRepository> { AuthRepositoryImpl(get()) }
+    single<CityRepository> { CityRepositoryImpl(get()) }
 
     single<AuthManager> { AuthManagerImpl(userDatastore = get()) }
 
@@ -44,6 +47,10 @@ val koinAppModule = module {
             authRepository = get(),
             phoneAuth = get()
         )
+    }
+
+    viewModel {
+        ChooseCityViewModel(cityRepository = get())
     }
 
 

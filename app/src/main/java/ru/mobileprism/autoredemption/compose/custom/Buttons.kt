@@ -28,9 +28,17 @@ fun CircleButton(
 ) { function() }
 
 @Composable
-fun MainButton(modifier: Modifier, content: @Composable RowScope.() -> Unit, onClick: () -> Unit) {
+fun MainButton(
+    modifier: Modifier,
+    enabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit,
+    onClick: () -> Unit
+) {
     Button(
-        modifier = modifier.fillMaxWidth().heightIn(45.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(45.dp),
+        enabled = enabled,
         content = content,
         onClick = onClick
     )

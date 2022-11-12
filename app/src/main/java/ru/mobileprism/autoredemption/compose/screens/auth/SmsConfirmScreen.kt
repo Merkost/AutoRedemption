@@ -23,10 +23,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.mobileprism.autoredemption.viewmodels.SmsVerificationViewModel
@@ -43,7 +46,11 @@ import ru.mobileprism.autoredemption.utils.showError
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: (SmsConfirmEntity) -> Unit) {
+fun SmsConfirmScreen(
+    phoneAuth: PhoneAuthEntity,
+    upPress: () -> Unit,
+    onNext: (SmsConfirmEntity) -> Unit
+) {
 
     val viewModel: SmsVerificationViewModel by viewModel(parameters = { parametersOf(phoneAuth) })
     val context = LocalContext.current
@@ -77,7 +84,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: (S
             .systemBarsPadding()
             .imePadding(),
         topBar = {
-            AuthTopAppBar(upPress)
+            AuthTopAppBar(upPress = upPress)
         }
     ) {
         Column(
@@ -94,29 +101,29 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: (S
                 verticalArrangement = Arrangement.Center
             ) {
 
-                Text(text = buildAnnotatedString {
-                    append(
-                        AnnotatedString(context.getString(R.string.sms_was_sent) + " ${phoneAuth.phone}")
-                    )
-                    addStyle(
-                        SpanStyle(
-                            fontSize = MaterialTheme.typography.headlineMedium.fontSize,
-                        ), start = 0,
-                        end = context.getString(R.string.sms_was_sent).length
-                    )
+                Text(
+                    text = buildAnnotatedString {
+                        append(
+                            AnnotatedString(context.getString(R.string.sms_was_sent) + " ${phoneAuth.phone}")
+                        )
 
-                    addStyle(
-                        SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 28.sp,
+                        addStyle(
+                            SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 28.sp,
 
-                            ), start = context.getString(R.string.sms_was_sent).length + 1,
-                        end = context.getString(R.string.sms_was_sent).length + 1 + phoneAuth.phone.length
-                    )
-                })
+                                ), start = context.getString(R.string.sms_was_sent).length + 1,
+                            end = context.getString(R.string.sms_was_sent).length + 1 + phoneAuth.phone.length
+                        )
+                    },
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 32.sp
+                    ),
+                )
                 Spacer(modifier = Modifier.size(16.dp))
-                Text(text = "Введите его ниже", style = MaterialTheme.typography.bodyMedium)
+                Text(text = "Введите его ниже", style = MaterialTheme.typography.titleMedium)
 
             }
 
@@ -145,7 +152,10 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: (S
                             }
                         }
                     },
-                    textStyle = MaterialTheme.typography.headlineMedium,
+                    textStyle = TextStyle(
+                        MaterialTheme.colorScheme.onSurface, fontSize = 24.sp,
+                        textAlign = TextAlign.Start, fontWeight = FontWeight.SemiBold
+                    ),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
@@ -159,8 +169,10 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: (S
                 when (retrySecs.value) {
                     0 -> {
                         TextButton(onClick = viewModel::retry) {
-                            Text(text = "Запросить код повторно",
-                                style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                text = "Запросить код повторно",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
                     }
                     else -> {
@@ -184,7 +196,7 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: (S
                     content = {
                         Text(text = "Продолжить")
                     },
-                    onClick =         viewModel::login
+                    onClick = viewModel::login
 
                 )
             }
@@ -195,10 +207,13 @@ fun SmsConfirmScreen(phoneAuth: PhoneAuthEntity, upPress: () -> Unit, onNext: (S
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AuthTopAppBar(upPress: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
+fun AuthTopAppBar(title: String? = null, upPress: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
     TopAppBar(
-        title = {},
-        actions = actions,
+        title = {
+                title?.let {
+                    Text(text = title)
+                }
+        },
         navigationIcon = {
             upPress?.let {
                 IconButton(onClick = upPress) {
@@ -208,5 +223,6 @@ fun AuthTopAppBar(upPress: (() -> Unit)? = null, actions: @Composable RowScope.(
         },
 //        elevation = 0.dp,
 //        backgroundColor = Color.Transparent
+        actions = actions
     )
 }

@@ -1,15 +1,14 @@
 package ru.mobileprism.autoredemption.compose.screens.auth
 
-import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import ru.mobileprism.autoredemption.compose.MainDestinations
+import ru.mobileprism.autoredemption.model.datastore.UserEntity
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.model.entities.SmsConfirmEntity
 import ru.mobileprism.autoredemption.utils.navigate
 import ru.mobileprism.autoredemption.utils.requiredArg
-import ru.mobileprism.autoredemption.viewmodels.UserMapper
 
 
 object LoginDestinations {
@@ -46,7 +45,8 @@ fun NavGraphBuilder.addAuthGraph(
     }
 
     composable(LoginDestinations.CHOOSE_CITY) {
-        val confirmSmsEntity = it.requiredArg<SmsConfirmEntity>(LoginArguments.CONFIRM_SMS)
+//        val confirmSmsEntity = it.requiredArg<SmsConfirmEntity>(LoginArguments.CONFIRM_SMS)
+        val confirmSmsEntity = SmsConfirmEntity("", UserEntity())
         ChooseCityScreen(confirmSmsEntity, upPress = upPress) {
             navController.navigate(MainDestinations.HOME) {
                 popUpTo(MainDestinations.AUTH_ROUTE) {
@@ -57,7 +57,4 @@ fun NavGraphBuilder.addAuthGraph(
     }
 }
 
-@Composable
-fun ChooseCityScreen(smsConfirmEntity: SmsConfirmEntity, upPress: () -> Unit, onNext: () -> Unit) {
-    
-}
+

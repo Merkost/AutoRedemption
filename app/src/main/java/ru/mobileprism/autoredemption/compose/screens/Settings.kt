@@ -28,7 +28,7 @@ import ru.mobileprism.autoredemption.ChooseSimScreen
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()

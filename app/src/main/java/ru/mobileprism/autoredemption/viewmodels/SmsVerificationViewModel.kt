@@ -8,9 +8,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.mobileprism.autoredemption.ConfirmSmsMutation
 import ru.mobileprism.autoredemption.R
-import ru.mobileprism.autoredemption.model.ServerError
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.model.entities.SmsConfirmEntity
 import ru.mobileprism.autoredemption.model.repository.AuthRepository
@@ -96,7 +94,7 @@ class SmsVerificationViewModel(
                             BaseViewState.Success(
                                 SmsConfirmEntity(
                                     token = smsResult.token,
-                                    user = UserMapper.mapDbUser(smsResult.user),
+                                    user = Mapper.mapDbUser(smsResult.user),
                                 )
                             )
                         }

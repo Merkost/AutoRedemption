@@ -1,0 +1,10 @@
+mutation UpdateCity($id: ID!) {
+  updateUser(_id: $id) {
+    city {
+      _id
+    }
+    timezone {
+      _id
+    }
+  }
+}
