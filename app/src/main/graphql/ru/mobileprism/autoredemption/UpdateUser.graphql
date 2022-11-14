@@ -1,8 +1,6 @@
-mutation ConfirmSms($phone: String!, $code: String!) {
-  confirmSms(phone: $phone, code: $code) {
-    token
-    user {
-      _id
+mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
+  updateUser(_id: $id, input: $input) {
+        _id
       phone
       createdAt
       subscriptionStatus {
@@ -25,6 +23,5 @@ mutation ConfirmSms($phone: String!, $code: String!) {
       monthlyPayment
       name
       comment
-    }
   }
 }

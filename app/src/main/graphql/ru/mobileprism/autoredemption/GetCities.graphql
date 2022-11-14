@@ -1,7 +1,7 @@
 query GetCitiesAndTimezones {
   getCities {
     _id
-    name
+    label
     timezone
   }
   getTimezones {

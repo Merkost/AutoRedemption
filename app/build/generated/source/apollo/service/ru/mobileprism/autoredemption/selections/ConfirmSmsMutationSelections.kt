@@ -13,6 +13,7 @@ import com.apollographql.apollo3.api.notNull
 import kotlin.collections.List
 import ru.mobileprism.autoredemption.type.AuthResponse
 import ru.mobileprism.autoredemption.type.City
+import ru.mobileprism.autoredemption.type.Date
 import ru.mobileprism.autoredemption.type.GraphQLBoolean
 import ru.mobileprism.autoredemption.type.GraphQLID
 import ru.mobileprism.autoredemption.type.GraphQLInt
@@ -29,7 +30,7 @@ public object ConfirmSmsMutationSelections {
         ).build(),
         CompiledField.Builder(
           name = "subscriptionEnds",
-          type = GraphQLString.type.notNull()
+          type = Date.type.notNull()
         ).build()
       )
 
@@ -39,7 +40,7 @@ public object ConfirmSmsMutationSelections {
           type = GraphQLString.type.notNull()
         ).build(),
         CompiledField.Builder(
-          name = "name",
+          name = "label",
           type = GraphQLString.type.notNull()
         ).build(),
         CompiledField.Builder(
@@ -82,7 +83,7 @@ public object ConfirmSmsMutationSelections {
         ).build(),
         CompiledField.Builder(
           name = "createdAt",
-          type = GraphQLString.type.notNull()
+          type = Date.type.notNull()
         ).build(),
         CompiledField.Builder(
           name = "subscriptionStatus",

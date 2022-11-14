@@ -12,6 +12,7 @@ import com.apollographql.apollo3.api.CustomScalarAdapters
 import com.apollographql.apollo3.api.Mutation
 import com.apollographql.apollo3.api.json.JsonWriter
 import com.apollographql.apollo3.api.obj
+import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
@@ -57,7 +58,7 @@ public data class ConfirmSmsMutation(
   public data class User(
     public val _id: String,
     public val phone: String,
-    public val createdAt: String,
+    public val createdAt: Any,
     public val subscriptionStatus: SubscriptionStatus,
     public val role: String,
     public val city: City?,
@@ -69,12 +70,12 @@ public data class ConfirmSmsMutation(
 
   public data class SubscriptionStatus(
     public val isActive: Boolean,
-    public val subscriptionEnds: String,
+    public val subscriptionEnds: Any,
   )
 
   public data class City(
     public val _id: String,
-    public val name: String,
+    public val label: String,
     public val timezone: String,
   )
 
@@ -88,7 +89,7 @@ public data class ConfirmSmsMutation(
 
   public companion object {
     public const val OPERATION_ID: String =
-        "c7fd064a6cf3e9d4e379bacd86558ab59123d1e2a5c283615f900dc286ed34ca"
+        "54dd7590ba481bca6fb75d6cf39ca01c317f8b0856d8d174629e0cf127ccd529"
 
     /**
      * The minimized GraphQL document being sent to the server to save a few bytes.
@@ -108,7 +109,7 @@ public data class ConfirmSmsMutation(
      *       role
      *       city {
      *         _id
-     *         name
+     *         label
      *         timezone
      *       }
      *       timezone {
@@ -127,7 +128,7 @@ public data class ConfirmSmsMutation(
      */
     public val OPERATION_DOCUMENT: String
       get() =
-          "mutation ConfirmSms(${'$'}phone: String!, ${'$'}code: String!) { confirmSms(phone: ${'$'}phone, code: ${'$'}code) { token user { _id phone createdAt subscriptionStatus { isActive subscriptionEnds } role city { _id name timezone } timezone { _id label name utc msk } monthlyPayment name comment } } }"
+          "mutation ConfirmSms(${'$'}phone: String!, ${'$'}code: String!) { confirmSms(phone: ${'$'}phone, code: ${'$'}code) { token user { _id phone createdAt subscriptionStatus { isActive subscriptionEnds } role city { _id label timezone } timezone { _id label name utc msk } monthlyPayment name comment } } }"
 
     public const val OPERATION_NAME: String = "ConfirmSms"
   }

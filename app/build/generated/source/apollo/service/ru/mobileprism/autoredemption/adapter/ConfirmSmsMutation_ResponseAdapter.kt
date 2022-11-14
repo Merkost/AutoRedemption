@@ -6,6 +6,7 @@
 package ru.mobileprism.autoredemption.adapter
 
 import com.apollographql.apollo3.api.Adapter
+import com.apollographql.apollo3.api.AnyAdapter
 import com.apollographql.apollo3.api.BooleanAdapter
 import com.apollographql.apollo3.api.CustomScalarAdapters
 import com.apollographql.apollo3.api.NullableIntAdapter
@@ -15,6 +16,7 @@ import com.apollographql.apollo3.api.json.JsonReader
 import com.apollographql.apollo3.api.json.JsonWriter
 import com.apollographql.apollo3.api.nullable
 import com.apollographql.apollo3.api.obj
+import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
@@ -95,7 +97,7 @@ public object ConfirmSmsMutation_ResponseAdapter {
         ConfirmSmsMutation.User {
       var __id: String? = null
       var _phone: String? = null
-      var _createdAt: String? = null
+      var _createdAt: Any? = null
       var _subscriptionStatus: ConfirmSmsMutation.SubscriptionStatus? = null
       var _role: String? = null
       var _city: ConfirmSmsMutation.City? = null
@@ -108,7 +110,7 @@ public object ConfirmSmsMutation_ResponseAdapter {
         when (reader.selectName(RESPONSE_NAMES)) {
           0 -> __id = StringAdapter.fromJson(reader, customScalarAdapters)
           1 -> _phone = StringAdapter.fromJson(reader, customScalarAdapters)
-          2 -> _createdAt = StringAdapter.fromJson(reader, customScalarAdapters)
+          2 -> _createdAt = AnyAdapter.fromJson(reader, customScalarAdapters)
           3 -> _subscriptionStatus = SubscriptionStatus.obj().fromJson(reader, customScalarAdapters)
           4 -> _role = StringAdapter.fromJson(reader, customScalarAdapters)
           5 -> _city = City.obj().nullable().fromJson(reader, customScalarAdapters)
@@ -146,7 +148,7 @@ public object ConfirmSmsMutation_ResponseAdapter {
       StringAdapter.toJson(writer, customScalarAdapters, value.phone)
 
       writer.name("createdAt")
-      StringAdapter.toJson(writer, customScalarAdapters, value.createdAt)
+      AnyAdapter.toJson(writer, customScalarAdapters, value.createdAt)
 
       writer.name("subscriptionStatus")
       SubscriptionStatus.obj().toJson(writer, customScalarAdapters, value.subscriptionStatus)
@@ -177,12 +179,12 @@ public object ConfirmSmsMutation_ResponseAdapter {
     public override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters):
         ConfirmSmsMutation.SubscriptionStatus {
       var _isActive: Boolean? = null
-      var _subscriptionEnds: String? = null
+      var _subscriptionEnds: Any? = null
 
       while(true) {
         when (reader.selectName(RESPONSE_NAMES)) {
           0 -> _isActive = BooleanAdapter.fromJson(reader, customScalarAdapters)
-          1 -> _subscriptionEnds = StringAdapter.fromJson(reader, customScalarAdapters)
+          1 -> _subscriptionEnds = AnyAdapter.fromJson(reader, customScalarAdapters)
           else -> break
         }
       }
@@ -202,23 +204,23 @@ public object ConfirmSmsMutation_ResponseAdapter {
       BooleanAdapter.toJson(writer, customScalarAdapters, value.isActive)
 
       writer.name("subscriptionEnds")
-      StringAdapter.toJson(writer, customScalarAdapters, value.subscriptionEnds)
+      AnyAdapter.toJson(writer, customScalarAdapters, value.subscriptionEnds)
     }
   }
 
   public object City : Adapter<ConfirmSmsMutation.City> {
-    public val RESPONSE_NAMES: List<String> = listOf("_id", "name", "timezone")
+    public val RESPONSE_NAMES: List<String> = listOf("_id", "label", "timezone")
 
     public override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters):
         ConfirmSmsMutation.City {
       var __id: String? = null
-      var _name: String? = null
+      var _label: String? = null
       var _timezone: String? = null
 
       while(true) {
         when (reader.selectName(RESPONSE_NAMES)) {
           0 -> __id = StringAdapter.fromJson(reader, customScalarAdapters)
-          1 -> _name = StringAdapter.fromJson(reader, customScalarAdapters)
+          1 -> _label = StringAdapter.fromJson(reader, customScalarAdapters)
           2 -> _timezone = StringAdapter.fromJson(reader, customScalarAdapters)
           else -> break
         }
@@ -226,7 +228,7 @@ public object ConfirmSmsMutation_ResponseAdapter {
 
       return ConfirmSmsMutation.City(
         _id = __id!!,
-        name = _name!!,
+        label = _label!!,
         timezone = _timezone!!
       )
     }
@@ -239,8 +241,8 @@ public object ConfirmSmsMutation_ResponseAdapter {
       writer.name("_id")
       StringAdapter.toJson(writer, customScalarAdapters, value._id)
 
-      writer.name("name")
-      StringAdapter.toJson(writer, customScalarAdapters, value.name)
+      writer.name("label")
+      StringAdapter.toJson(writer, customScalarAdapters, value.label)
 
       writer.name("timezone")
       StringAdapter.toJson(writer, customScalarAdapters, value.timezone)

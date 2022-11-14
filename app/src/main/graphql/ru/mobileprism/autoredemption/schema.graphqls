@@ -1,132 +1,95 @@
-type SubscriptionStatus {
-  isActive: Boolean!
+# This file was generated based on ".graphqlconfig". Do not edit manually.
 
-  subscriptionEnds: String!
-}
-
-type Timezone {
-  _id: String!
-
-  label: String!
-
-  name: String!
-
-  utc: String!
-
-  msk: String!
-}
-
-type City {
-  _id: String!
-
-  name: String!
-
-  timezone: String!
-}
-
-type User {
-  _id: ID!
-
-  phone: String!
-
-  createdAt: String!
-
-  subscriptionStatus: SubscriptionStatus!
-
-  role: String!
-
-  city: City
-
-  timezone: Timezone
-
-  monthlyPayment: Int
-
-  name: String
-
-  comment: String
-}
-
-type VerifyPhoneResponse {
-  success: Boolean!
-
-  message: String!
+schema {
+    query: Query
+    mutation: Mutation
 }
 
 type AuthResponse {
-  token: String!
+    token: String!
+    user: User!
+}
 
-  user: User!
+type City {
+    _id: String!
+    label: String!
+    timezone: String!
 }
 
 type Config {
-  _id: ID!
-
-  confirmSmsAttempts: Int!
-
-  confirmSmsExpiration: Int!
-
-  verifyPhoneAttempts: Int!
-
-  verifyPhoneExpiration: Int!
-
-  jwtExpiration: Int!
-}
-
-input UpdateUserInput {
-  phone: String
-
-  isActive: Boolean
-
-  subscriptionEnds: String
-
-  role: String
-
-  cityId: String
-
-  timezoneId: String
-
-  monthlyPayment: Int
-
-  name: String
-
-  comment: String
-}
-
-input UpdateConfigInput {
-  confirmSmsAttempts: Int
-
-  confirmSmsExpiration: Int
-
-  verifyPhoneAttempts: Int
-
-  verifyPhoneExpiration: Int
-
-  jwtExpiration: Int
-}
-
-type Query {
-  getUser(_id: ID!): User
-
-  getUsers: [User]
-
-  getCities: [City]
-
-  getTimezones: [Timezone]
+    _id: ID!
+    confirmSmsAttempts: Int!
+    confirmSmsExpiration: Int!
+    showDateOnly: Boolean!
+    verifyPhoneAttempts: Int!
+    verifyPhoneExpiration: Int!
 }
 
 type Mutation {
-  verifyPhone(phone: String!): VerifyPhoneResponse
-
-  confirmSms(phone: String!, code: String!): AuthResponse
-
-  deleteUser(_id: ID!): String
-
-  updateUser(_id: ID!, input: UpdateUserInput): User
-
-  updateConfig(input: UpdateConfigInput): Config
+    confirmSms(code: String!, phone: String!): AuthResponse
+    deleteUser(_id: ID!): String
+    updateConfig(input: UpdateConfig): Config
+    updateUser(_id: ID!, input: UpdateUserInput): User
+    verifyPhone(phone: String!): VerifyPhoneResponse
 }
 
-schema {
-  query: Query
-  mutation: Mutation
+type Query {
+    getCities: [City]
+    getConfig: Config
+    getTimezones: [Timezone]
+    getUser(_id: ID!): User
+    getUsers: [User]
+}
+
+type SubscriptionStatus {
+    isActive: Boolean!
+    subscriptionEnds: Date!
+}
+
+type Timezone {
+    _id: String!
+    label: String!
+    msk: String!
+    name: String!
+    utc: String!
+}
+
+type User {
+    _id: ID!
+    city: City
+    comment: String
+    createdAt: Date!
+    monthlyPayment: Int
+    name: String
+    phone: String!
+    role: String!
+    subscriptionStatus: SubscriptionStatus!
+    timezone: Timezone
+}
+
+type VerifyPhoneResponse {
+    message: String!
+    success: Boolean!
+}
+
+"Date custom scalar type"
+scalar Date
+
+input UpdateConfig {
+    confirmSmsAttempts: Int
+    confirmSmsExpiration: Int
+    showDateOnly: Boolean
+    verifyPhoneAttempts: Int
+    verifyPhoneExpiration: Int
+}
+
+input UpdateUserInput {
+    cityId: String
+    comment: String
+    monthlyPayment: Int
+    name: String
+    phone: String
+    role: String
+    subscriptionEnds: Date
+    timezoneId: String
 }
