@@ -8,8 +8,10 @@ import kotlinx.coroutines.launch
 import ru.mobileprism.autoredemption.model.datastore.UserDatastore
 import ru.mobileprism.autoredemption.model.datastore.UserEntity
 
-class ProfileViewModel(private val authManager: AuthManager,
-private val userDatastore: UserDatastore): ViewModel() {
+class ProfileViewModel(
+    private val authManager: AuthManager,
+    private val userDatastore: UserDatastore
+) : ViewModel() {
     fun logout() {
         viewModelScope.launch {
             authManager.logout()

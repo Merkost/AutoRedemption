@@ -39,7 +39,7 @@ class PhoneEnteringViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     val isPhoneSucceed = phoneNum.map {
-        /*it.length == 12 && isPhoneNumValid(it)*/true
+        it.length == 12 && isPhoneNumValid(it)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     fun onPhoneSet(newValue: String) {
@@ -79,8 +79,8 @@ class PhoneEnteringViewModel(
                         )
                     }
                 },
-                onError = { errorRes ->
-                    _uiState.update { BaseViewState.Error(stringRes = errorRes) }
+                onError = { error ->
+                    _uiState.update { BaseViewState.Error(error) }
                 }
             )
         }

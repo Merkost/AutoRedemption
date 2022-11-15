@@ -56,7 +56,7 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
                 viewModel.resetState()
             }
             is BaseViewState.Error -> {
-                context.applicationContext.showError(state)
+                context.showError(state.autoBotError)
                 viewModel.resetState()
             }
             else -> {}
@@ -91,11 +91,11 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
             .systemBarsPadding()
             .imePadding(),
         topBar = {
-            AuthTopAppBar(actions = {
+            AuthTopAppBar(/*actions = {
                 IconButton(onClick = { viewModel.loginTestUser() }) {
                     Icon(Icons.Default.CrueltyFree, "")
                 }
-            })
+            }*/)
         }
     ) {
 
@@ -163,7 +163,7 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
                         keyboardController?.hide()
                         onReady()
                     }),
-                    isError = viewModel.isPhoneError.value,
+                    isError = viewModel.isPhoneError.collectAsState().value,
                     visualTransformation = PhoneNumberVisualTransformation()
                 )
             }

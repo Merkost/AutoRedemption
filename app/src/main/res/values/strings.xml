@@ -19,4 +19,7 @@
     <string name="scenarios">Сценарии</string>
     <string name="interner_error">Не удается связаться с сервером. Повторите попытку позже.</string>
     <string name="unknown_error">Неизвестная ошибка!</string>
+    <string name="empty_response">Нет ответа от сервера</string>
+    <string name="reload">Повторить попытку</string>
+    <string name="unable_reach_server">Не удалось связаться с сервером!</string>
 </resources>

@@ -1,7 +1,10 @@
 package ru.mobileprism.autoredemption.compose.screens.auth
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
@@ -18,6 +21,7 @@ import org.koin.androidx.compose.getViewModel
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.compose.custom.MainButton
 import ru.mobileprism.autoredemption.compose.custom.ModalLoadingDialog
+import ru.mobileprism.autoredemption.compose.custom.SmallErrorViewVertical
 import ru.mobileprism.autoredemption.compose.screens.home.AutoBotTextField
 import ru.mobileprism.autoredemption.model.entities.SmsConfirmEntity
 import ru.mobileprism.autoredemption.utils.BaseViewState
@@ -26,7 +30,7 @@ import ru.mobileprism.autoredemption.viewmodels.ChooseCityViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChooseCityScreen(smsConfirmEntity: SmsConfirmEntity, upPress: () -> Unit, onNext: () -> Unit) {
+fun ChooseCityScreen(upPress: () -> Unit, onNext: () -> Unit) {
 
     val viewModel: ChooseCityViewModel = getViewModel()
     val context = LocalContext.current
@@ -38,10 +42,10 @@ fun ChooseCityScreen(smsConfirmEntity: SmsConfirmEntity, upPress: () -> Unit, on
     val uiState = viewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState.value) {
-        when(val state = uiState.value) {
+        when (val state = uiState.value) {
             is BaseViewState.Success -> onNext()
             is BaseViewState.Error -> {
-                context.showError(state)
+                context.showError(state.autoBotError)
             }
             else -> {}
         }
@@ -53,71 +57,90 @@ fun ChooseCityScreen(smsConfirmEntity: SmsConfirmEntity, upPress: () -> Unit, on
         .fillMaxSize()
         .systemBarsPadding()
         .imePadding(),
-        topBar = { AuthTopAppBar(title = "Регистрация", upPress) }) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(30.dp)
-                .padding(it),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(
-                modifier = Modifier, verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "Пожалуйста, выберите ваш город и часовой пояс для отправки сообщений",
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                ChooseOutlineTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = "Город",
-                    chosenValue = chosenValues.value.city?.name,
-                    resetChosenValue = { viewModel.resetChosenCity() }
-                ) { text ->
-                    cities.value.filter { it.name.startsWith(text) }.forEach { city ->
-                        DropdownMenuItem(onClick = { viewModel.onCitySelected(city) },
-                            text = { Text(text = city.name) })
+        topBar = { AuthTopAppBar(title = "Регистрация") }
+    ) {
+        Crossfade(targetState = valuesState.value, modifier = Modifier.padding(it)) {
+            when (it) {
+                is BaseViewState.Error -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        SmallErrorViewVertical(onRetry = viewModel::retry)
                     }
                 }
+                else -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(30.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(
+                            modifier = Modifier, verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(
+                                text = "Пожалуйста, выберите ваш город и часовой пояс для отправки сообщений",
+                                style = MaterialTheme.typography.titleMedium
+                            )
 
-                ChooseOutlineTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = "Часовой пояс",
-                    chosenValue = chosenValues.value.timezone?.name,
-                    resetChosenValue = { viewModel.resetChosenTimezone() }
-                ) { text ->
-                    timezones.value.filter { it.name.startsWith(text) }.forEach { timezone ->
-                        DropdownMenuItem(onClick = { viewModel.onTimezoneSelected(timezone) },
-                            text = { Text(text = timezone.name) })
+                            ChooseOutlineTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                placeholder = "Город",
+                                chosenValue = chosenValues.value.city?.label,
+                                enteredText = chosenValues.value.cityText,
+                                onTextChanged = viewModel::onNewCityTextInput,
+                                resetChosenValue = { viewModel.resetChosenCity() }
+                            ) {
+                                cities.value.take(5).forEach { city ->
+                                    DropdownMenuItem(onClick = { viewModel.onCitySelected(city) },
+                                        text = { Text(text = city.label) })
+                                }
+                            }
+
+                            ChooseOutlineTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                placeholder = "Часовой пояс",
+                                chosenValue = chosenValues.value.timezone?.name,
+                                enteredText = chosenValues.value.timezoneText,
+                                onTextChanged = viewModel::onNewTimezoneTextInput,
+                                resetChosenValue = { viewModel.resetChosenTimezone() }
+                            ) {
+                                timezones.value.take(5).forEach { timezone ->
+                                    DropdownMenuItem(onClick = {
+                                        viewModel.onTimezoneSelected(
+                                            timezone
+                                        )
+                                    },
+                                        text = { Text(text = timezone.label) })
+                                }
+                            }
+
+                        }
+
+                        MainButton(
+                            modifier = Modifier.weight(1f, false),
+                            enabled = viewModel.couldSaveValues.collectAsState().value,
+                            content = { Text(text = stringResource(R.string.proceed)) },
+                            onClick = viewModel::saveChosenValues
+                        )
                     }
                 }
-
             }
-
-            MainButton(
-                modifier = Modifier.weight(1f, false),
-                enabled = viewModel.couldSaveValues.collectAsState().value,
-                content = { Text(text = stringResource(R.string.proceed)) },
-                onClick = viewModel::saveChosenValues
-            )
-
         }
-
     }
 }
+
 
 @Composable
 fun ChooseOutlineTextField(
     modifier: Modifier,
     placeholder: String,
     chosenValue: String?,
+    enteredText: String,
+    onTextChanged: (String) -> Unit,
     resetChosenValue: () -> Unit,
-    dropdownColumn: @Composable() (ColumnScope.(String) -> Unit)
+    dropdownColumn: @Composable() (ColumnScope.() -> Unit)
 ) {
     Box {
-        var chosenText by remember { mutableStateOf("") }
         var dropDownExpanded by remember { mutableStateOf(false) }
 
         LaunchedEffect(chosenValue) {
@@ -128,20 +151,22 @@ fun ChooseOutlineTextField(
             modifier = modifier.onFocusChanged {
                 if (it.hasFocus && chosenValue == null) dropDownExpanded = true
             },
-            readOnly = chosenValue != null,
-            value = chosenValue ?: chosenText,
+            enabled = chosenValue == null,
+            value = chosenValue ?: enteredText,
             onValueChange = {
-                chosenText = it
+                onTextChanged(it)
                 dropDownExpanded = true
             },
             placeholder = placeholder,
             trailingIcon = {
                 if (chosenValue != null) {
-                    IconButton(onClick = resetChosenValue) {
+                    IconButton(onClick = {
+                        resetChosenValue()
+                    }) {
                         Icon(Icons.Default.Close, "")
                     }
                 } else
-                    AnimatedVisibility(visible = !dropDownExpanded && chosenText.isEmpty()) {
+                    AnimatedVisibility(visible = !dropDownExpanded && enteredText.isEmpty()) {
                         IconButton(onClick = { dropDownExpanded = true }) {
                             Icon(Icons.Default.ArrowDropDown, "")
                         }
@@ -151,7 +176,7 @@ fun ChooseOutlineTextField(
         DropdownMenu(expanded = dropDownExpanded, properties = PopupProperties(
             focusable = false, dismissOnBackPress = true, dismissOnClickOutside = true
         ), onDismissRequest = { dropDownExpanded = false }) {
-            dropdownColumn(chosenText)
+            dropdownColumn()
         }
     }
 }

@@ -109,7 +109,7 @@ fun DefaultDialog(
                 primaryText?.let {
                     CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
                         val textStyle =
-                            MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold)
+                            MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
                         ProvideTextStyle(textStyle) {
                             Text(
                                 modifier = Modifier.constrainAs(title) {

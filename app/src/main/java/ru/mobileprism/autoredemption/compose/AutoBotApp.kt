@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -30,6 +31,11 @@ import ru.mobileprism.autoredemption.compose.screens.home.addHomeGraph
 @Composable
 fun AutoBotApp(startRoute: String = MainDestinations.HOME) {
     val appStateHolder = rememberAppStateHolder()
+
+    /*var startRoute: String = MainDestinations.HOME
+    if (authState.user.shouldChooseCity) {
+        startRoute = LoginDestinations.CHOOSE_CITY
+    }*/
 
     //CheckForPermissions()
 
@@ -104,7 +110,7 @@ private fun NavGraphBuilder.NavGraph(
 
     navigation(
         route = MainDestinations.AUTH_ROUTE,
-        startDestination = /*LoginDestinations.PHONE_ENTERING_ROUTE*/LoginDestinations.CHOOSE_CITY,
+        startDestination = LoginDestinations.PHONE_ENTERING_ROUTE,
     ) {
         addAuthGraph(navController, upPress = upPress)
     }

@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.first
 import ru.mobileprism.autoredemption.workmanager.ForegroundService
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
+import ru.mobileprism.autoredemption.model.repository.AutoBotError
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.regex.Matcher
@@ -83,13 +84,7 @@ fun Context.getSubscriptionManager(): SubscriptionManager {
     }
 }
 
-fun Context.showToast(s: String) {
-    Toast.makeText(
-        this,
-        s,
-        Toast.LENGTH_SHORT
-    ).show()
-}
+
 
 fun Context.startSmsService() {
     val serviceIntent = Intent(this, ForegroundService::class.java)
@@ -176,19 +171,17 @@ fun Context.showToast(text: String, length: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(applicationContext, text, length).show()
 }
 
-fun Context.showError(errorState: BaseViewState.Error) {
-    if (Constants.isDebug)  showToast(errorState.text ?: getString(R.string.api_error_message))
-    else {
-        errorState.stringRes?.let {
-            showToast(getString(it))
-        } ?: if (Constants.isDebug)  showToast(errorState.text ?: getString(R.string.api_error_message))
-        else showToast(getString(R.string.api_error_message))
+fun Context.showError(autoBotError: AutoBotError) {
+    when(Constants.isDebug) {
+        true -> {
+            autoBotError.error?.message?.let {
+                showToast(it)
+            } ?: showToast(getString(autoBotError.messageResource))
+        }
+        else -> {
+            showToast(getString(autoBotError.messageResource))
+        }
     }
-
-}
-
-fun Context.showError(text: String?) {
-    showToast(text ?: getString(R.string.api_error_message))
 }
 
 val String.toLocalDateTimeOrNull: LocalDateTime?

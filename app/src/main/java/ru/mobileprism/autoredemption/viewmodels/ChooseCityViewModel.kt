@@ -12,21 +12,14 @@ import org.koin.core.KoinApplication.Companion.init
 import ru.mobileprism.autoredemption.ConfirmSmsMutation
 import ru.mobileprism.autoredemption.GetCitiesAndTimezonesQuery
 import ru.mobileprism.autoredemption.R
-import ru.mobileprism.autoredemption.model.ServerError
-import ru.mobileprism.autoredemption.model.datastore.CityEntity
-import ru.mobileprism.autoredemption.model.datastore.TimeZoneEntity
-import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
-import ru.mobileprism.autoredemption.model.entities.SmsConfirmEntity
-import ru.mobileprism.autoredemption.model.repository.AuthRepository
+import ru.mobileprism.autoredemption.model.datastore.UserDatastore
 import ru.mobileprism.autoredemption.model.repository.AutoBotError
 import ru.mobileprism.autoredemption.model.repository.CityRepository
 import ru.mobileprism.autoredemption.model.repository.fold
-import ru.mobileprism.autoredemption.type.City
 import ru.mobileprism.autoredemption.utils.BaseViewState
-import ru.mobileprism.autoredemption.utils.Constants.RETRY_DELAY
-import ru.mobileprism.autoredemption.utils.Constants.SMS_RESEND_AWAIT
 
 class ChooseCityViewModel(
+    private val userDatastore: UserDatastore,
     private val cityRepository: CityRepository,
 ) : ViewModel() {
 
@@ -42,18 +35,29 @@ class ChooseCityViewModel(
         it.city != null && it.timezone != null
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
-    private val _cities = MutableStateFlow<List<GetCitiesAndTimezonesQuery.GetCity>>(listOf(
-        GetCitiesAndTimezonesQuery.GetCity("1", "2","3",)
-    ))
-    val cities = _cities.asStateFlow()
+    private val _cities = MutableStateFlow<List<GetCitiesAndTimezonesQuery.GetCity>>(
+        listOf(GetCitiesAndTimezonesQuery.GetCity("1", "2", "3"))
+    )
+    val cities = combine(_cities, chosenCityAndTimezone) { cities, chosenValues ->
+        cities.filter { it.label.startsWith(chosenValues.cityText) }/*.take(5)*/
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    private val _timezones = MutableStateFlow<List<GetCitiesAndTimezonesQuery.GetTimezone>>(listOf(
-        GetCitiesAndTimezonesQuery.GetTimezone("1","2","3","4","5")
-    ))
-    val timezones = _timezones.asStateFlow()
+    private val _timezones = MutableStateFlow<List<GetCitiesAndTimezonesQuery.GetTimezone>>(
+        listOf(
+            GetCitiesAndTimezonesQuery.GetTimezone("1", "2", "3", "4", "5")
+        )
+    )
+    val timezones = combine(_timezones, chosenCityAndTimezone) { cities, chosenValues ->
+        cities.filter { it.label.startsWith(chosenValues.timezoneText) }/*.take(5)*/
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
 
     init {
+        getCities()
+    }
+
+    fun retry() {
+        _valuesState.update { BaseViewState.Loading() }
         getCities()
     }
 
@@ -67,10 +71,10 @@ class ChooseCityViewModel(
                     it.getTimezones?.let {
                         _timezones.value = it.filterNotNull()
                     }
-                    _uiState.update { BaseViewState.Success(Unit) }
+                    _valuesState.update { BaseViewState.Success(Unit) }
                 },
-                onError = { errorRes ->
-                    _uiState.update { BaseViewState.Error(stringRes = errorRes) }
+                onError = { error ->
+                    _valuesState.update { BaseViewState.Error(error) }
                 }
             )
         }
@@ -90,19 +94,50 @@ class ChooseCityViewModel(
 
     fun resetChosenCity() {
         viewModelScope.launch {
-            chosenCityAndTimezone.update { it.copy(city = null) }
+            chosenCityAndTimezone.update {
+                it.copy(
+                    city = null,
+                    cityText = ""
+                )
+            }
         }
     }
 
     fun resetChosenTimezone() {
         viewModelScope.launch {
-            chosenCityAndTimezone.update { it.copy(timezone = null) }
+            chosenCityAndTimezone.update { it.copy(timezone = null, timezoneText = "") }
         }
     }
 
     fun saveChosenValues() {
         viewModelScope.launch {
+            _uiState.update { BaseViewState.Loading() }
+            chosenCityAndTimezone.value.let {
+                if (it.city?._id != null && it.timezone?._id != null) {
+                    cityRepository.updateCityAndTimezone(it.city._id, it.timezone._id).single().fold(
+                        onSuccess = {
+                            _uiState.update { BaseViewState.Success(Unit) }
+                        },
+                        onError = { error ->
+                            _uiState.update { BaseViewState.Error(error) }
+                        }
+                    )
+                } else {
+                    _uiState.update { BaseViewState.Error(AutoBotError()) }
+                }
+            }
+        }
+    }
 
+    fun onNewCityTextInput(text: String) {
+        viewModelScope.launch {
+            chosenCityAndTimezone.update { it.copy(cityText = text) }
+        }
+    }
+
+    fun onNewTimezoneTextInput(text: String) {
+        viewModelScope.launch {
+            chosenCityAndTimezone.update { it.copy(timezoneText = text) }
         }
     }
 
@@ -111,5 +146,8 @@ class ChooseCityViewModel(
 
 data class CityAndTimezone(
     val city: GetCitiesAndTimezonesQuery.GetCity? = null,
-    val timezone: GetCitiesAndTimezonesQuery.GetTimezone? = null
+    val cityText: String = "",
+
+    val timezone: GetCitiesAndTimezonesQuery.GetTimezone? = null,
+    val timezoneText: String = "",
 )

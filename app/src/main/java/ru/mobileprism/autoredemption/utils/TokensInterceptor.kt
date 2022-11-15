@@ -10,7 +10,8 @@ import okhttp3.Request
 import okhttp3.Response
 import ru.mobileprism.autoredemption.model.datastore.UserDatastore
 
-class TokensInterceptor(private val userDatastore: UserDatastore) : Interceptor, LifecycleEventObserver {
+class TokensInterceptor(private val userDatastore: UserDatastore) : Interceptor,
+    LifecycleEventObserver {
 
 //    private val coroutineScope = MainScope()
 
@@ -19,11 +20,14 @@ class TokensInterceptor(private val userDatastore: UserDatastore) : Interceptor,
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = runBlocking { userDatastore.getUserToken.firstOrNull() }
+        if (Constants.isDebug) {
+            print("TOKEN = $token")
+        }
         token?.let {
             val request: Request = chain.request()
 
             val newRequest: Request = request.newBuilder()
-                .addHeader("AutoBotToken", token)
+                .addHeader("Authorization", "Bearer $token")
                 .build()
             return chain.proceed(newRequest)
         }

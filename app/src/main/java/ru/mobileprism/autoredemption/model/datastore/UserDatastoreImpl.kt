@@ -7,7 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import ru.mobileprism.autoredemption.compose.screens.auth.AuthState
+import ru.mobileprism.autoredemption.model.entities.AuthState
 
 class UserDatastoreImpl(private val context: Context) : UserDatastore {
 
@@ -22,10 +22,10 @@ class UserDatastoreImpl(private val context: Context) : UserDatastore {
 
     override val authState: Flow<AuthState> = context.dataStore.data
         .map { preferences ->
-            val user = Gson().fromJson(preferences[CURRENT_USER], UserEntity::class.java) ?: UserEntity()
+            val user = Gson().fromJson(preferences[CURRENT_USER], UserEntity::class.java)
             val token = preferences[TOKEN]
-            if (token == null) AuthState.NotLogged
-            else AuthState.Logged
+            if (token == null || user == null) AuthState.NotLogged
+            else AuthState.Logged(user)
         }
 
     override val getCurrentUser: Flow<UserEntity> = context.dataStore.data

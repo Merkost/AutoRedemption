@@ -8,10 +8,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.model.entities.SmsConfirmEntity
 import ru.mobileprism.autoredemption.model.repository.AuthRepository
+import ru.mobileprism.autoredemption.model.repository.AutoBotError
 import ru.mobileprism.autoredemption.model.repository.fold
 import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.Constants.RETRY_DELAY
@@ -90,6 +90,7 @@ class SmsVerificationViewModel(
             authRepository.confirmSms(phoneAuth.phone, currentSmsCode).single().fold(
                 onSuccess = { result ->
                     result.confirmSms?.let { smsResult ->
+                        authManager.saveUserWithToken(Mapper.mapDbUser(smsResult.user), smsResult.token)
                         _uiState.update {
                             BaseViewState.Success(
                                 SmsConfirmEntity(
@@ -98,11 +99,10 @@ class SmsVerificationViewModel(
                                 )
                             )
                         }
-                    } ?: _uiState.update { BaseViewState.Error(stringRes = R.string.unknown_error) }
-
+                    } ?: _uiState.update { BaseViewState.Error(AutoBotError.EmptyResponseError) }
                 },
-                onError = { errorRes ->
-                    _uiState.update { BaseViewState.Error(stringRes = errorRes) }
+                onError = { error ->
+                    _uiState.update { BaseViewState.Error(error) }
                 }
             )
         }
@@ -119,8 +119,8 @@ class SmsVerificationViewModel(
                         _smsCode.update { smsCode }
                     }
                 },
-                onError = { errorRes ->
-                    _uiState.update { BaseViewState.Error(stringRes = errorRes) }
+                onError = { error ->
+                    _uiState.update { BaseViewState.Error(error) }
                 }
             )
         }
@@ -130,7 +130,6 @@ class SmsVerificationViewModel(
         viewModelScope.launch {
             _uiState.value = BaseViewState.Loading()
             delay(RETRY_DELAY)
-            // TODO: properly resend sms
             retrySms()
         }
     }

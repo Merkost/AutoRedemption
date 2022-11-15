@@ -1,27 +1,27 @@
 mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
   updateUser(_id: $id, input: $input) {
-        _id
-      phone
-      createdAt
-      subscriptionStatus {
-        isActive
-        subscriptionEnds
-      }
-      role
-      city {
-        _id
-        label
-        timezone
-      }
-      timezone {
-        _id
-        label
-        name
-        utc
-        msk
-      }
-      monthlyPayment
+    _id
+    phone
+    createdAt
+    subscriptionStatus {
+      isActive
+      subscriptionEnds
+    }
+    role
+    city {
+      _id
+      label
+      timezone
+    }
+    timezone {
+      _id
+      label
       name
-      comment
+      utc
+      msk
+    }
+    monthlyPayment
+    name
+    comment
   }
 }

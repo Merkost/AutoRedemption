@@ -29,7 +29,15 @@ fun NavGraphBuilder.addAuthGraph(
     upPress: () -> Unit
 ) {
 
-//    authManager.saveUserWithToken(UserMapper.mapDbUser(smsResult.user), smsResult.token)
+    val navigateToApp: () -> Unit = {
+        navController.navigate(MainDestinations.HOME) {
+            popUpTo(MainDestinations.AUTH_ROUTE) {
+                inclusive = true
+            }
+        }
+    }
+
+   //authManager.saveUserWithToken(UserMapper.mapDbUser(smsResult.user), smsResult.token)
 
     composable(LoginDestinations.PHONE_ENTERING_ROUTE) {
         PhoneEnteringScreen {
@@ -40,21 +48,23 @@ fun NavGraphBuilder.addAuthGraph(
     composable(LoginDestinations.SMS_CONFIRM_ROUTE) {
         val phoneAuthEntity = it.requiredArg<PhoneAuthEntity>(LoginArguments.PHONE_AUTH)
         SmsConfirmScreen(phoneAuthEntity, upPress = upPress) {
-            navController.navigate(LoginDestinations.CHOOSE_CITY, LoginArguments.CONFIRM_SMS to it)
+            if (it.user.shouldChooseCity) {
+                navController.navigate(LoginDestinations.CHOOSE_CITY) {
+                    popUpTo(MainDestinations.AUTH_ROUTE) {
+                        inclusive = true
+                    }
+                }
+            } else { navigateToApp() }
+
         }
     }
 
     composable(LoginDestinations.CHOOSE_CITY) {
-//        val confirmSmsEntity = it.requiredArg<SmsConfirmEntity>(LoginArguments.CONFIRM_SMS)
-        val confirmSmsEntity = SmsConfirmEntity("", UserEntity())
-        ChooseCityScreen(confirmSmsEntity, upPress = upPress) {
-            navController.navigate(MainDestinations.HOME) {
-                popUpTo(MainDestinations.AUTH_ROUTE) {
-                    inclusive = true
-                }
-            }
+        ChooseCityScreen(upPress = upPress) {
+            navigateToApp()
         }
     }
 }
+
 
 

@@ -26,7 +26,7 @@ import ru.mobileprism.autoredemption.viewmodels.toOffsetDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(upPress: () -> Unit) {
+fun ProfileScreen(upPress: () -> Unit, toAuth: () -> Unit) {
     val viewModel: ProfileViewModel = getViewModel()
 
     val user = viewModel.currentUser.collectAsState()
@@ -53,20 +53,45 @@ fun ProfileScreen(upPress: () -> Unit) {
                     )
                 }"
             )
-            user.value.subscriptionStatus?.let {
+            user.value.subscriptionStatus.let {
+                if (it.isActive) {
+                    Text(
+                        text = "Подписка активна до: ${
+                            it.subscriptionEnds.format(
+                                DAY_MONTH_YEAR_TIME
+                            )
+                        }"
+                    )
+                } else {
+                    Text(text = "Подписка неактивна")
+                }
+
+            }
+            Text(
+                text = "Зарегистрирован: ${
+                    user.value.createdAt.format(
+                        DAY_MONTH_YEAR_TIME
+                    )
+                }"
+            )
+
+            user.value.city?.label?.let {
                 Text(
-                    text = "Подписка активна до: ${
-                        it.subscriptionEnds.format(
-                            DAY_MONTH_YEAR_TIME
-                        )
-                    }"
+                    text = "Город: $it"
                 )
             }
+
+            user.value.timeZone?.label?.let {
+                Text(
+                    text = "Часовой пояс: $it"
+                )
+            }
+
 
 //            Text(text = user.value.toString())
 
             CircleButton(
-                onClick = { viewModel.logout() },
+                onClick = { viewModel.logout(); toAuth() },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(text = "Выйти из аккаунта")

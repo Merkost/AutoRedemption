@@ -5,8 +5,10 @@ import ru.mobileprism.autoredemption.model.datastore.CityEntity
 import ru.mobileprism.autoredemption.model.datastore.SubscriptionStatus
 import ru.mobileprism.autoredemption.model.datastore.TimeZoneEntity
 import ru.mobileprism.autoredemption.model.datastore.UserEntity
-import ru.mobileprism.autoredemption.type.City
+import java.time.Instant
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
+import java.time.ZoneId
 
 val String.toOffsetDateTime: OffsetDateTime
     get() = OffsetDateTime.parse(this)
@@ -18,7 +20,7 @@ object Mapper {
             UserEntity(
                 _id = _id,
                 phone = phone,
-                createdAt = OffsetDateTime.now()/*OffsetDateTime.parse(createdAt)*/,
+                createdAt = (createdAt.toString().toLong()).toLocalDateTime(),
                 subscriptionStatus = mapDbSubscriptionStatus(subscriptionStatus),
                 role = role,
                 city = city?.let { mapDbCity(it) },
@@ -43,7 +45,7 @@ object Mapper {
     private fun mapDbCity(city: ConfirmSmsMutation.City) = with(city) {
         CityEntity(
             _id = _id,
-            name = name,
+            label = label,
             timeZone = timezone,
         )
     }
@@ -57,8 +59,12 @@ object Mapper {
     ) = with(subscriptionStatus) {
         SubscriptionStatus(
             isActive,
-            OffsetDateTime.now()/*OffsetDateTime.parse(subscriptionEnds)*/
+            (subscriptionEnds.toString().toLong()).toLocalDateTime()
         )
     }
 
+}
+
+private fun Long.toLocalDateTime(): LocalDateTime {
+    return Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDateTime();
 }

@@ -18,6 +18,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.compose.MainDestinations
+import ru.mobileprism.autoredemption.compose.screens.auth.LoginDestinations
 
 fun NavGraphBuilder.addHomeGraph(
     navController: NavController,
@@ -33,7 +34,11 @@ fun NavGraphBuilder.addHomeGraph(
     composable(
         HomeSections.PROFILE.route
     ) { from ->
-        ProfileScreen(upPress)
+        ProfileScreen(upPress, toAuth = {
+          navController.navigate(LoginDestinations.PHONE_ENTERING_ROUTE) {
+              popUpTo(0) { inclusive = true }
+          }
+        })
 
     }
 

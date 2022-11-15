@@ -27,7 +27,7 @@ class HomeViewModel(val appSettings: AppSettings) : ViewModel() {
         viewModelScope.launch {
             appSettingsEntity.value.testNumbers.let { testNumbers ->
                 appSettings.saveAppSettings(appSettingsEntity.value.copy(
-                    testNumbers = testNumbers + testNumbers.max()
+                    testNumbers = testNumbers + (testNumbers.size + 1).toString()
                 ))
             }
         }

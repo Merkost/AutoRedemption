@@ -41,6 +41,7 @@ import ru.mobileprism.autoredemption.compose.custom.MainButton
 import ru.mobileprism.autoredemption.compose.custom.ModalLoadingDialog
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.model.entities.SmsConfirmEntity
+import ru.mobileprism.autoredemption.type.Date
 import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.showError
 
@@ -71,7 +72,7 @@ fun SmsConfirmScreen(
                 viewModel.resetState()
             }
             is BaseViewState.Error -> {
-                context.applicationContext.showError(state)
+                context.showError(state.autoBotError)
                 viewModel.resetState()
             }
             else -> {}
