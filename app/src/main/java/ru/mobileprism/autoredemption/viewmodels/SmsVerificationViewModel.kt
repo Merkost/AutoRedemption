@@ -16,14 +16,14 @@ import ru.mobileprism.autoredemption.model.repository.fold
 import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.Constants.RETRY_DELAY
 import ru.mobileprism.autoredemption.utils.Constants.SMS_RESEND_AWAIT
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 class SmsVerificationViewModel(
     private val authManager: AuthManager,
     private val phoneAuth: PhoneAuthEntity,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
-
-    /*private var phoneAuth: MutableState<PhoneAuthEntity> = mutableStateOf(phoneAuth)*/
 
     private val _smsCode = MutableStateFlow(phoneAuth.password)
     val smsCode = _smsCode.asStateFlow()
@@ -53,9 +53,8 @@ class SmsVerificationViewModel(
     }
 
     val isError: MutableState<Boolean>
-        get() {
-            return mutableStateOf(if (smsCode.value.length == 6) !isNewSmsCodeValid(smsCode.value) else false)
-        }
+        get() = mutableStateOf(if (smsCode.value.length == 6) !isNewSmsCodeValid(smsCode.value) else false)
+
 
     private fun isNewSmsCodeValid(newValue: String): Boolean {
         return when (newValue.length) {
@@ -75,6 +74,11 @@ class SmsVerificationViewModel(
         }
     }
 
+    fun onSmsCodeFromListener(str: String) {
+        val newCode = extractDigits(str)
+        onSmsCodeValueChange(newCode)
+    }
+
     fun resetSmsCode() {
         _smsCode.value = ""
     }
@@ -90,12 +94,12 @@ class SmsVerificationViewModel(
             authRepository.confirmSms(phoneAuth.phone, currentSmsCode).single().fold(
                 onSuccess = { result ->
                     result.confirmSms?.let { smsResult ->
-                        authManager.saveUserWithToken(Mapper.mapDbUser(smsResult.user), smsResult.token)
+                        authManager.saveUserWithToken(Mapper.mapDbUser(smsResult.user.userFragment), smsResult.token)
                         _uiState.update {
                             BaseViewState.Success(
                                 SmsConfirmEntity(
                                     token = smsResult.token,
-                                    user = Mapper.mapDbUser(smsResult.user),
+                                    user = Mapper.mapDbUser(smsResult.user.userFragment),
                                 )
                             )
                         }
@@ -148,6 +152,14 @@ class SmsVerificationViewModel(
 
     fun resetState() {
         _uiState.update { null }
+    }
+
+    private fun extractDigits(str: String): String {
+        val p: Pattern = Pattern.compile("(\\d{6})")
+        val m: Matcher = p.matcher(str)
+        return if (m.find()) {
+            m.group(0) ?: ""
+        } else ""
     }
 
 
