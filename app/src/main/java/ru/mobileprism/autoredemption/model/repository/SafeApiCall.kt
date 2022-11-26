@@ -54,6 +54,7 @@ inline fun <R, T : Any> ResultWrapper<T>.fold(
         is ResultWrapper.Success -> onSuccess(this.data)
         is ResultWrapper.GenericError ->
             onError(
+                // TODO:
                 AutoBotError(
                     ru.mobileprism.autoredemption.R.string.api_error_message,
                     error = Error(this.data?.message)

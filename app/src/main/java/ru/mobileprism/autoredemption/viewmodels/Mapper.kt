@@ -1,10 +1,12 @@
 package ru.mobileprism.autoredemption.viewmodels
 
-import ru.mobileprism.autoredemption.ConfirmSmsMutation
-import ru.mobileprism.autoredemption.model.datastore.CityEntity
-import ru.mobileprism.autoredemption.model.datastore.SubscriptionStatus
-import ru.mobileprism.autoredemption.model.datastore.TimeZoneEntity
-import ru.mobileprism.autoredemption.model.datastore.UserEntity
+import ru.mobileprism.autoredemption.fragment.CityFragment
+import ru.mobileprism.autoredemption.fragment.SubscriptionStatusFragment
+import ru.mobileprism.autoredemption.fragment.TimezoneFragment
+import ru.mobileprism.autoredemption.fragment.UserFragment
+
+import ru.mobileprism.autoredemption.model.datastore.*
+import ru.mobileprism.autoredemption.type.User
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -14,24 +16,22 @@ val String.toOffsetDateTime: OffsetDateTime
     get() = OffsetDateTime.parse(this)
 
 object Mapper {
-    fun mapDbUser(user: ConfirmSmsMutation.User) =
+    fun mapDbUser(user: UserFragment) =
         with(user) {
-            // TODO: createdAt fix
             UserEntity(
                 _id = _id,
                 phone = phone,
                 createdAt = (createdAt.toString().toLong()).toLocalDateTime(),
-                subscriptionStatus = mapDbSubscriptionStatus(subscriptionStatus),
-                role = role,
-                city = city?.let { mapDbCity(it) },
-                timeZone = timezone?.let { mapDbTimezone(it) },
+                subscriptionStatus = mapDbSubscriptionStatus(subscriptionStatus.subscriptionStatusFragment),
+                role = UserRole.values().find { it.type == role } ?: UserRole.USER,
+                city = city?.let { mapDbCity(it.cityFragment) },
+                timeZone = timezone?.let { mapDbTimezone(it.timezoneFragment) },
                 monthlyPayment = monthlyPayment,
                 name = name,
-
-                )
+            )
         }
 
-    private fun mapDbTimezone(timezone: ConfirmSmsMutation.Timezone): TimeZoneEntity =
+    private fun mapDbTimezone(timezone: TimezoneFragment): TimeZoneEntity =
         with(timezone) {
             TimeZoneEntity(
                 _id = _id,
@@ -42,7 +42,7 @@ object Mapper {
             )
         }
 
-    private fun mapDbCity(city: ConfirmSmsMutation.City) = with(city) {
+    private fun mapDbCity(city: CityFragment) = with(city) {
         CityEntity(
             _id = _id,
             label = label,
@@ -50,12 +50,8 @@ object Mapper {
         )
     }
 
-    /*private fun mapCities(cities: Ci) {
-
-    }*/
-
     private fun mapDbSubscriptionStatus(
-        subscriptionStatus: ConfirmSmsMutation.SubscriptionStatus
+        subscriptionStatus: SubscriptionStatusFragment
     ) = with(subscriptionStatus) {
         SubscriptionStatus(
             isActive,

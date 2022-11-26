@@ -1,14 +1,8 @@
 query GetCitiesAndTimezones {
   getCities {
-    _id
-    label
-    timezone
+    ...CityFragment
   }
   getTimezones {
-      _id
-      label
-      name
-      utc
-      msk
+      ...TimezoneFragment
     }
 }

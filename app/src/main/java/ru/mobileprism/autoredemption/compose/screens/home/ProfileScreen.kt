@@ -1,10 +1,14 @@
 package ru.mobileprism.autoredemption.compose.screens.home
 
 import android.graphics.Paint.Align
+import android.view.ViewTreeObserver
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.foundation.text.KeyboardActions
@@ -14,10 +18,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 import ru.mobileprism.autoredemption.compose.custom.CircleButton
 import ru.mobileprism.autoredemption.utils.Constants.DAY_MONTH_YEAR_TIME
@@ -67,13 +73,6 @@ fun ProfileScreen(upPress: () -> Unit, toAuth: () -> Unit) {
                 }
 
             }
-            Text(
-                text = "Зарегистрирован: ${
-                    user.value.createdAt.format(
-                        DAY_MONTH_YEAR_TIME
-                    )
-                }"
-            )
 
             user.value.city?.label?.let {
                 Text(
@@ -101,7 +100,7 @@ fun ProfileScreen(upPress: () -> Unit, toAuth: () -> Unit) {
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun AutoBotTextField(
     value: String,
@@ -125,8 +124,20 @@ fun AutoBotTextField(
         MaterialTheme.shapes.small.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
     colors: TextFieldColors = TextFieldDefaults.textFieldColors()
 ) {
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    val scope = rememberCoroutineScope()
+    val view = LocalView.current
+    DisposableEffect(view) {
+        val listener = ViewTreeObserver.OnGlobalLayoutListener {
+            scope.launch { bringIntoViewRequester.bringIntoView() }
+        }
+        view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+        onDispose { view.viewTreeObserver.removeOnGlobalLayoutListener(listener) }
+    }
+
     OutlinedTextField(
-        modifier = modifier,
+        modifier = modifier.bringIntoViewRequester(bringIntoViewRequester),
         value = value,
         onValueChange = onValueChange,
         shape = RoundedCornerShape(12.dp),

@@ -2,29 +2,7 @@ mutation ConfirmSms($phone: String!, $code: String!) {
   confirmSms(phone: $phone, code: $code) {
     token
     user {
-      _id
-      phone
-      createdAt
-      subscriptionStatus {
-        isActive
-        subscriptionEnds
+      ...UserFragment
       }
-      role
-      city {
-        _id
-        label
-        timezone
-      }
-      timezone {
-        _id
-        label
-        name
-        utc
-        msk
-      }
-      monthlyPayment
-      name
-      comment
-    }
   }
 }

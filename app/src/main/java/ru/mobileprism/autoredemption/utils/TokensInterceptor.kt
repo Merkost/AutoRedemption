@@ -35,18 +35,18 @@ class TokensInterceptor(private val userDatastore: UserDatastore) : Interceptor,
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        when (event) {
-            /*Lifecycle.Event.ON_CREATE -> TODO()
+        /*when (event) {
+            *//*Lifecycle.Event.ON_CREATE -> TODO()
             Lifecycle.Event.ON_START -> TODO()
             Lifecycle.Event.ON_RESUME -> TODO()
             Lifecycle.Event.ON_PAUSE -> TODO()
-            Lifecycle.Event.ON_STOP -> TODO()*/
+            Lifecycle.Event.ON_STOP -> TODO()*//*
             Lifecycle.Event.ON_DESTROY -> {
 
             }
-            /*Lifecycle.Event.ON_ANY -> TODO()*/
+            *//*Lifecycle.Event.ON_ANY -> TODO()*//*
             else -> {}
-        }
+        }*/
     }
 
 }

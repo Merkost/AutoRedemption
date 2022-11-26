@@ -24,7 +24,7 @@ import ru.mobileprism.autoredemption.R
 fun ModalLoadingDialog(
     isLoading: Boolean,
     text: String = stringResource(id = R.string.loading),
-    onDismiss: (() -> Unit)? = null
+    onDismiss: (() -> Unit)? = null,
 ) {
     if (isLoading) {
         Dialog(
@@ -34,29 +34,28 @@ fun ModalLoadingDialog(
                 dismissOnClickOutside = false
             )
         ) {
+
+
             Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                ElevatedCard(modifier = Modifier, shape = MaterialTheme.shapes.large) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(64.dp)
+                        )
+                        Text(text = text)
+                    }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(64.dp)
-                    )
-                    Text(
-                        text = text,
-                        color = Color.White
-                    )
                 }
                 onDismiss?.let {
-                    CircleButton(onClick = { onDismiss() }) {
+                    Button(onClick = { onDismiss() }, shape = MaterialTheme.shapes.large) {
                         Text(stringResource(id = R.string.cancel))
                     }
                 }
@@ -79,7 +78,7 @@ fun DefaultDialog(
     positiveButtonText: String = stringResource(id = R.string.yes),
     onPositiveClick: (() -> Unit)? = null,
     onDismiss: () -> Unit,
-    content: @Composable() (() -> Unit)? = null
+    content: @Composable() (() -> Unit)? = null,
 ) {
 
     val anyButtonAvailable =

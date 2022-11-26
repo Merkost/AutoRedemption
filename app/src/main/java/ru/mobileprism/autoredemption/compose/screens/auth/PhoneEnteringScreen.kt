@@ -4,9 +4,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CrueltyFree
@@ -15,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -30,13 +34,16 @@ import org.koin.androidx.compose.viewModel
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.compose.custom.MainButton
 import ru.mobileprism.autoredemption.compose.custom.ModalLoadingDialog
+import ru.mobileprism.autoredemption.compose.screens.home.AutoBotTextField
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.PhoneNumberVisualTransformation
 import ru.mobileprism.autoredemption.utils.showError
 import ru.mobileprism.autoredemption.viewmodels.PhoneEnteringViewModel
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalLayoutApi::class
+)
 @Composable
 fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
 
@@ -87,22 +94,13 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
 
     Scaffold(
         modifier = Modifier
-            .fillMaxSize()
-            .systemBarsPadding()
-            .imePadding(),
-        topBar = {
-            AuthTopAppBar(/*actions = {
-                IconButton(onClick = { viewModel.loginTestUser() }) {
-                    Icon(Icons.Default.CrueltyFree, "")
-                }
-            }*/)
-        }
+            .fillMaxSize().consumedWindowInsets(WindowInsets.navigationBars).statusBarsPadding()
     ) {
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(30.dp)
+                .fillMaxSize().imePadding()
+                .padding(horizontal = 30.dp)
                 .padding(it),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
@@ -123,11 +121,11 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
             }
 
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier,
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OutlinedTextField(
+                AutoBotTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = phoneNum.value,
                     onValueChange = { newValue: String ->
@@ -169,11 +167,10 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
             }
 
             MainButton(
-                modifier = Modifier.weight(1f, false),
+                modifier = Modifier,
                 content = { Text(text = stringResource(R.string.proceed)) },
                 onClick = onReady
             )
-
         }
 
     }

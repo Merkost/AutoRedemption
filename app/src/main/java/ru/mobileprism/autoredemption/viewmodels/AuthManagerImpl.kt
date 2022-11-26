@@ -5,7 +5,6 @@ import ru.mobileprism.autoredemption.model.datastore.UserEntity
 
 class AuthManagerImpl(private val userDatastore: UserDatastore): AuthManager {
 
-
     override suspend fun saveUserWithToken(user: UserEntity, token: String) {
         userDatastore.saveCurrentUser(user)
         userDatastore.saveUserToken(token)
@@ -18,7 +17,6 @@ class AuthManagerImpl(private val userDatastore: UserDatastore): AuthManager {
     }
 
     override suspend fun logout() {
-        userDatastore.saveCurrentUser(null)
         userDatastore.saveUserToken(null)
     }
 

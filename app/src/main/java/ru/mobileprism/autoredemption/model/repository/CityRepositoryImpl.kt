@@ -9,6 +9,8 @@ import ru.mobileprism.autoredemption.GetCitiesAndTimezonesQuery
 import ru.mobileprism.autoredemption.UpdateUserMutation
 import ru.mobileprism.autoredemption.model.datastore.UserDatastore
 import ru.mobileprism.autoredemption.type.UpdateUserInput
+import ru.mobileprism.autoredemption.type.User
+import ru.mobileprism.autoredemption.viewmodels.Mapper
 
 
 class CityRepositoryImpl(
@@ -26,7 +28,7 @@ class CityRepositoryImpl(
     override suspend fun updateCityAndTimezone(
         cityId: String,
         timezoneId: String
-    ) = flow<ResultWrapper<UpdateUserMutation.Data>> {
+    ) = flow {
         val userId = userDatastore.getCurrentUser.first()._id
 
         val result = safeGraphQLCall {
@@ -41,8 +43,9 @@ class CityRepositoryImpl(
             ).execute()
         }
         if (result is ResultWrapper.Success) {
-            // TODO: save user to db
-            result.data
+            result.data.updateUser?.user?.userFragment?.let {
+                userDatastore.saveCurrentUser(it)
+            }
         }
         emit(result)
     }

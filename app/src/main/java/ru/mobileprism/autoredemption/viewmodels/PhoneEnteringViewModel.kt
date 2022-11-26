@@ -1,27 +1,16 @@
 package ru.mobileprism.autoredemption.viewmodels
 
-import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.mobileprism.autoredemption.R
-import ru.mobileprism.autoredemption.model.ServerError
-import ru.mobileprism.autoredemption.model.datastore.AppSettings
-import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.model.repository.AuthRepository
 import ru.mobileprism.autoredemption.model.repository.fold
 import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.Constants
 import ru.mobileprism.autoredemption.utils.Constants.PHONE_DEFAULT_VALUE
-import ru.mobileprism.autoredemption.utils.extractDigits
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 class PhoneEnteringViewModel(
     private val authRepository: AuthRepository,

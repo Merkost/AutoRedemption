@@ -5,6 +5,8 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
@@ -28,7 +30,7 @@ import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.showError
 import ru.mobileprism.autoredemption.viewmodels.ChooseCityViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ChooseCityScreen(upPress: () -> Unit, onNext: () -> Unit) {
 
@@ -53,13 +55,17 @@ fun ChooseCityScreen(upPress: () -> Unit, onNext: () -> Unit) {
 
     ModalLoadingDialog(isLoading = valuesState.value is BaseViewState.Loading || uiState.value is BaseViewState.Loading)
 
-    Scaffold(modifier = Modifier
+    Scaffold(
+        modifier = Modifier
         .fillMaxSize()
-        .systemBarsPadding()
-        .imePadding(),
-        topBar = { AuthTopAppBar(title = "Регистрация") }
+        .consumedWindowInsets(WindowInsets.navigationBars),
+        topBar = { AuthTopAppBar(title = "Выберите город") }
     ) {
-        Crossfade(targetState = valuesState.value, modifier = Modifier.padding(it)) {
+        Crossfade(
+            targetState = valuesState.value, modifier = Modifier
+                .padding(it)
+                .padding(horizontal = 30.dp)
+        ) {
             when (it) {
                 is BaseViewState.Error -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -70,17 +76,13 @@ fun ChooseCityScreen(upPress: () -> Unit, onNext: () -> Unit) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(30.dp),
+                            .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column(
                             modifier = Modifier, verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Text(
-                                text = "Пожалуйста, выберите ваш город и часовой пояс для отправки сообщений",
-                                style = MaterialTheme.typography.titleMedium
-                            )
 
                             ChooseOutlineTextField(
                                 modifier = Modifier.fillMaxWidth(),
@@ -90,10 +92,16 @@ fun ChooseCityScreen(upPress: () -> Unit, onNext: () -> Unit) {
                                 onTextChanged = viewModel::onNewCityTextInput,
                                 resetChosenValue = { viewModel.resetChosenCity() }
                             ) {
-                                cities.value.take(5).forEach { city ->
-                                    DropdownMenuItem(onClick = { viewModel.onCitySelected(city) },
-                                        text = { Text(text = city.label) })
+                                if (chosenValues.value.cityText.isEmpty()) {
+                                    DropdownMenuItem(text = { Text(text = "Начните вводить название города") },
+                                        onClick = {})
+                                } else {
+                                    cities.value.take(6).forEach { city ->
+                                        DropdownMenuItem(onClick = { viewModel.onCitySelected(city) },
+                                            text = { Text(text = city.label) })
+                                    }
                                 }
+
                             }
 
                             ChooseOutlineTextField(
@@ -104,7 +112,7 @@ fun ChooseCityScreen(upPress: () -> Unit, onNext: () -> Unit) {
                                 onTextChanged = viewModel::onNewTimezoneTextInput,
                                 resetChosenValue = { viewModel.resetChosenTimezone() }
                             ) {
-                                timezones.value.take(5).forEach { timezone ->
+                                timezones.value.forEach { timezone ->
                                     DropdownMenuItem(onClick = {
                                         viewModel.onTimezoneSelected(
                                             timezone
@@ -113,11 +121,10 @@ fun ChooseCityScreen(upPress: () -> Unit, onNext: () -> Unit) {
                                         text = { Text(text = timezone.label) })
                                 }
                             }
-
                         }
 
                         MainButton(
-                            modifier = Modifier.weight(1f, false),
+                            modifier = Modifier,
                             enabled = viewModel.couldSaveValues.collectAsState().value,
                             content = { Text(text = stringResource(R.string.proceed)) },
                             onClick = viewModel::saveChosenValues

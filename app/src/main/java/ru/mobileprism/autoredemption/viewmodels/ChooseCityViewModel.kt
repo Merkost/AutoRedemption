@@ -12,6 +12,8 @@ import org.koin.core.KoinApplication.Companion.init
 import ru.mobileprism.autoredemption.ConfirmSmsMutation
 import ru.mobileprism.autoredemption.GetCitiesAndTimezonesQuery
 import ru.mobileprism.autoredemption.R
+import ru.mobileprism.autoredemption.fragment.CityFragment
+import ru.mobileprism.autoredemption.fragment.TimezoneFragment
 import ru.mobileprism.autoredemption.model.datastore.UserDatastore
 import ru.mobileprism.autoredemption.model.repository.AutoBotError
 import ru.mobileprism.autoredemption.model.repository.CityRepository
@@ -19,7 +21,6 @@ import ru.mobileprism.autoredemption.model.repository.fold
 import ru.mobileprism.autoredemption.utils.BaseViewState
 
 class ChooseCityViewModel(
-    private val userDatastore: UserDatastore,
     private val cityRepository: CityRepository,
 ) : ViewModel() {
 
@@ -35,26 +36,22 @@ class ChooseCityViewModel(
         it.city != null && it.timezone != null
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
-    private val _cities = MutableStateFlow<List<GetCitiesAndTimezonesQuery.GetCity>>(
-        listOf(GetCitiesAndTimezonesQuery.GetCity("1", "2", "3"))
+    private val _cities = MutableStateFlow<List<CityFragment>>(
+        listOf(CityFragment("1", "2", "3"))
     )
     val cities = combine(_cities, chosenCityAndTimezone) { cities, chosenValues ->
-        cities.filter { it.label.startsWith(chosenValues.cityText) }/*.take(5)*/
+        cities.sortedBy { it.label }.filter { it.label.lowercase().startsWith(chosenValues.cityText.lowercase()) }/*.take(5)*/
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    private val _timezones = MutableStateFlow<List<GetCitiesAndTimezonesQuery.GetTimezone>>(
-        listOf(
-            GetCitiesAndTimezonesQuery.GetTimezone("1", "2", "3", "4", "5")
-        )
+    private val _timezones = MutableStateFlow<List<TimezoneFragment>>(
+        listOf(TimezoneFragment("1", "2", "3", "4", "5"))
     )
     val timezones = combine(_timezones, chosenCityAndTimezone) { cities, chosenValues ->
-        cities.filter { it.label.startsWith(chosenValues.timezoneText) }/*.take(5)*/
+        cities.sortedBy { it.label }.filter { it.label.lowercase().startsWith(chosenValues.timezoneText.lowercase()) }/*.take(5)*/
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
 
-    init {
-        getCities()
-    }
+    init { getCities() }
 
     fun retry() {
         _valuesState.update { BaseViewState.Loading() }
@@ -66,10 +63,10 @@ class ChooseCityViewModel(
             cityRepository.getCitiesAndTimezones().single().fold(
                 onSuccess = {
                     it.getCities?.let {
-                        _cities.value = it.filterNotNull()
+                        _cities.value = it.filterNotNull().map { it.cityFragment }
                     }
                     it.getTimezones?.let {
-                        _timezones.value = it.filterNotNull()
+                        _timezones.value = it.filterNotNull().map { it.timezoneFragment }
                     }
                     _valuesState.update { BaseViewState.Success(Unit) }
                 },
@@ -80,13 +77,13 @@ class ChooseCityViewModel(
         }
     }
 
-    fun onCitySelected(city: GetCitiesAndTimezonesQuery.GetCity) {
+    fun onCitySelected(city: CityFragment) {
         viewModelScope.launch {
             chosenCityAndTimezone.update { it.copy(city = city) }
         }
     }
 
-    fun onTimezoneSelected(timezone: GetCitiesAndTimezonesQuery.GetTimezone) {
+    fun onTimezoneSelected(timezone: TimezoneFragment) {
         viewModelScope.launch {
             chosenCityAndTimezone.update { it.copy(timezone = timezone) }
         }
@@ -145,9 +142,9 @@ class ChooseCityViewModel(
 }
 
 data class CityAndTimezone(
-    val city: GetCitiesAndTimezonesQuery.GetCity? = null,
+    val city: CityFragment? = null,
     val cityText: String = "",
 
-    val timezone: GetCitiesAndTimezonesQuery.GetTimezone? = null,
+    val timezone: TimezoneFragment? = null,
     val timezoneText: String = "",
 )

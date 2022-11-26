@@ -29,7 +29,7 @@ type Mutation {
     confirmSms(code: String!, phone: String!): AuthResponse
     deleteUser(_id: ID!): String
     updateConfig(input: UpdateConfig): Config
-    updateUser(_id: ID!, input: UpdateUserInput): User
+    updateUser(_id: ID!, input: UpdateUserInput): UpdateUserResponse
     verifyPhone(phone: String!): VerifyPhoneResponse
 }
 
@@ -52,6 +52,10 @@ type Timezone {
     msk: String!
     name: String!
     utc: String!
+}
+
+type UpdateUserResponse {
+    user: User!
 }
 
 type User {

@@ -37,7 +37,6 @@ fun Context.launchAppSettings() {
         intent.data = uri
         startActivity(intent)
     } catch (e: Exception) {
-        // TODO:
         Log.w("TAG", e.message ?: "")
     }
 }

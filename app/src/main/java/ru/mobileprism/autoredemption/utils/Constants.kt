@@ -19,7 +19,7 @@ object Constants {
     val phoneRegex = "^\\+79[0-9]{2}[0-9]{3}[0-9]{2}[0-9]{2}".toRegex()
 
     val isDebug: Boolean
-        get() = true/*BuildConfig.DEBUG*/
+        get() = false/*BuildConfig.DEBUG*/
 
     //Time
     val DAY_MONTH_YEAR_TIME = DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm")

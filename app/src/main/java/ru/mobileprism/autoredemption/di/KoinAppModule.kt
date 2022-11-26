@@ -21,7 +21,7 @@ val koinAppModule = module {
     single<UserDatastore> { UserDatastoreImpl(androidContext()) }
 
 
-    single<AuthRepository> { AuthRepositoryImpl(apolloClient = get()) }
+    single<AuthRepository> { AuthRepositoryImpl(apolloClient = get(), userDatastore = get()) }
     single<CityRepository> { CityRepositoryImpl(apolloClient = get(), userDatastore = get()) }
 
     single<AuthManager> { AuthManagerImpl(userDatastore = get()) }
@@ -50,7 +50,7 @@ val koinAppModule = module {
     }
 
     viewModel {
-        ChooseCityViewModel(userDatastore = get(), cityRepository = get())
+        ChooseCityViewModel(cityRepository = get())
     }
 
 

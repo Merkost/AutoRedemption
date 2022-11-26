@@ -1,0 +1,38 @@
+fragment UserFragment on User {
+    _id
+    phone
+    createdAt
+    subscriptionStatus {
+      ...SubscriptionStatusFragment
+    }
+    role
+    city {
+      ...CityFragment
+    }
+    timezone {
+      ...TimezoneFragment
+    }
+    monthlyPayment
+    name
+    comment
+}
+
+fragment SubscriptionStatusFragment on SubscriptionStatus {
+    isActive
+    subscriptionEnds
+}
+
+fragment TimezoneFragment on Timezone {
+    _id
+    label
+    name
+    utc
+    msk
+}
+
+fragment CityFragment on City {
+    _id
+    label
+    timezone
+}
+

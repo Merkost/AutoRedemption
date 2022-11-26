@@ -81,13 +81,14 @@ class MainActivity : ComponentActivity() {
                     .start()
 
 
-                splashScreenViewProvider.iconView
+                /*splashScreenViewProvider.iconView
                     .animate()
                     .setDuration(splashFadeDurationMillis.toLong())
                     .alpha(0f)
-                    .start()
+                    .start()*/
             }
         }
+
 
         setTheme(R.style.Theme_AnimatedSplashScreen)
         setContent {

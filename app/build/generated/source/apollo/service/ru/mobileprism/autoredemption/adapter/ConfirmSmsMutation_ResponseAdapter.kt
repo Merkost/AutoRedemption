@@ -6,19 +6,12 @@
 package ru.mobileprism.autoredemption.adapter
 
 import com.apollographql.apollo3.api.Adapter
-import com.apollographql.apollo3.api.AnyAdapter
-import com.apollographql.apollo3.api.BooleanAdapter
 import com.apollographql.apollo3.api.CustomScalarAdapters
-import com.apollographql.apollo3.api.NullableIntAdapter
-import com.apollographql.apollo3.api.NullableStringAdapter
 import com.apollographql.apollo3.api.StringAdapter
 import com.apollographql.apollo3.api.json.JsonReader
 import com.apollographql.apollo3.api.json.JsonWriter
 import com.apollographql.apollo3.api.nullable
 import com.apollographql.apollo3.api.obj
-import kotlin.Any
-import kotlin.Boolean
-import kotlin.Int
 import kotlin.String
 import kotlin.Unit
 import kotlin.collections.List
@@ -65,7 +58,7 @@ public object ConfirmSmsMutation_ResponseAdapter {
       while(true) {
         when (reader.selectName(RESPONSE_NAMES)) {
           0 -> _token = StringAdapter.fromJson(reader, customScalarAdapters)
-          1 -> _user = User.obj().fromJson(reader, customScalarAdapters)
+          1 -> _user = User.obj(true).fromJson(reader, customScalarAdapters)
           else -> break
         }
       }
@@ -85,54 +78,31 @@ public object ConfirmSmsMutation_ResponseAdapter {
       StringAdapter.toJson(writer, customScalarAdapters, value.token)
 
       writer.name("user")
-      User.obj().toJson(writer, customScalarAdapters, value.user)
+      User.obj(true).toJson(writer, customScalarAdapters, value.user)
     }
   }
 
   public object User : Adapter<ConfirmSmsMutation.User> {
-    public val RESPONSE_NAMES: List<String> = listOf("_id", "phone", "createdAt",
-        "subscriptionStatus", "role", "city", "timezone", "monthlyPayment", "name", "comment")
+    public val RESPONSE_NAMES: List<String> = listOf("__typename")
 
     public override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters):
         ConfirmSmsMutation.User {
-      var __id: String? = null
-      var _phone: String? = null
-      var _createdAt: Any? = null
-      var _subscriptionStatus: ConfirmSmsMutation.SubscriptionStatus? = null
-      var _role: String? = null
-      var _city: ConfirmSmsMutation.City? = null
-      var _timezone: ConfirmSmsMutation.Timezone? = null
-      var _monthlyPayment: Int? = null
-      var _name: String? = null
-      var _comment: String? = null
+      var __typename: String? = null
 
       while(true) {
         when (reader.selectName(RESPONSE_NAMES)) {
-          0 -> __id = StringAdapter.fromJson(reader, customScalarAdapters)
-          1 -> _phone = StringAdapter.fromJson(reader, customScalarAdapters)
-          2 -> _createdAt = AnyAdapter.fromJson(reader, customScalarAdapters)
-          3 -> _subscriptionStatus = SubscriptionStatus.obj().fromJson(reader, customScalarAdapters)
-          4 -> _role = StringAdapter.fromJson(reader, customScalarAdapters)
-          5 -> _city = City.obj().nullable().fromJson(reader, customScalarAdapters)
-          6 -> _timezone = Timezone.obj().nullable().fromJson(reader, customScalarAdapters)
-          7 -> _monthlyPayment = NullableIntAdapter.fromJson(reader, customScalarAdapters)
-          8 -> _name = NullableStringAdapter.fromJson(reader, customScalarAdapters)
-          9 -> _comment = NullableStringAdapter.fromJson(reader, customScalarAdapters)
+          0 -> __typename = StringAdapter.fromJson(reader, customScalarAdapters)
           else -> break
         }
       }
 
+      reader.rewind()
+      val _userFragment = ru.mobileprism.autoredemption.fragment.UserFragmentImpl_ResponseAdapter.UserFragment.fromJson(reader,
+          customScalarAdapters)
+
       return ConfirmSmsMutation.User(
-        _id = __id!!,
-        phone = _phone!!,
-        createdAt = _createdAt!!,
-        subscriptionStatus = _subscriptionStatus!!,
-        role = _role!!,
-        city = _city,
-        timezone = _timezone,
-        monthlyPayment = _monthlyPayment,
-        name = _name,
-        comment = _comment
+        __typename = __typename!!,
+        userFragment = _userFragment
       )
     }
 
@@ -141,164 +111,11 @@ public object ConfirmSmsMutation_ResponseAdapter {
       customScalarAdapters: CustomScalarAdapters,
       `value`: ConfirmSmsMutation.User,
     ): Unit {
-      writer.name("_id")
-      StringAdapter.toJson(writer, customScalarAdapters, value._id)
+      writer.name("__typename")
+      StringAdapter.toJson(writer, customScalarAdapters, value.__typename)
 
-      writer.name("phone")
-      StringAdapter.toJson(writer, customScalarAdapters, value.phone)
-
-      writer.name("createdAt")
-      AnyAdapter.toJson(writer, customScalarAdapters, value.createdAt)
-
-      writer.name("subscriptionStatus")
-      SubscriptionStatus.obj().toJson(writer, customScalarAdapters, value.subscriptionStatus)
-
-      writer.name("role")
-      StringAdapter.toJson(writer, customScalarAdapters, value.role)
-
-      writer.name("city")
-      City.obj().nullable().toJson(writer, customScalarAdapters, value.city)
-
-      writer.name("timezone")
-      Timezone.obj().nullable().toJson(writer, customScalarAdapters, value.timezone)
-
-      writer.name("monthlyPayment")
-      NullableIntAdapter.toJson(writer, customScalarAdapters, value.monthlyPayment)
-
-      writer.name("name")
-      NullableStringAdapter.toJson(writer, customScalarAdapters, value.name)
-
-      writer.name("comment")
-      NullableStringAdapter.toJson(writer, customScalarAdapters, value.comment)
-    }
-  }
-
-  public object SubscriptionStatus : Adapter<ConfirmSmsMutation.SubscriptionStatus> {
-    public val RESPONSE_NAMES: List<String> = listOf("isActive", "subscriptionEnds")
-
-    public override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters):
-        ConfirmSmsMutation.SubscriptionStatus {
-      var _isActive: Boolean? = null
-      var _subscriptionEnds: Any? = null
-
-      while(true) {
-        when (reader.selectName(RESPONSE_NAMES)) {
-          0 -> _isActive = BooleanAdapter.fromJson(reader, customScalarAdapters)
-          1 -> _subscriptionEnds = AnyAdapter.fromJson(reader, customScalarAdapters)
-          else -> break
-        }
-      }
-
-      return ConfirmSmsMutation.SubscriptionStatus(
-        isActive = _isActive!!,
-        subscriptionEnds = _subscriptionEnds!!
-      )
-    }
-
-    public override fun toJson(
-      writer: JsonWriter,
-      customScalarAdapters: CustomScalarAdapters,
-      `value`: ConfirmSmsMutation.SubscriptionStatus,
-    ): Unit {
-      writer.name("isActive")
-      BooleanAdapter.toJson(writer, customScalarAdapters, value.isActive)
-
-      writer.name("subscriptionEnds")
-      AnyAdapter.toJson(writer, customScalarAdapters, value.subscriptionEnds)
-    }
-  }
-
-  public object City : Adapter<ConfirmSmsMutation.City> {
-    public val RESPONSE_NAMES: List<String> = listOf("_id", "label", "timezone")
-
-    public override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters):
-        ConfirmSmsMutation.City {
-      var __id: String? = null
-      var _label: String? = null
-      var _timezone: String? = null
-
-      while(true) {
-        when (reader.selectName(RESPONSE_NAMES)) {
-          0 -> __id = StringAdapter.fromJson(reader, customScalarAdapters)
-          1 -> _label = StringAdapter.fromJson(reader, customScalarAdapters)
-          2 -> _timezone = StringAdapter.fromJson(reader, customScalarAdapters)
-          else -> break
-        }
-      }
-
-      return ConfirmSmsMutation.City(
-        _id = __id!!,
-        label = _label!!,
-        timezone = _timezone!!
-      )
-    }
-
-    public override fun toJson(
-      writer: JsonWriter,
-      customScalarAdapters: CustomScalarAdapters,
-      `value`: ConfirmSmsMutation.City,
-    ): Unit {
-      writer.name("_id")
-      StringAdapter.toJson(writer, customScalarAdapters, value._id)
-
-      writer.name("label")
-      StringAdapter.toJson(writer, customScalarAdapters, value.label)
-
-      writer.name("timezone")
-      StringAdapter.toJson(writer, customScalarAdapters, value.timezone)
-    }
-  }
-
-  public object Timezone : Adapter<ConfirmSmsMutation.Timezone> {
-    public val RESPONSE_NAMES: List<String> = listOf("_id", "label", "name", "utc", "msk")
-
-    public override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters):
-        ConfirmSmsMutation.Timezone {
-      var __id: String? = null
-      var _label: String? = null
-      var _name: String? = null
-      var _utc: String? = null
-      var _msk: String? = null
-
-      while(true) {
-        when (reader.selectName(RESPONSE_NAMES)) {
-          0 -> __id = StringAdapter.fromJson(reader, customScalarAdapters)
-          1 -> _label = StringAdapter.fromJson(reader, customScalarAdapters)
-          2 -> _name = StringAdapter.fromJson(reader, customScalarAdapters)
-          3 -> _utc = StringAdapter.fromJson(reader, customScalarAdapters)
-          4 -> _msk = StringAdapter.fromJson(reader, customScalarAdapters)
-          else -> break
-        }
-      }
-
-      return ConfirmSmsMutation.Timezone(
-        _id = __id!!,
-        label = _label!!,
-        name = _name!!,
-        utc = _utc!!,
-        msk = _msk!!
-      )
-    }
-
-    public override fun toJson(
-      writer: JsonWriter,
-      customScalarAdapters: CustomScalarAdapters,
-      `value`: ConfirmSmsMutation.Timezone,
-    ): Unit {
-      writer.name("_id")
-      StringAdapter.toJson(writer, customScalarAdapters, value._id)
-
-      writer.name("label")
-      StringAdapter.toJson(writer, customScalarAdapters, value.label)
-
-      writer.name("name")
-      StringAdapter.toJson(writer, customScalarAdapters, value.name)
-
-      writer.name("utc")
-      StringAdapter.toJson(writer, customScalarAdapters, value.utc)
-
-      writer.name("msk")
-      StringAdapter.toJson(writer, customScalarAdapters, value.msk)
+      ru.mobileprism.autoredemption.fragment.UserFragmentImpl_ResponseAdapter.UserFragment.toJson(writer,
+          customScalarAdapters, value.userFragment)
     }
   }
 }

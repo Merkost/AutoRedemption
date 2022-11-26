@@ -12,13 +12,11 @@ import com.apollographql.apollo3.api.CustomScalarAdapters
 import com.apollographql.apollo3.api.Mutation
 import com.apollographql.apollo3.api.json.JsonWriter
 import com.apollographql.apollo3.api.obj
-import kotlin.Any
-import kotlin.Boolean
-import kotlin.Int
 import kotlin.String
 import kotlin.Unit
 import ru.mobileprism.autoredemption.adapter.ConfirmSmsMutation_ResponseAdapter
 import ru.mobileprism.autoredemption.adapter.ConfirmSmsMutation_VariablesAdapter
+import ru.mobileprism.autoredemption.fragment.UserFragment
 import ru.mobileprism.autoredemption.selections.ConfirmSmsMutationSelections
 
 public data class ConfirmSmsMutation(
@@ -56,40 +54,16 @@ public data class ConfirmSmsMutation(
   )
 
   public data class User(
-    public val _id: String,
-    public val phone: String,
-    public val createdAt: Any,
-    public val subscriptionStatus: SubscriptionStatus,
-    public val role: String,
-    public val city: City?,
-    public val timezone: Timezone?,
-    public val monthlyPayment: Int?,
-    public val name: String?,
-    public val comment: String?,
-  )
-
-  public data class SubscriptionStatus(
-    public val isActive: Boolean,
-    public val subscriptionEnds: Any,
-  )
-
-  public data class City(
-    public val _id: String,
-    public val label: String,
-    public val timezone: String,
-  )
-
-  public data class Timezone(
-    public val _id: String,
-    public val label: String,
-    public val name: String,
-    public val utc: String,
-    public val msk: String,
+    public val __typename: String,
+    /**
+     * Synthetic field for 'UserFragment'
+     */
+    public val userFragment: UserFragment,
   )
 
   public companion object {
     public const val OPERATION_ID: String =
-        "54dd7590ba481bca6fb75d6cf39ca01c317f8b0856d8d174629e0cf127ccd529"
+        "526375db8be2e000f47b109987de8a4d1d6790b70ac7aff657be057c23d9b909"
 
     /**
      * The minimized GraphQL document being sent to the server to save a few bytes.
@@ -99,36 +73,56 @@ public data class ConfirmSmsMutation(
      *   confirmSms(phone: $phone, code: $code) {
      *     token
      *     user {
-     *       _id
-     *       phone
-     *       createdAt
-     *       subscriptionStatus {
-     *         isActive
-     *         subscriptionEnds
-     *       }
-     *       role
-     *       city {
-     *         _id
-     *         label
-     *         timezone
-     *       }
-     *       timezone {
-     *         _id
-     *         label
-     *         name
-     *         utc
-     *         msk
-     *       }
-     *       monthlyPayment
-     *       name
-     *       comment
+     *       __typename
+     *       ...UserFragment
      *     }
      *   }
+     * }
+     *
+     * fragment SubscriptionStatusFragment on SubscriptionStatus {
+     *   isActive
+     *   subscriptionEnds
+     * }
+     *
+     * fragment CityFragment on City {
+     *   _id
+     *   label
+     *   timezone
+     * }
+     *
+     * fragment TimezoneFragment on Timezone {
+     *   _id
+     *   label
+     *   name
+     *   utc
+     *   msk
+     * }
+     *
+     * fragment UserFragment on User {
+     *   _id
+     *   phone
+     *   createdAt
+     *   subscriptionStatus {
+     *     __typename
+     *     ...SubscriptionStatusFragment
+     *   }
+     *   role
+     *   city {
+     *     __typename
+     *     ...CityFragment
+     *   }
+     *   timezone {
+     *     __typename
+     *     ...TimezoneFragment
+     *   }
+     *   monthlyPayment
+     *   name
+     *   comment
      * }
      */
     public val OPERATION_DOCUMENT: String
       get() =
-          "mutation ConfirmSms(${'$'}phone: String!, ${'$'}code: String!) { confirmSms(phone: ${'$'}phone, code: ${'$'}code) { token user { _id phone createdAt subscriptionStatus { isActive subscriptionEnds } role city { _id label timezone } timezone { _id label name utc msk } monthlyPayment name comment } } }"
+          "mutation ConfirmSms(${'$'}phone: String!, ${'$'}code: String!) { confirmSms(phone: ${'$'}phone, code: ${'$'}code) { token user { __typename ...UserFragment } } }  fragment SubscriptionStatusFragment on SubscriptionStatus { isActive subscriptionEnds }  fragment CityFragment on City { _id label timezone }  fragment TimezoneFragment on Timezone { _id label name utc msk }  fragment UserFragment on User { _id phone createdAt subscriptionStatus { __typename ...SubscriptionStatusFragment } role city { __typename ...CityFragment } timezone { __typename ...TimezoneFragment } monthlyPayment name comment }"
 
     public const val OPERATION_NAME: String = "ConfirmSms"
   }

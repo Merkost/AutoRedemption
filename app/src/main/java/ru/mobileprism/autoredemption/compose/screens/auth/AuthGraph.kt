@@ -37,8 +37,6 @@ fun NavGraphBuilder.addAuthGraph(
         }
     }
 
-   //authManager.saveUserWithToken(UserMapper.mapDbUser(smsResult.user), smsResult.token)
-
     composable(LoginDestinations.PHONE_ENTERING_ROUTE) {
         PhoneEnteringScreen {
             navController.navigate(LoginDestinations.SMS_CONFIRM_ROUTE, LoginArguments.PHONE_AUTH to it)

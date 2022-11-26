@@ -2,6 +2,7 @@ package ru.mobileprism.autoredemption.di
 
 import android.media.session.MediaSession.Token
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.cache.normalized.normalizedCache
 import com.apollographql.apollo3.network.okHttpClient
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

@@ -12,8 +12,7 @@ data class UserEntity(
     val phone: String = "+71234567890",
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val subscriptionStatus: SubscriptionStatus = SubscriptionStatus(false, LocalDateTime.now()),
-    // TODO: role
-    val role: String? = null,
+    val role: UserRole? = null,
     val city: CityEntity? = null,
     val timeZone: TimeZoneEntity? = null,
     val monthlyPayment: Int? = null,
@@ -24,6 +23,11 @@ data class UserEntity(
     val shouldChooseCity: Boolean
         get() = city == null || timeZone == null
 
+}
+
+enum class UserRole(val type: String) {
+    ADMIN("admin"),
+    USER("user");
 }
 
 @Parcelize
@@ -47,3 +51,5 @@ data class SubscriptionStatus(
     val isActive: Boolean,
     val subscriptionEnds: LocalDateTime,
 ) : Parcelable
+
+
