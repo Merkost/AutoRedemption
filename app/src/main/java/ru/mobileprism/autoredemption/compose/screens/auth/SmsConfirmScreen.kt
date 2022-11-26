@@ -1,11 +1,22 @@
 package ru.mobileprism.autoredemption.compose.screens.auth
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.icons.Icons
@@ -32,6 +43,7 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.auth.api.phone.SmsRetriever
 import ru.mobileprism.autoredemption.viewmodels.SmsVerificationViewModel
 import org.koin.androidx.compose.viewModel
 import org.koin.core.parameter.parametersOf
@@ -39,13 +51,17 @@ import ru.mobileprism.autoredemption.ConfirmSmsMutation
 import ru.mobileprism.autoredemption.R
 import ru.mobileprism.autoredemption.compose.custom.MainButton
 import ru.mobileprism.autoredemption.compose.custom.ModalLoadingDialog
+import ru.mobileprism.autoredemption.compose.screens.home.AutoBotTextField
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
 import ru.mobileprism.autoredemption.model.entities.SmsConfirmEntity
 import ru.mobileprism.autoredemption.type.Date
 import ru.mobileprism.autoredemption.utils.BaseViewState
+import ru.mobileprism.autoredemption.utils.SmsBroadcastReceiver
 import ru.mobileprism.autoredemption.utils.showError
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalLayoutApi::class
+)
 @Composable
 fun SmsConfirmScreen(
     phoneAuth: PhoneAuthEntity,
@@ -59,6 +75,25 @@ fun SmsConfirmScreen(
     val uiState = viewModel.uiState.collectAsState()
     val smsCode = viewModel.smsCode.collectAsState()
     val retrySecs = viewModel.retrySecs.collectAsState()
+
+    val smsAutoFillLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        with(result) {
+            if (result.resultCode == Activity.RESULT_OK && data != null) {
+                val message = data!!.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE)
+                Log.d("LOGIN", "SMS_CODE: $message")
+                message?.let(viewModel::onSmsCodeFromListener)
+            }
+        }
+    }
+
+    DisposableEffect(context) {
+        val receiver = startSmsUserConsent(context, smsAutoFillLauncher)
+        context.registerReceiver(receiver, IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION))
+
+        onDispose { context.unregisterReceiver(receiver) }
+    }
 
     ModalLoadingDialog(
         onDismiss = { viewModel.cancelLoading() },
@@ -80,18 +115,14 @@ fun SmsConfirmScreen(
     }
 
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .systemBarsPadding()
-            .imePadding(),
-        topBar = {
-            AuthTopAppBar(upPress = upPress)
-        }
+        modifier = Modifier.fillMaxSize().consumedWindowInsets(WindowInsets.navigationBars),
+        topBar = { AuthTopAppBar(upPress = upPress) }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(30.dp)
+                .imePadding()
+                .padding(horizontal = 30.dp)
                 .padding(it),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
@@ -135,7 +166,7 @@ fun SmsConfirmScreen(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OutlinedTextField(
+                AutoBotTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(textFieldCode),
@@ -187,20 +218,16 @@ fun SmsConfirmScreen(
                 }
 
             }
-            Column(
-                modifier = Modifier.weight(1f, false),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                MainButton(
-                    modifier = Modifier,
-                    content = {
-                        Text(text = "Продолжить")
-                    },
-                    onClick = viewModel::login
 
-                )
-            }
+
+            MainButton(
+                modifier = Modifier.weight(1f, false),
+                content = {
+                    Text(text = "Продолжить")
+                },
+                onClick = viewModel::login
+
+            )
         }
 
     }
@@ -208,12 +235,16 @@ fun SmsConfirmScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AuthTopAppBar(title: String? = null, upPress: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
+fun AuthTopAppBar(
+    title: String? = null,
+    upPress: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {}
+) {
     TopAppBar(
         title = {
-                title?.let {
-                    Text(text = title)
-                }
+            title?.let {
+                Text(text = title)
+            }
         },
         navigationIcon = {
             upPress?.let {
@@ -226,4 +257,37 @@ fun AuthTopAppBar(title: String? = null, upPress: (() -> Unit)? = null, actions:
 //        backgroundColor = Color.Transparent
         actions = actions
     )
+}
+
+private fun startSmsUserConsent(
+    context: Context,
+    smsAutoFillLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
+): SmsBroadcastReceiver {
+    SmsRetriever.getClient(context as Activity).also {
+        //We can add sender phone number or leave it blank
+        it.startSmsUserConsent(null)
+            .addOnSuccessListener {
+                Log.d("LOGIN", "LISTENING_SUCCESS")
+            }
+            .addOnFailureListener {
+                Log.d("LOGIN", "LISTENING_FAILURE")
+            }
+    }
+    return registerToSmsBroadcastReceiver(smsAutoFillLauncher)
+
+}
+
+private fun registerToSmsBroadcastReceiver(
+    smsAutoFillLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
+): SmsBroadcastReceiver {
+    return SmsBroadcastReceiver().also {
+        it.smsBroadcastReceiverListener =
+            object : SmsBroadcastReceiver.SmsBroadcastReceiverListener {
+                override fun onSuccess(intent: Intent?) {
+                    intent?.let(smsAutoFillLauncher::launch)
+                }
+
+                override fun onFailure() {}
+            }
+    }
 }
