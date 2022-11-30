@@ -18,10 +18,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.singleOrNull
 import ru.mobileprism.autoredemption.workmanager.ForegroundService
-import ru.mobileprism.autoredemption.R
-import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.repository.AutoBotError
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -63,14 +63,10 @@ fun Context.getSmsManager(subscriptionId: Int): SmsManager {
     }
 }
 
-suspend fun Context.tryGetExactSmsManager(appSettings: AppSettings): SmsManager {
-    val subscriptionId = appSettings.selectedSimId.first()
+suspend fun Context.tryGetExactSmsManager(selectedSimId: Flow<Int?>): SmsManager {
+    val subscriptionId = selectedSimId.singleOrNull()
     return subscriptionId?.let {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            getSystemService<SmsManager>(SmsManager::class.java).createForSubscriptionId(subscriptionId)
-        } else {
-            SmsManager.getSmsManagerForSubscriptionId(subscriptionId)
-        }
+        getSmsManager(it)
     } ?: getDefaultSmsManager()
 
 }
@@ -83,8 +79,6 @@ fun Context.getSubscriptionManager(): SubscriptionManager {
     }
 }
 
-
-
 fun Context.startSmsService() {
     val serviceIntent = Intent(this, ForegroundService::class.java)
     serviceIntent.putExtra("inputExtra", "Сервис для автоматической отправки сообщений")
@@ -92,11 +86,9 @@ fun Context.startSmsService() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         ContextCompat.startForegroundService(this, serviceIntent)
         Log.d("AUTOREDEMPTION", "startForegroundService received")
-
     } else {
         startService(serviceIntent)
         Log.d("AUTOREDEMPTION", "startService received")
-
     }
 }
 

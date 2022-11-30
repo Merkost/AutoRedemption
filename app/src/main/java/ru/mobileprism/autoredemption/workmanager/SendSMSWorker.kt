@@ -53,7 +53,7 @@ class SendSMSWorker(appContext: Context, workerParams: WorkerParameters) :
     override suspend fun doWork(): Result {
         //val numbers = inputData.getStringArray(NUMBERS_ARG)
         setForegroundAsync(showNotification())
-        val smsManager = applicationContext.tryGetExactSmsManager(settings)
+        val smsManager = applicationContext.tryGetExactSmsManager(settings.selectedSimId)
 
         val smsSettings = settings.appSettingsEntity.first()
         val now = LocalDateTime.now()
