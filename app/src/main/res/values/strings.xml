@@ -23,4 +23,17 @@
     <string name="reload">Повторить попытку</string>
     <string name="unable_reach_server">Не удалось связаться с сервером!</string>
     <string name="your_name">Ваше имя</string>
+    <string name="unable_send_sms">Не удалось отправить СМС</string>
+    <string name="access_denied">Доступ отсутствует</string>
+    <string name="verification_attempts_exceeded">Превышено количество попыток. Повторите попытку позже</string>
+    <string name="otp_expired">Срок действия кода истек</string>
+    <string name="invalid_otp">Неверный код подтверждения</string>
+    <string name="invalid_phone">" Неверно указан номер телефона"</string>
+    <string name="otp_not_found">Код подтверждения не найден</string>
+    <string name="user_not_found">Пользователь не найден!</string>
+    <string name="update_user_error">Не удалось обновить данные пользователя</string>
+    <string name="phone_duplication">Пользователь с таким телефоном уже существует</string>
+    <string name="user_creation_error">Не удалось создать пользователя</string>
+    <string name="user_deletion_error">Не удалось удалить пользователя</string>
+    <string name="database_error">Ошибка в системе хранения данных</string>
 </resources>

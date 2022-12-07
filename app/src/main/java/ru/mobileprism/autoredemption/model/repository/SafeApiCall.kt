@@ -1,34 +1,20 @@
 package ru.mobileprism.autoredemption.model.repository
 
-import android.os.Parcelable
 import androidx.annotation.StringRes
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Operation
-import com.apollographql.apollo3.api.json.BufferedSinkJsonWriter.Companion.string
+import com.apollographql.apollo3.exception.ApolloNetworkException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.parcelize.Parcelize
 import ru.mobileprism.autoredemption.R
+import ru.mobileprism.autoredemption.utils.ServerError
+import ru.mobileprism.autoredemption.utils.ServerGenericError
+import ru.mobileprism.autoredemption.utils.toServerErrorResponse
 import java.io.IOException
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-
-@Parcelize
-data class ServerError(
-    val code: Int,
-    val message: String,
-) : Parcelable
-
-private val com.apollographql.apollo3.api.Error?.toServerErrorResponse: ServerError
-    get() =
-        ServerError(
-            code = this?.extensions?.get("code").toString().toIntOrNull() ?: 501,
-            message = this?.extensions?.get("message") as String?
-                ?: this?.message
-            ?: "Unknown error"
-        )
 
 suspend fun <T : Operation.Data> safeGraphQLCall(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -38,13 +24,13 @@ suspend fun <T : Operation.Data> safeGraphQLCall(
         try {
             val result = apiCall.invoke()
             when {
-                result.hasErrors() -> ResultWrapper.GenericError(result.errors?.firstOrNull()?.toServerErrorResponse)
+                result.hasErrors() -> ResultWrapper.GenericError(result.errors?.first().toServerErrorResponse())
                 else -> ResultWrapper.Success(result.data!!)
             }
         } catch (throwable: Throwable) {
             when (throwable) {
-                is IOException -> ResultWrapper.NetworkError
-                else -> ResultWrapper.GenericError(null)
+                is IOException, is ApolloNetworkException -> ResultWrapper.NetworkError
+                else -> ResultWrapper.GenericError(ServerGenericError)
             }
         }
     }
@@ -52,9 +38,7 @@ suspend fun <T : Operation.Data> safeGraphQLCall(
 
 sealed class ResultWrapper<out T> {
     data class Success<out T>(val data: T) : ResultWrapper<T>()
-    data class GenericError(val data: ServerError?) :
-        ResultWrapper<Nothing>()
-
+    data class GenericError(val data: ServerError) : ResultWrapper<Nothing>()
     object NetworkError : ResultWrapper<Nothing>()
 }
 
@@ -72,11 +56,11 @@ inline fun <R, T : Any> ResultWrapper<T>.fold(
         is ResultWrapper.GenericError ->
             onError(
                 AutoBotError(
-                    messageResource = /*this.data?.code?.getErrorRes ?: */ru.mobileprism.autoredemption.R.string.api_error_message,
-                    message = this.data?.message
+                    messageResource = this.data.messageResource,
+                    message = this.data.message
                 )
             )
-        else -> onError(
+        is ResultWrapper.NetworkError -> onError(
             AutoBotError(
                 ru.mobileprism.autoredemption.R.string.interner_error,
                 message = "Internet error"
@@ -88,12 +72,9 @@ inline fun <R, T : Any> ResultWrapper<T>.fold(
 open class AutoBotError(
     @StringRes
     val messageResource: Int = R.string.unknown_error,
-    override val message: String? = null,
-    val code: Int? = null,
-) : Exception() {
-
+    val message: String? = null,
+) {
     object EmptyResponseError : AutoBotError(R.string.empty_response)
-
 }
 
 
