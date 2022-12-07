@@ -1,5 +1,3 @@
-
-
 mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
   updateUser(_id: $id, input: $input) {
     user {

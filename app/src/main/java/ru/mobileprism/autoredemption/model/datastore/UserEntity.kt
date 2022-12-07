@@ -21,7 +21,7 @@ data class UserEntity(
 
     @IgnoredOnParcel
     val shouldChooseCity: Boolean
-        get() = city == null || timeZone == null
+        get() = city == null || timeZone == null || name == null
 
 }
 

@@ -165,7 +165,7 @@ fun Context.showToast(text: String, length: Int = Toast.LENGTH_SHORT) {
 fun Context.showError(autoBotError: AutoBotError) {
     when(Constants.isDebug) {
         true -> {
-            autoBotError.error?.message?.let {
+            autoBotError.message?.let {
                 showToast(it)
             } ?: showToast(getString(autoBotError.messageResource))
         }

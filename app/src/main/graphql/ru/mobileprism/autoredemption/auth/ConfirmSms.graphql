@@ -3,6 +3,6 @@ mutation ConfirmSms($phone: String!, $code: String!) {
     token
     user {
       ...UserFragment
-      }
+    }
   }
 }

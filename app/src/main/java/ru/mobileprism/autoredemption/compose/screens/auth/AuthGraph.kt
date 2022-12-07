@@ -58,7 +58,7 @@ fun NavGraphBuilder.addAuthGraph(
     }
 
     composable(LoginDestinations.CHOOSE_CITY) {
-        ChooseCityScreen(upPress = upPress) {
+        RegisterScreen(upPress = upPress) {
             navigateToApp()
         }
     }

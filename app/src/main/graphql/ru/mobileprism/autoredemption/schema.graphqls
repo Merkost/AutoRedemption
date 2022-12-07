@@ -34,11 +34,11 @@ type Mutation {
 }
 
 type Query {
-    getCities: [City]
-    getConfig: Config
-    getTimezones: [Timezone]
-    getUser(_id: ID!): User
-    getUsers: [User]
+    cities: [City]
+    config: Config
+    timezones: [Timezone]
+    user(_id: ID!): User
+    users: [User]
 }
 
 type SubscriptionStatus {

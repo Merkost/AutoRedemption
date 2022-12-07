@@ -35,11 +35,10 @@ fun NavGraphBuilder.addHomeGraph(
         HomeSections.PROFILE.route
     ) { from ->
         ProfileScreen(upPress, toAuth = {
-          navController.navigate(LoginDestinations.PHONE_ENTERING_ROUTE) {
-              popUpTo(0) { inclusive = true }
-          }
+            navController.navigate(LoginDestinations.PHONE_ENTERING_ROUTE) {
+                popUpTo(0) { inclusive = true }
+            }
         })
-
     }
 
     composable(
@@ -60,14 +59,14 @@ fun ScenariosScreen(upPress: () -> Unit) {
 }
 
 
-
 enum class HomeSections(
-    @StringRes val title: Int,
-    val icon: ImageVector,
-    val route: String
+    @StringRes val title: Int, val icon: ImageVector, val route: String
 ) {
-    MAIN(R.string.main, Icons.Outlined.Home, "home/main"),
-    SCENARIOS(R.string.scenarios, Icons.Outlined.Menu, "home/scenarios"),
+    MAIN(R.string.main, Icons.Outlined.Home, "home/main"), SCENARIOS(
+        R.string.scenarios,
+        Icons.Outlined.Menu,
+        "home/scenarios"
+    ),
     PROFILE(R.string.profile, Icons.Outlined.Person, "home/profile"),
 }
 
@@ -81,41 +80,36 @@ fun AutoBotBottomBar(
 ) {
     val currentSection = tabs.first { it.route == currentRoute }
 
-    BottomAppBar(
-        modifier = Modifier.fillMaxWidth(),
-        content = {
-            NavigationBar() {
-                tabs.forEach { section ->
-                    val selected = section == currentSection
-                    NavigationBarItem(
-                        icon = {
-                            Icon(section.icon, section.name /*tint = tint*/)
-                        },
-                        label = {
-                            Text(
-                                stringResource(section.title),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis, /*color = tint*/
-                            )
-                        },
-                        selected = selected,
-                        onClick = { navigateToRoute(section.route) },
-                        alwaysShowLabel = true,
-                    )
-                }
+    BottomAppBar(modifier = Modifier.fillMaxWidth(), content = {
+        NavigationBar() {
+            tabs.forEach { section ->
+                val selected = section == currentSection
+                NavigationBarItem(
+                    icon = {
+                        Icon(section.icon, section.name /*tint = tint*/)
+                    },
+                    label = {
+                        Text(
+                            stringResource(section.title),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis, /*color = tint*/
+                        )
+                    },
+                    selected = selected,
+                    onClick = { navigateToRoute(section.route) },
+                    alwaysShowLabel = true,
+                )
             }
         }
-    )
+    })
 }
 
 @Preview
 @Composable
 private fun AutoBotBottomNavPreview() {
     MaterialTheme {
-        AutoBotBottomBar(
-            tabs = HomeSections.values(),
+        AutoBotBottomBar(tabs = HomeSections.values(),
             currentRoute = "home/main",
-            navigateToRoute = { }
-        )
+            navigateToRoute = { })
     }
 }

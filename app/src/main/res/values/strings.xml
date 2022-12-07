@@ -22,4 +22,5 @@
     <string name="empty_response">Нет ответа от сервера</string>
     <string name="reload">Повторить попытку</string>
     <string name="unable_reach_server">Не удалось связаться с сервером!</string>
+    <string name="your_name">Ваше имя</string>
 </resources>

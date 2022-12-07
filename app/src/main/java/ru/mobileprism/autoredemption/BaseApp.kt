@@ -25,17 +25,15 @@ class BaseApp : Application() {
                 listOf(
                     networkModule,
                     koinAppModule,
-                    )
+                )
             )
         }
-
 
         // Create the NotificationChannel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createMainNotificationChannel()
             createServiceNotificationChannel()
         }
-
 
     }
 

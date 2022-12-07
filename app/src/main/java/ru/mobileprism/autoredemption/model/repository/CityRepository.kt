@@ -1,10 +1,10 @@
 package ru.mobileprism.autoredemption.model.repository
 
 import kotlinx.coroutines.flow.Flow
-import ru.mobileprism.autoredemption.GetCitiesAndTimezonesQuery
+import ru.mobileprism.autoredemption.GetCitiesQuery
 import ru.mobileprism.autoredemption.UpdateUserMutation
 
 interface CityRepository {
-    suspend fun getCitiesAndTimezones(): Flow<ResultWrapper<GetCitiesAndTimezonesQuery.Data>>
-    suspend fun updateCityAndTimezone(cityId: String, timezoneId: String): Flow<ResultWrapper<UpdateUserMutation.Data>>
+    suspend fun getCities(): Flow<ResultWrapper<GetCitiesQuery.Data>>
+    suspend fun registerUser(name: String, cityId: String): Flow<ResultWrapper<UpdateUserMutation.Data>>
 }

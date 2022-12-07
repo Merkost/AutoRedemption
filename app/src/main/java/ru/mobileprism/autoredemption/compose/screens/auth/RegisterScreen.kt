@@ -3,8 +3,6 @@ package ru.mobileprism.autoredemption.compose.screens.auth
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -25,20 +23,18 @@ import ru.mobileprism.autoredemption.compose.custom.MainButton
 import ru.mobileprism.autoredemption.compose.custom.ModalLoadingDialog
 import ru.mobileprism.autoredemption.compose.custom.SmallErrorViewVertical
 import ru.mobileprism.autoredemption.compose.screens.home.AutoBotTextField
-import ru.mobileprism.autoredemption.model.entities.SmsConfirmEntity
 import ru.mobileprism.autoredemption.utils.BaseViewState
 import ru.mobileprism.autoredemption.utils.showError
-import ru.mobileprism.autoredemption.viewmodels.ChooseCityViewModel
+import ru.mobileprism.autoredemption.viewmodels.RegisterViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun ChooseCityScreen(upPress: () -> Unit, onNext: () -> Unit) {
+fun RegisterScreen(upPress: () -> Unit, onNext: () -> Unit) {
 
-    val viewModel: ChooseCityViewModel = getViewModel()
+    val viewModel: RegisterViewModel = getViewModel()
     val context = LocalContext.current
     val cities = viewModel.cities.collectAsState()
-    val timezones = viewModel.timezones.collectAsState()
-    val chosenValues = viewModel.chosenCityAndTimezone.collectAsState()
+    val chosenValues = viewModel.chosenValues.collectAsState()
 
     val valuesState = viewModel.valuesState.collectAsState()
     val uiState = viewModel.uiState.collectAsState()
@@ -55,14 +51,13 @@ fun ChooseCityScreen(upPress: () -> Unit, onNext: () -> Unit) {
 
     ModalLoadingDialog(isLoading = valuesState.value is BaseViewState.Loading || uiState.value is BaseViewState.Loading)
 
-    Scaffold(
-        modifier = Modifier
+    Scaffold(modifier = Modifier
         .fillMaxSize()
         .consumedWindowInsets(WindowInsets.navigationBars),
-        topBar = { AuthTopAppBar(title = "Выберите город") }
-    ) {
+        topBar = { AuthTopAppBar(title = "Данные профиля") }) {
         Crossfade(
-            targetState = valuesState.value, modifier = Modifier
+            targetState = valuesState.value,
+            modifier = Modifier
                 .padding(it)
                 .padding(horizontal = 30.dp)
         ) {
@@ -84,14 +79,18 @@ fun ChooseCityScreen(upPress: () -> Unit, onNext: () -> Unit) {
                             modifier = Modifier, verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
 
-                            ChooseOutlineTextField(
-                                modifier = Modifier.fillMaxWidth(),
+                            AutoBotTextField(
+                                placeholder = stringResource(id = R.string.your_name),
+                                value = chosenValues.value.name,
+                                onValueChange = viewModel::onNameSelected
+                            )
+
+                            ChooseOutlineTextField(modifier = Modifier.fillMaxWidth(),
                                 placeholder = "Город",
                                 chosenValue = chosenValues.value.city?.label,
                                 enteredText = chosenValues.value.cityText,
                                 onTextChanged = viewModel::onNewCityTextInput,
-                                resetChosenValue = { viewModel.resetChosenCity() }
-                            ) {
+                                resetChosenValue = { viewModel.resetChosenCity() }) {
                                 if (chosenValues.value.cityText.isEmpty()) {
                                     DropdownMenuItem(text = { Text(text = "Начните вводить название города") },
                                         onClick = {})
@@ -102,24 +101,6 @@ fun ChooseCityScreen(upPress: () -> Unit, onNext: () -> Unit) {
                                     }
                                 }
 
-                            }
-
-                            ChooseOutlineTextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                placeholder = "Часовой пояс",
-                                chosenValue = chosenValues.value.timezone?.name,
-                                enteredText = chosenValues.value.timezoneText,
-                                onTextChanged = viewModel::onNewTimezoneTextInput,
-                                resetChosenValue = { viewModel.resetChosenTimezone() }
-                            ) {
-                                timezones.value.forEach { timezone ->
-                                    DropdownMenuItem(onClick = {
-                                        viewModel.onTimezoneSelected(
-                                            timezone
-                                        )
-                                    },
-                                        text = { Text(text = timezone.label) })
-                                }
                             }
                         }
 
@@ -154,32 +135,24 @@ fun ChooseOutlineTextField(
             if (chosenValue != null) dropDownExpanded = false
         }
 
-        AutoBotTextField(
-            modifier = modifier.onFocusChanged {
-                if (it.hasFocus && chosenValue == null) dropDownExpanded = true
-            },
-            enabled = chosenValue == null,
-            value = chosenValue ?: enteredText,
-            onValueChange = {
-                onTextChanged(it)
-                dropDownExpanded = true
-            },
-            placeholder = placeholder,
-            trailingIcon = {
-                if (chosenValue != null) {
-                    IconButton(onClick = {
-                        resetChosenValue()
-                    }) {
-                        Icon(Icons.Default.Close, "")
-                    }
-                } else
-                    AnimatedVisibility(visible = !dropDownExpanded && enteredText.isEmpty()) {
-                        IconButton(onClick = { dropDownExpanded = true }) {
-                            Icon(Icons.Default.ArrowDropDown, "")
-                        }
-                    }
+        AutoBotTextField(modifier = modifier.onFocusChanged {
+            if (it.hasFocus && chosenValue == null) dropDownExpanded = true
+        }, enabled = chosenValue == null, value = chosenValue ?: enteredText, onValueChange = {
+            onTextChanged(it)
+            dropDownExpanded = true
+        }, placeholder = placeholder, trailingIcon = {
+            if (chosenValue != null) {
+                IconButton(onClick = {
+                    resetChosenValue()
+                }) {
+                    Icon(Icons.Default.Close, "")
+                }
+            } else AnimatedVisibility(visible = !dropDownExpanded && enteredText.isEmpty()) {
+                IconButton(onClick = { dropDownExpanded = true }) {
+                    Icon(Icons.Default.ArrowDropDown, "")
+                }
             }
-        )
+        })
         DropdownMenu(expanded = dropDownExpanded, properties = PopupProperties(
             focusable = false, dismissOnBackPress = true, dismissOnClickOutside = true
         ), onDismissRequest = { dropDownExpanded = false }) {

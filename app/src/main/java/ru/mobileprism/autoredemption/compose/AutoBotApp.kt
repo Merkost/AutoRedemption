@@ -9,14 +9,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavController
-import androidx.navigation.NavDirections
-import androidx.navigation.NavGraphBuilder
+import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import ru.mobileprism.autoredemption.compose.screens.*
@@ -26,7 +25,7 @@ import ru.mobileprism.autoredemption.compose.screens.home.AutoBotBottomBar
 import ru.mobileprism.autoredemption.compose.screens.home.HomeSections
 import ru.mobileprism.autoredemption.compose.screens.home.addHomeGraph
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class,)
 @Composable
 fun AutoBotApp(startRoute: String = MainDestinations.HOME) {
     val appStateHolder = rememberAppStateHolder()
@@ -36,7 +35,11 @@ fun AutoBotApp(startRoute: String = MainDestinations.HOME) {
         startRoute = LoginDestinations.CHOOSE_CITY
     }*/
 
-    //CheckForPermissions()
+    if (startRoute != MainDestinations.AUTH_ROUTE) {
+
+    }
+    //CheckForPermissions(appStateHolder.navController)
+
 
 
 //    val mainViewModel: MainViewModel = getViewModel()
@@ -72,27 +75,6 @@ fun AutoBotApp(startRoute: String = MainDestinations.HOME) {
             )
         }
     }
-}
-
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
-@Composable
-fun CheckForPermissions() {
-    val context = LocalContext.current
-    val notificationManager: NotificationManager =
-        context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-    val requiredPermissions = rememberMultiplePermissionsState(
-        listOf(
-            Manifest.permission.READ_PHONE_STATE,
-        )
-    )
-
-    if (notificationManager.areNotificationsEnabled().not() || requiredPermissions.allPermissionsGranted.not()) {
-        Scaffold {
-            Text("Permissions needed")
-        }
-    }
 
 }
 
@@ -120,6 +102,10 @@ private fun NavGraphBuilder.NavGraph(
         )
     }
 
+    composable(MainDestinations.PERMISSIONS) {
+        PermissionsScreen()
+    }
+
     composable(MainDestinations.LOGS) {
         LogsScreen(navController::popBackStack)
     }
@@ -127,3 +113,28 @@ private fun NavGraphBuilder.NavGraph(
 }
 
 
+
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun CheckForPermissions(navController: NavHostController) {
+    val context = LocalContext.current
+    val notificationManager: NotificationManager =
+        context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+    val requiredPermissions = rememberMultiplePermissionsState(
+        listOf(
+            Manifest.permission.READ_PHONE_STATE,
+        )
+    )
+
+    DisposableEffect(Unit) {
+        if (notificationManager.areNotificationsEnabled().not() || requiredPermissions.allPermissionsGranted.not()) {
+            navController.navigate(MainDestinations.PERMISSIONS) {
+                launchSingleTop = true
+            }
+        }
+        onDispose {}
+    }
+
+}

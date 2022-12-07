@@ -35,6 +35,7 @@ import org.koin.androidx.viewmodel.ext.android.getViewModel
 import ru.mobileprism.autoredemption.compose.AutoBotApp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
+import ru.mobileprism.autoredemption.compose.CheckForPermissions
 import ru.mobileprism.autoredemption.compose.MainDestinations
 import ru.mobileprism.autoredemption.compose.screens.*
 import ru.mobileprism.autoredemption.model.entities.AuthState
@@ -74,11 +75,8 @@ class MainActivity : ComponentActivity() {
             setOnExitAnimationListener { splashScreenViewProvider ->
                 // Get icon instance and start a fade out animation
 
-                splashScreenViewProvider.view
-                    .animate()
-                    .setDuration(splashFadeDurationMillis.toLong())
-                    .alpha(0f)
-                    .start()
+                splashScreenViewProvider.view.animate()
+                    .setDuration(splashFadeDurationMillis.toLong()).alpha(0f).start()
 
 
                 /*splashScreenViewProvider.iconView
@@ -103,378 +101,34 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPermissionsApi::class)
     @Composable
     fun Distribution(authState: AuthState?) {
+
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val appSettings: AppSettings = get()
+        val chosenSimCardFromSettings = appSettings.selectedSimId.collectAsState(1)
+
+        val requiredPermissions = rememberMultiplePermissionsState(
+            listOf(
+                Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS
+            )
+        )
+
         when (authState) {
             is AuthState.Logged -> {
+                checkNotificationPolicyAccess(notificationManager, this)
 
-                val notificationManager: NotificationManager =
-                    getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-                val appSettings: AppSettings = get()
-                val chosenSimCardFromSettings = appSettings.selectedSimId.collectAsState(1)
-
-                val requiredPermissions = rememberMultiplePermissionsState(
-                    listOf(
-                        Manifest.permission.READ_PHONE_STATE,
-                        Manifest.permission.SEND_SMS
-                    )
-                )
-
-                if (requiredPermissions.allPermissionsGranted.not() || chosenSimCardFromSettings.value == null
-                ) {
-                    AutoBotTheme {
-                        PermissionsScreen()
-                        /*Dialog(
-                            onDismissRequest = { *//*TODO*//* },
-                            properties = DialogProperties(
-                                dismissOnBackPress = false,
-                                dismissOnClickOutside = false,
-                                securePolicy = SecureFlagPolicy.SecureOff,
-                            )
-                        ) {
-                            PermissionsScreen()
-                        }*/
-                    }
+                if (authState.user.shouldChooseCity) {
+                    AutoBotApp(startRoute = MainDestinations.AUTH_ROUTE)
                 } else {
-                        checkNotificationPolicyAccess(notificationManager, this)
-                        AutoBotApp()
+                    AutoBotApp(startRoute = MainDestinations.PERMISSIONS)
                 }
-//                AutoBotApp()
+
             }
             AuthState.NotLogged, null -> {
                 AutoBotApp(startRoute = MainDestinations.AUTH_ROUTE)
             }
         }
-    }
-}
-
-/*@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
-@Composable
-fun PermissionsScreen() {
-    val context = LocalContext.current
-    val notificationManager: NotificationManager =
-        context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-    val simsPermissions = rememberPermissionState(permission = Manifest.permission.READ_PHONE_STATE)
-
-
-    val requiredPermissions = rememberMultiplePermissionsState(
-        listOf(
-            Manifest.permission.READ_PHONE_STATE,
-        )
-    )
-
-
-    Scaffold(modifier = Modifier.systemBarsPadding()) {
-        DefaultColumn(modifier = Modifier.padding(30.dp)) {
-            ActionCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(50.dp), onClick = {
-                    if (simsPermissions.status.shouldShowRationale) {
-                        context.showToast("Необходимо выдать все разрешения в настройках")
-                        try {
-                            val intent = Intent()
-                            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                            val uri = Uri.fromParts("package", context.packageName, null)
-                            intent.data = uri
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            // TODO:
-                            Log.w("TAG", e.message ?: "")
-                        }
-                    } else {
-                        simsPermissions.launchPermissionRequest()
-                    }
-                }, text = "Разрешение на просмотр активных сим карт на устройстве",
-                isPermissionGranted = simsPermissions.status.isGranted
-            )
-        }
-    }
-}*/
-
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
-@Composable
-fun PermissionsScreen() {
-    val context = LocalContext.current
-    val notificationManager: NotificationManager =
-        context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-    var areNotificationsEnabled by remember { mutableStateOf(notificationManager.areNotificationsEnabled()) }
-
-    LaunchedEffect(Unit) {
-        if (notificationManager.areNotificationsEnabled()) {
-            areNotificationsEnabled = true
-        }
-    }
-
-    val readSimPermission =
-        rememberPermissionState(permission = Manifest.permission.READ_PHONE_STATE)
-    val sendSmsPermission = rememberPermissionState(permission = Manifest.permission.SEND_SMS)
-
-    Scaffold(topBar = {
-        MediumTopAppBar(
-            title = {
-                Text(text = "Разрешения для работы")
-            }
-        )
-    }, modifier = Modifier.systemBarsPadding()) {
-        DefaultColumn(
-            modifier = Modifier
-                .padding(25.dp)
-                .padding(it)
-        ) {
-
-            AnimatedVisibility(visible = readSimPermission.status.isGranted) {
-                ChooseSimScreen()
-            }
-
-            ActionCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(50.dp),
-                onClick = {
-                    if (readSimPermission.status.shouldShowRationale) {
-                        context.showToast("Необходимо выдать разрешения в настройках")
-                        context.launchAppSettings()
-                    } else {
-                        readSimPermission.launchPermissionRequest()
-                    }
-                },
-                text = "Разрешение на просмотр активных сим карт на устройстве",
-                isPermissionGranted = readSimPermission.status.isGranted
-            )
-
-            ActionCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(50.dp),
-                onClick = {
-                    if (sendSmsPermission.status.shouldShowRationale) {
-                        context.showToast("Необходимо выдать разрешения в настройках")
-                        context.launchAppSettings()
-                    } else {
-                        sendSmsPermission.launchPermissionRequest()
-                    }
-                },
-                text = "Разрешение на отправку СМС сообщений",
-                isPermissionGranted = sendSmsPermission.status.isGranted
-            )
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val permission = rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
-
-                ActionCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(50.dp),
-                    onClick = {
-                        if (permission.status.shouldShowRationale) {
-                            context.showToast("Необходимо выдать разрешения в настройках")
-                            context.launchAppSettings()
-                        } else {
-                            permission.launchPermissionRequest()
-                        }
-                    },
-                    text = "Разрешение на показ уведомлений",
-                    isPermissionGranted = permission.status.isGranted
-                )
-            } else {
-                checkNotificationPolicyAccess(notificationManager, context)
-                ActionCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(50.dp),
-                    onClick = {},
-                    text = "Разрешение на показ уведомлений",
-                    isPermissionGranted = true
-                )
-            }
-        }
-    }
-}
-
-@SuppressLint("MissingPermission")
-@Composable
-fun ChooseSimScreen() {
-    val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-
-    val subscriptionManager = context.getSubscriptionManager()
-
-    val defaultSubscriptionId = SmsManager.getDefaultSmsSubscriptionId()
-//                val smsManager = SmsManager.getSmsManagerForSubscriptionId(defaultSubscriptionId) ?: SmsManager.getDefault()
-    var defaultSubscriptionInfo: SubscriptionInfo? =
-        subscriptionManager.getActiveSubscriptionInfo(defaultSubscriptionId)
-
-    val defaultSimCard: SubscriptionInfo? =
-        subscriptionManager.getActiveSubscriptionInfo(defaultSubscriptionId)
-
-    val simCards: List<SubscriptionInfo> = remember {
-        subscriptionManager.activeSubscriptionInfoList
-    }
-    val appSettings: AppSettings = get()
-    val chosenSimCardFromSettings = appSettings.selectedSimId.collectAsState(null)
-
-    val chosenSimCard =
-        remember(chosenSimCardFromSettings.value) {
-            mutableStateOf(
-                simCards
-                    .find { it.subscriptionId == chosenSimCardFromSettings.value }
-                    ?.subscriptionId
-            )
-        }
-
-    /*LaunchedEffect(chosenSimCard.value) {
-        chosenSimCard.value?.let {
-            appSettings.saveSelectedSimId(it.subscriptionId)
-        }
-    }*/
-
-    /*if (localSubscriptionManager.activeSubscriptionInfoCount > 1) {
-        val localList: List<*> = localSubscriptionManager.activeSubscriptionInfoList
-        val simInfo = localList[simID] as SubscriptionInfo
-        SmsManager.getSmsManagerForSubscriptionId(simInfo.subscriptionId)
-            .sendTextMessage(toNum, null, smsText, null, null)
-    }
-
-    val subscriptionManager = SubscriptionManager.from(this)
-    Log.d("abc", smsManager.subscriptionId.toString())
-    smsManager.createForSubscriptionId()*/
-
-
-    Crossfade(targetState = chosenSimCard.value != null) {
-        when (it) {
-            true -> {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-                    ChooseSimView(simCards, chosenSimCard.value) {
-                        coroutineScope.launch { appSettings.saveSelectedSimId(it.subscriptionId) }
-                    }
-                }
-            }
-            else -> {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    ChooseSimView(simCards, chosenSimCard.value) {
-                        coroutineScope.launch { appSettings.saveSelectedSimId(it.subscriptionId) }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ChooseSimView(
-    simCards: List<SubscriptionInfo>,
-    chosenSimCardSubsId: Int?,
-    onChooseSim: (SubscriptionInfo) -> Unit,
-) {
-    Column(
-        modifier = Modifier.padding(12.dp),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = "Выберите сим карту для отправки СМС:",
-            modifier = Modifier.weight(1f, false)
-        )
-
-        Column() {
-            simCards.forEachIndexed { index, subscriptionInfo ->
-                SimView(
-                    index,
-                    subscriptionInfo.carrierName.toString(),
-                    subscriptionInfo.subscriptionId == chosenSimCardSubsId
-                ) {
-                    onChooseSim(subscriptionInfo)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun SimView(count: Int, name: String, isSelected: Boolean, onClick: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Icon(Icons.Outlined.SimCard, "")
-        Text(text = name)
-        RadioButton(selected = isSelected, onClick = onClick)
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ActionCard(
-    modifier: Modifier,
-    text: String,
-    onClick: () -> Unit,
-    isPermissionGranted: Boolean
-) {
-    Crossfade(targetState = isPermissionGranted) {
-        when (it) {
-            true -> {
-                ElevatedCard(modifier = modifier) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = text, modifier = Modifier.weight(1f, false))
-                        Icon(
-                            Icons.Outlined.Check,
-                            "",
-                            modifier = Modifier.padding(vertical = 6.dp, horizontal = 8.dp)
-                        )
-                    }
-                }
-            }
-            else -> {
-                Card(modifier = modifier, onClick = onClick) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = text, modifier = Modifier.weight(1f, false))
-                        Icon(
-                            Icons.Outlined.PriorityHigh,
-                            "",
-                            modifier = Modifier.padding(vertical = 6.dp, horizontal = 8.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-}
-
-@Composable
-fun DefaultColumn(
-    modifier: Modifier = Modifier,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    verticalArrangement: Arrangement.HorizontalOrVertical = Arrangement.spacedBy(12.dp),
-    function: @Composable ColumnScope.() -> Unit
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = horizontalAlignment,
-        verticalArrangement = verticalArrangement
-    ) {
-        function()
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    AutoBotTheme {
-        MainScreen({}) {}
     }
 }
 

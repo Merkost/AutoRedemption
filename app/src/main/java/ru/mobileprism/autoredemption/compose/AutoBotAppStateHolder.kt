@@ -18,11 +18,11 @@ import ru.mobileprism.autoredemption.resources
  * Destinations used in the [FishingNotesApp].
  */
 object MainDestinations {
-    val HOME = "home"
-    val AUTH_ROUTE: String = "LOGIN"
-    val REGISTRATION_ROUTE: String = "REGISTRATION"
-    val LOGS: String = "LOGS"
-    val SETTINGS: String = "SETTINGS"
+    const val HOME = "home"
+    const val AUTH_ROUTE: String = "LOGIN"
+    const val LOGS: String = "LOGS"
+    const val SETTINGS: String = "SETTINGS"
+    const val PERMISSIONS: String = "PERMISSIONS"
 }
 
 object Arguments {

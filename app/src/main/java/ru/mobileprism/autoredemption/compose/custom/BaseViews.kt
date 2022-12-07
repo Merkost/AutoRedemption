@@ -39,3 +39,19 @@ fun SmallErrorViewVertical(
 
     }
 }
+
+@Composable
+fun DefaultColumn(
+    modifier: Modifier = Modifier,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    verticalArrangement: Arrangement.HorizontalOrVertical = Arrangement.spacedBy(12.dp),
+    function: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = horizontalAlignment,
+        verticalArrangement = verticalArrangement
+    ) {
+        function()
+    }
+}
