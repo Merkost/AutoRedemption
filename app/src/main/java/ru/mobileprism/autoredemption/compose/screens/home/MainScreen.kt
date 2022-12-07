@@ -17,8 +17,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
@@ -39,6 +37,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
+import ru.mobileprism.autoredemption.compose.CheckForPermissions
 import ru.mobileprism.autoredemption.model.datastore.AppSettings
 import ru.mobileprism.autoredemption.model.datastore.AppSettingsEntity
 import ru.mobileprism.autoredemption.utils.*
@@ -50,7 +49,7 @@ import ru.mobileprism.autoredemption.workmanager.ForegroundService
     ExperimentalMaterialApi::class, ExperimentalMaterialApi::class
 )
 @Composable
-fun MainScreen(upPress: () -> Unit, toSettings: () -> Unit) {
+fun MainScreen(upPress: () -> Unit, toSettings: () -> Unit, toPermissions: () -> Unit) {
 
     val settings: AppSettings = get()
     val viewModel: HomeViewModel = getViewModel()
@@ -59,6 +58,8 @@ fun MainScreen(upPress: () -> Unit, toSettings: () -> Unit) {
     val context = LocalContext.current
     val isServiceRunning = rememberSaveable { mutableStateOf(false) }
     val lazyState = rememberLazyListState()
+
+    CheckForPermissions(toPermissions)
 
 
     LaunchedEffect(key1 = Unit) {

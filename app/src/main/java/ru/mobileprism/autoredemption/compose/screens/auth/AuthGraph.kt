@@ -4,22 +4,19 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import ru.mobileprism.autoredemption.compose.MainDestinations
-import ru.mobileprism.autoredemption.model.datastore.UserEntity
 import ru.mobileprism.autoredemption.model.entities.PhoneAuthEntity
-import ru.mobileprism.autoredemption.model.entities.SmsConfirmEntity
 import ru.mobileprism.autoredemption.utils.navigate
 import ru.mobileprism.autoredemption.utils.requiredArg
 
 
 object LoginDestinations {
-    val PHONE_ENTERING_ROUTE = "PHONE_ENTERING_ROUTE"
-    val SMS_CONFIRM_ROUTE = "SMS_CONFIRM_ROUTE"
-    val CHOOSE_CITY: String = "CHOOSE_CITY_ROUTE"
+    const val PHONE_ENTERING_ROUTE = "PHONE_ENTERING_ROUTE"
+    const val SMS_CONFIRM_ROUTE = "SMS_CONFIRM_ROUTE"
+    const val REGISTER: String = "REGISTER_ROUTE"
 
 }
 
 object LoginArguments {
-    const val CONFIRM_SMS = "confirm_sms_arg"
     const val PHONE_AUTH = "phone_auth_arg"
 }
 
@@ -46,8 +43,8 @@ fun NavGraphBuilder.addAuthGraph(
     composable(LoginDestinations.SMS_CONFIRM_ROUTE) {
         val phoneAuthEntity = it.requiredArg<PhoneAuthEntity>(LoginArguments.PHONE_AUTH)
         SmsConfirmScreen(phoneAuthEntity, upPress = upPress) {
-            if (it.user.shouldChooseCity) {
-                navController.navigate(LoginDestinations.CHOOSE_CITY) {
+            if (it.user.shouldRegister) {
+                navController.navigate(LoginDestinations.REGISTER) {
                     popUpTo(MainDestinations.AUTH_ROUTE) {
                         inclusive = true
                     }
@@ -57,7 +54,7 @@ fun NavGraphBuilder.addAuthGraph(
         }
     }
 
-    composable(LoginDestinations.CHOOSE_CITY) {
+    composable(LoginDestinations.REGISTER) {
         RegisterScreen(upPress = upPress) {
             navigateToApp()
         }

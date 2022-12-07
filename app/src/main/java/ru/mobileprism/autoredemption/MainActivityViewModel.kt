@@ -8,7 +8,7 @@ import ru.mobileprism.autoredemption.model.datastore.UserDatastore
 
 class MainActivityViewModel(userDatastore: UserDatastore) : ViewModel() {
 
-    val authState: StateFlow<AuthState?> = userDatastore.authState
-        .take(1).stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    val authState: StateFlow<AuthState?> = userDatastore.authState.take(1)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
 }

@@ -9,6 +9,7 @@ import java.time.LocalDateTime
 @Parcelize
 data class UserEntity(
     val _id: String = "0",
+    val name: String? = null,
     val phone: String = "+71234567890",
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val subscriptionStatus: SubscriptionStatus = SubscriptionStatus(false, LocalDateTime.now()),
@@ -16,12 +17,11 @@ data class UserEntity(
     val city: CityEntity? = null,
     val timeZone: TimeZoneEntity? = null,
     val monthlyPayment: Int? = null,
-    val name: String? = null,
 ) : Parcelable {
 
     @IgnoredOnParcel
-    val shouldChooseCity: Boolean
-        get() = city == null || timeZone == null || name == null
+    val shouldRegister: Boolean
+        get() = city == null || name == null
 
 }
 

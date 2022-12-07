@@ -54,7 +54,7 @@ fun RegisterScreen(upPress: () -> Unit, onNext: () -> Unit) {
     Scaffold(modifier = Modifier
         .fillMaxSize()
         .consumedWindowInsets(WindowInsets.navigationBars),
-        topBar = { AuthTopAppBar(title = "Данные профиля") }) {
+        topBar = { AuthTopAppBar(title = stringResource(id = R.string.registration)) }) {
         Crossfade(
             targetState = valuesState.value,
             modifier = Modifier
@@ -80,6 +80,7 @@ fun RegisterScreen(upPress: () -> Unit, onNext: () -> Unit) {
                         ) {
 
                             AutoBotTextField(
+                                modifier = Modifier.fillMaxWidth(),
                                 placeholder = stringResource(id = R.string.your_name),
                                 value = chosenValues.value.name,
                                 onValueChange = viewModel::onNameSelected

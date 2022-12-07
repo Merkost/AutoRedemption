@@ -27,7 +27,7 @@ fun SmallErrorViewVertical(
     ) {
         Text(
             text = text,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier,
             style = MaterialTheme.typography.titleMedium
         )
         onRetry?.let {

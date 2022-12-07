@@ -36,4 +36,5 @@
     <string name="user_creation_error">Не удалось создать пользователя</string>
     <string name="user_deletion_error">Не удалось удалить пользователя</string>
     <string name="database_error">Ошибка в системе хранения данных</string>
+    <string name="registration">Регистрация</string>
 </resources>

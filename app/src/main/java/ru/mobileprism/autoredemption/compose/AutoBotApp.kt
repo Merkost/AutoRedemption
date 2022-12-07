@@ -7,10 +7,8 @@ import android.content.Context.NOTIFICATION_SERVICE
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.*
@@ -25,9 +23,12 @@ import ru.mobileprism.autoredemption.compose.screens.home.AutoBotBottomBar
 import ru.mobileprism.autoredemption.compose.screens.home.HomeSections
 import ru.mobileprism.autoredemption.compose.screens.home.addHomeGraph
 
-@OptIn(ExperimentalMaterial3Api::class,)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AutoBotApp(startRoute: String = MainDestinations.HOME) {
+fun AutoBotApp(
+    startRoute: String = MainDestinations.HOME,
+    startAuthRoute: String = LoginDestinations.PHONE_ENTERING_ROUTE
+) {
     val appStateHolder = rememberAppStateHolder()
 
     /*var startRoute: String = MainDestinations.HOME
@@ -35,11 +36,7 @@ fun AutoBotApp(startRoute: String = MainDestinations.HOME) {
         startRoute = LoginDestinations.CHOOSE_CITY
     }*/
 
-    if (startRoute != MainDestinations.AUTH_ROUTE) {
-
-    }
     //CheckForPermissions(appStateHolder.navController)
-
 
 
 //    val mainViewModel: MainViewModel = getViewModel()
@@ -67,11 +64,12 @@ fun AutoBotApp(startRoute: String = MainDestinations.HOME) {
         NavHost(
             navController = appStateHolder.navController,
             startDestination = startRoute,
-            Modifier.padding(innerPaddingModifier)
+            modifier = Modifier.padding(innerPaddingModifier)
         ) {
             NavGraph(
                 navController = appStateHolder.navController,
                 upPress = appStateHolder::upPress,
+                startAuthRoute = startAuthRoute,
             )
         }
     }
@@ -81,6 +79,7 @@ fun AutoBotApp(startRoute: String = MainDestinations.HOME) {
 private fun NavGraphBuilder.NavGraph(
     upPress: () -> Unit,
     navController: NavController,
+    startAuthRoute: String,
 ) {
     navigation(
         route = MainDestinations.HOME,
@@ -91,7 +90,7 @@ private fun NavGraphBuilder.NavGraph(
 
     navigation(
         route = MainDestinations.AUTH_ROUTE,
-        startDestination = LoginDestinations.PHONE_ENTERING_ROUTE,
+        startDestination = startAuthRoute,
     ) {
         addAuthGraph(navController, upPress = upPress)
     }
@@ -113,11 +112,10 @@ private fun NavGraphBuilder.NavGraph(
 }
 
 
-
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun CheckForPermissions(navController: NavHostController) {
+fun CheckForPermissions(toPermissions: () -> Unit) {
     val context = LocalContext.current
     val notificationManager: NotificationManager =
         context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -129,10 +127,10 @@ fun CheckForPermissions(navController: NavHostController) {
     )
 
     DisposableEffect(Unit) {
-        if (notificationManager.areNotificationsEnabled().not() || requiredPermissions.allPermissionsGranted.not()) {
-            navController.navigate(MainDestinations.PERMISSIONS) {
-                launchSingleTop = true
-            }
+        if (notificationManager.areNotificationsEnabled()
+                .not() || requiredPermissions.allPermissionsGranted.not()
+        ) {
+            toPermissions()
         }
         onDispose {}
     }

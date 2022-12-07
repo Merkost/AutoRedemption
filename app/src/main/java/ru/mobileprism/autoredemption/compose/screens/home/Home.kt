@@ -28,7 +28,13 @@ fun NavGraphBuilder.addHomeGraph(
     composable(
         HomeSections.MAIN.route,
     ) { from ->
-        MainScreen(upPress, toSettings = { navController.navigate(MainDestinations.SETTINGS) })
+        MainScreen(upPress,
+            toSettings = { navController.navigate(MainDestinations.SETTINGS) },
+            toPermissions = {
+                navController.navigate(MainDestinations.PERMISSIONS) {
+                    launchSingleTop = true
+                }
+            })
     }
 
     composable(
@@ -62,11 +68,8 @@ fun ScenariosScreen(upPress: () -> Unit) {
 enum class HomeSections(
     @StringRes val title: Int, val icon: ImageVector, val route: String
 ) {
-    MAIN(R.string.main, Icons.Outlined.Home, "home/main"), SCENARIOS(
-        R.string.scenarios,
-        Icons.Outlined.Menu,
-        "home/scenarios"
-    ),
+    MAIN(R.string.main, Icons.Outlined.Home, "home/main"),
+    SCENARIOS(R.string.scenarios, Icons.Outlined.Menu, "home/scenarios"),
     PROFILE(R.string.profile, Icons.Outlined.Person, "home/profile"),
 }
 
