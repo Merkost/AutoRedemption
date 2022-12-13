@@ -31,10 +31,9 @@ fun NavGraphBuilder.addHomeGraph(
         MainScreen(upPress,
             toSettings = { navController.navigate(MainDestinations.SETTINGS) },
             toPermissions = {
-                navController.navigate(MainDestinations.PERMISSIONS) {
-                    launchSingleTop = true
-                }
-            })
+                navController.navigate(MainDestinations.PERMISSIONS) { launchSingleTop = true }
+            }
+        )
     }
 
     composable(

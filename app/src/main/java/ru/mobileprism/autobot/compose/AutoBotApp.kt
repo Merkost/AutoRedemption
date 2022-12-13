@@ -102,7 +102,7 @@ private fun NavGraphBuilder.NavGraph(
     }
 
     composable(MainDestinations.PERMISSIONS) {
-        PermissionsScreen()
+        PermissionsScreen(upPress = upPress)
     }
 
     composable(MainDestinations.LOGS) {
@@ -129,9 +129,7 @@ fun CheckForPermissions(toPermissions: () -> Unit) {
     DisposableEffect(Unit) {
         if (notificationManager.areNotificationsEnabled()
                 .not() || requiredPermissions.allPermissionsGranted.not()
-        ) {
-            toPermissions()
-        }
+        ) { toPermissions() }
         onDispose {}
     }
 

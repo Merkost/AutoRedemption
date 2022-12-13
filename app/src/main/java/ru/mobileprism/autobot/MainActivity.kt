@@ -78,22 +78,11 @@ class MainActivity : ComponentActivity() {
 
 
     }
-
-    @OptIn(ExperimentalPermissionsApi::class)
     @Composable
     fun Distribution(authState: AuthState?) {
 
         val notificationManager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        val appSettings: AppSettings = get()
-        val chosenSimCardFromSettings = appSettings.selectedSimId.collectAsState(1)
-
-        val requiredPermissions = rememberMultiplePermissionsState(
-            listOf(
-                Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS
-            )
-        )
 
         when (authState) {
             is AuthState.Logged -> {
@@ -101,6 +90,8 @@ class MainActivity : ComponentActivity() {
 
                 if (authState.user.shouldRegister) {
                     AutoBotApp(startRoute = MainDestinations.AUTH_ROUTE, startAuthRoute = LoginDestinations.REGISTER)
+                } else {
+                    AutoBotApp()
                 }
 
             }

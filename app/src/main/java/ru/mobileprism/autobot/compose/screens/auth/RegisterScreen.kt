@@ -62,6 +62,7 @@ fun RegisterScreen(upPress: () -> Unit, onNext: () -> Unit) {
                 .padding(horizontal = 30.dp)
         ) {
             when (it) {
+                is BaseViewState.Loading -> {}
                 is BaseViewState.Error -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         SmallErrorViewVertical(onRetry = viewModel::retry)

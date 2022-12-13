@@ -45,8 +45,11 @@ import ru.mobileprism.autobot.viewmodels.HomeViewModel
 import ru.mobileprism.autobot.workmanager.ForegroundService
 
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class, ExperimentalMaterialApi::class
+@OptIn(
+    ExperimentalPermissionsApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterialApi::class
 )
 @Composable
 fun MainScreen(upPress: () -> Unit, toSettings: () -> Unit, toPermissions: () -> Unit) {
@@ -63,56 +66,45 @@ fun MainScreen(upPress: () -> Unit, toSettings: () -> Unit, toPermissions: () ->
 
 
     LaunchedEffect(key1 = Unit) {
-        isServiceRunning.value =
-            context.isServiceRunning(ForegroundService::class.java)
+        isServiceRunning.value = context.isServiceRunning(ForegroundService::class.java)
     }
 
-
-    val smsPermissionState = rememberPermissionState(
-        Manifest.permission.SEND_SMS
-    )
+    val smsPermissionState = rememberPermissionState(Manifest.permission.SEND_SMS)
 
     val coroutineScope = rememberCoroutineScope()
-    val sheetState =
-        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     BackHandler(sheetState.isVisible) {
         coroutineScope.launch { sheetState.hide() }
     }
 
-    ModalBottomSheetLayout(
-        sheetState = sheetState,
-        sheetContent = {
-            AddNumSheet(sheetState = sheetState, onAdd = { number ->
-                coroutineScope.launch {
-                    if (appSettingsEntity.numbers.contains(number)) {
-                        Toast.makeText(context, "Номер есть в списке", Toast.LENGTH_SHORT).show()
+    ModalBottomSheetLayout(sheetState = sheetState, sheetContent = {
+        AddNumSheet(sheetState = sheetState, onAdd = { number ->
+            coroutineScope.launch {
+                if (appSettingsEntity.numbers.contains(number)) {
+                    Toast.makeText(context, "Номер есть в списке", Toast.LENGTH_SHORT).show()
+                } else {
+                    /*settings.saveAppSettings(appSettingsEntity.copy(numbers = appSettingsEntity.numbers + number))*/
+                    viewModel.addRealNumber(number)
+                }
+            }
+        })
+    }) {
+
+        Scaffold(modifier = Modifier, topBar = {
+            TopAppBar(title = { Text(text = "АвтоВыкуп") }, actions = {
+                IconButton(onClick = {
+                    if (appSettingsEntity.testMode.not()) {
+                        coroutineScope.launch { sheetState.show() }
                     } else {
-                        /*settings.saveAppSettings(appSettingsEntity.copy(numbers = appSettingsEntity.numbers + number))*/
-                        viewModel.addRealNumber(number)
+                        viewModel.addTestNumber()
                     }
+                }) { Icon(Icons.Default.Add, "") }
+                IconButton(onClick = toSettings) {
+                    Icon(Icons.Default.Settings, "")
                 }
             })
         }) {
-
-        Scaffold(
-            modifier = Modifier,
-            topBar = {
-                TopAppBar(title = { Text(text = "АвтоВыкуп") },
-                    actions = {
-                        IconButton(onClick = {
-                            if (appSettingsEntity.testMode.not()) {
-                                coroutineScope.launch { sheetState.show() }
-                            } else {
-                                viewModel.addTestNumber()
-                            }
-                        }) { Icon(Icons.Default.Add, "") }
-                        IconButton(onClick = toSettings) {
-                            Icon(Icons.Default.Settings, "")
-                        }
-                    })
-            }
-        ) {
             Column() {
                 LazyColumn(
                     state = lazyState,
@@ -131,31 +123,25 @@ fun MainScreen(upPress: () -> Unit, toSettings: () -> Unit, toPermissions: () ->
                                 )
                             }
                         }
-                        if (appSettingsEntity.testNumbers.isEmpty())
-                            item {
-                                Row(modifier = Modifier.padding(32.dp)) {
-                                    Text(text = "Нажмите на \"+\", чтобы добавить тестовые номера")
-                                }
+                        if (appSettingsEntity.testNumbers.isEmpty()) item {
+                            Row(modifier = Modifier.padding(32.dp)) {
+                                Text(text = "Нажмите на \"+\", чтобы добавить тестовые номера")
                             }
+                        }
                         items(appSettingsEntity.testNumbers.toList().reversed()) { number ->
-                            NumberItem(
-                                number,
-                                onDelete = { viewModel.deleteTestNumber(number) }
-                            )
+                            NumberItem(number, onDelete = { viewModel.deleteTestNumber(number) })
                         }
                     } else {
                         items(appSettingsEntity.numbers.reversed()) { number ->
-                            NumberItem(number,
-                                onDelete = { viewModel.deleteRealNumber(number) })
+                            NumberItem(number, onDelete = { viewModel.deleteRealNumber(number) })
                         }
                     }
                     item { ListSpacer() }
                 }
 
-                Button(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth(),
+                Button(modifier = Modifier
+                    .padding(Constants.defaultPadding)
+                    .fillMaxWidth(),
                     onClick = {
                         when (isServiceRunning.value) {
                             true -> {
@@ -189,7 +175,6 @@ fun MainScreen(upPress: () -> Unit, toSettings: () -> Unit, toPermissions: () ->
                         }
                         false -> {
                             Box {
-
                                 Row(
                                     modifier = Modifier.padding(horizontal = 16.dp),
                                     verticalAlignment = Alignment.CenterVertically,
@@ -213,7 +198,7 @@ fun ListSpacer() {
 }
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class,)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun AddNumSheet(sheetState: ModalBottomSheetState, onAdd: (String) -> Unit) {
     val focusRequester = remember { FocusRequester() }
@@ -240,8 +225,7 @@ fun AddNumSheet(sheetState: ModalBottomSheetState, onAdd: (String) -> Unit) {
                 .focusRequester(focusRequester),
             value = numToAdd.value,
             keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Phone,
-                imeAction = ImeAction.Done
+                keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done
             ),
             onValueChange = { if (isPhoneNumValid(it)) numToAdd.value = it },
             visualTransformation = PhoneNumberVisualTransformation()
@@ -260,9 +244,7 @@ fun AddNumSheet(sheetState: ModalBottomSheetState, onAdd: (String) -> Unit) {
                     coroutineScope.launch { sheetState.hide() }
                 } else {
                     Toast.makeText(
-                        context,
-                        "Неверный формат номера!",
-                        Toast.LENGTH_SHORT
+                        context, "Неверный формат номера!", Toast.LENGTH_SHORT
                     ).show()
                 }
 
@@ -303,8 +285,7 @@ fun NumberItem(number: String, onDelete: (() -> Unit)?) {
             onDelete?.let {
                 IconButton(onClick = { onDelete() }) {
                     Icon(
-                        Icons.Default.Delete, "",
-                        tint = MaterialTheme.colorScheme.error
+                        Icons.Default.Delete, "", tint = MaterialTheme.colorScheme.error
                     )
                 }
             }

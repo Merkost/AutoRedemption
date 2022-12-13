@@ -10,6 +10,8 @@ import android.telephony.SubscriptionInfo
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.PriorityHigh
@@ -20,25 +22,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.shouldShowRationale
+import com.google.accompanist.permissions.*
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.mobileprism.autobot.compose.custom.DefaultColumn
+import ru.mobileprism.autobot.compose.screens.home.ListSpacer
 import ru.mobileprism.autobot.model.datastore.AppSettings
-import ru.mobileprism.autobot.utils.checkNotificationPolicyAccess
-import ru.mobileprism.autobot.utils.getSubscriptionManager
-import ru.mobileprism.autobot.utils.launchAppSettings
-import ru.mobileprism.autobot.utils.showToast
+import ru.mobileprism.autobot.utils.*
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun PermissionsScreen() {
+fun PermissionsScreen(upPress: () -> Unit) {
     val context = LocalContext.current
     val notificationManager: NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    val appSettings: AppSettings = get()
 
     var areNotificationsEnabled by remember { mutableStateOf(notificationManager.areNotificationsEnabled()) }
 
@@ -52,83 +50,115 @@ fun PermissionsScreen() {
         rememberPermissionState(permission = Manifest.permission.READ_PHONE_STATE)
     val sendSmsPermission = rememberPermissionState(permission = Manifest.permission.SEND_SMS)
 
-    Scaffold(topBar = {
-        MediumTopAppBar(title = {
-            Text(text = "Разрешения для работы")
-        })
-    }, modifier = Modifier.systemBarsPadding()) {
-        DefaultColumn(
-            modifier = Modifier
-                .padding(25.dp)
-                .padding(it)
-        ) {
+    val chosenSimCardFromSettings = appSettings.selectedSimId.collectAsState(1)
 
-            AnimatedVisibility(visible = readSimPermission.status.isGranted) {
-                ChooseSimScreen()
-            }
+    val requiredPermissions = rememberMultiplePermissionsState(
+        listOf(Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS)
+    )
+    val areAllPermissionsGiven = remember(
+        requiredPermissions.allPermissionsGranted,
+        chosenSimCardFromSettings.value
+    ) {
+        mutableStateOf(requiredPermissions.allPermissionsGranted &&
+                chosenSimCardFromSettings.value != null)
+    }
 
-            ActionCard(
+    Scaffold(
+        topBar = { MediumTopAppBar(title = { Text(text = "Разрешения для работы") }) },
+        modifier = Modifier.systemBarsPadding()
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            DefaultColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(50.dp),
-                onClick = {
-                    if (readSimPermission.status.shouldShowRationale) {
-                        context.showToast("Необходимо выдать разрешения в настройках")
-                        context.launchAppSettings()
-                    } else {
-                        readSimPermission.launchPermissionRequest()
-                    }
-                },
-                text = "Разрешение на просмотр активных сим карт на устройстве",
-                isPermissionGranted = readSimPermission.status.isGranted
-            )
+                    .padding(Constants.defaultPadding)
+                    .padding(it)
+                    .verticalScroll(rememberScrollState())
+            ) {
 
-            ActionCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(50.dp),
-                onClick = {
-                    if (sendSmsPermission.status.shouldShowRationale) {
-                        context.showToast("Необходимо выдать разрешения в настройках")
-                        context.launchAppSettings()
-                    } else {
-                        sendSmsPermission.launchPermissionRequest()
-                    }
-                },
-                text = "Разрешение на отправку СМС сообщений",
-                isPermissionGranted = sendSmsPermission.status.isGranted
-            )
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val permission =
-                    rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
+                AnimatedVisibility(visible = readSimPermission.status.isGranted) {
+                    ChooseSimScreen()
+                }
 
                 ActionCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(50.dp),
                     onClick = {
-                        if (permission.status.shouldShowRationale) {
+                        if (readSimPermission.status.shouldShowRationale) {
                             context.showToast("Необходимо выдать разрешения в настройках")
                             context.launchAppSettings()
                         } else {
-                            permission.launchPermissionRequest()
+                            readSimPermission.launchPermissionRequest()
                         }
                     },
-                    text = "Разрешение на показ уведомлений",
-                    isPermissionGranted = permission.status.isGranted
+                    text = "Разрешение на просмотр активных сим карт на устройстве",
+                    isPermissionGranted = readSimPermission.status.isGranted
                 )
-            } else {
-                checkNotificationPolicyAccess(notificationManager, context)
+
                 ActionCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(50.dp),
-                    onClick = {},
-                    text = "Разрешение на показ уведомлений",
-                    isPermissionGranted = true
+                    onClick = {
+                        if (sendSmsPermission.status.shouldShowRationale) {
+                            context.showToast("Необходимо выдать разрешения в настройках")
+                            context.launchAppSettings()
+                        } else {
+                            sendSmsPermission.launchPermissionRequest()
+                        }
+                    },
+                    text = "Разрешение на отправку СМС сообщений",
+                    isPermissionGranted = sendSmsPermission.status.isGranted
                 )
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val permission =
+                        rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
+
+                    ActionCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(50.dp),
+                        onClick = {
+                            if (permission.status.shouldShowRationale) {
+                                context.showToast("Необходимо выдать разрешения в настройках")
+                                context.launchAppSettings()
+                            } else {
+                                permission.launchPermissionRequest()
+                            }
+                        },
+                        text = "Разрешение на показ уведомлений",
+                        isPermissionGranted = permission.status.isGranted
+                    )
+                } else {
+                    checkNotificationPolicyAccess(notificationManager, context)
+                    ActionCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(50.dp),
+                        onClick = {},
+                        text = "Разрешение на показ уведомлений",
+                        isPermissionGranted = true
+                    )
+                }
+                ListSpacer()
             }
+            Button(
+                onClick = { upPress() },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(Constants.defaultPadding)
+                    .fillMaxWidth()
+            ) {
+                Crossfade(areAllPermissionsGiven.value) {
+                    when (it) {
+                        true -> Text(text = "Продолжить")
+                        else -> Text(text = "Пропустить")
+                    }
+                }
+            }
+
+
         }
     }
 }
@@ -249,7 +279,9 @@ fun ActionCard(
             true -> {
                 ElevatedCard(modifier = modifier) {
                     Row(
-                        modifier = Modifier.padding(12.dp),
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -265,7 +297,9 @@ fun ActionCard(
             else -> {
                 Card(modifier = modifier, onClick = onClick) {
                     Row(
-                        modifier = Modifier.padding(12.dp),
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {

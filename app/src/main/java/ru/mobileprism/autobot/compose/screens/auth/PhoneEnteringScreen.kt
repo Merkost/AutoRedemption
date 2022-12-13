@@ -34,6 +34,7 @@ import ru.mobileprism.autobot.R
 import ru.mobileprism.autobot.compose.custom.MainButton
 import ru.mobileprism.autobot.compose.custom.ModalLoadingDialog
 import ru.mobileprism.autobot.compose.screens.home.AutoBotTextField
+import ru.mobileprism.autobot.model.datastore.CityEntity
 import ru.mobileprism.autobot.model.datastore.UserEntity
 import ru.mobileprism.autobot.model.entities.PhoneAuthEntity
 import ru.mobileprism.autobot.model.repository.AuthRepository
@@ -145,7 +146,12 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
                                 .size(25.dp)
                                 .noRippleClickable(Constants.isDebug) {
                                     coroutineScope.launch {
-                                        authManager.saveUserWithToken(UserEntity(), "debug")
+                                        authManager.saveUserWithToken(
+                                            UserEntity(
+                                                name = "Test",
+                                                city = CityEntity("0", "", "")
+                                            ), "debug"
+                                        )
                                     }
                                 }
                         )
