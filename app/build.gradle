@@ -4,15 +4,15 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'org.jetbrains.kotlin.android'
-//    id 'com.google.dagger.hilt.android'
     id "com.apollographql.apollo3" version "3.6.0"
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "ru.mobileprism.autoredemption"
+        applicationId "ru.mobileprism.autobot"
         minSdk 24
         targetSdk 33
         versionCode 8
@@ -46,10 +46,12 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
-    namespace 'ru.mobileprism.autoredemption'
+    namespace 'ru.mobileprism.autobot'
 }
 
 dependencies {
+    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.3.2'
+    implementation 'com.google.firebase:firebase-analytics-ktx:21.2.0'
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:1.1.5"
 
     //Sms code auto-input
@@ -162,7 +164,7 @@ dependencies {
 }
 
 apollo {
-    packageName.set("ru.mobileprism.autoredemption")
+    packageName.set("ru.mobileprism.autobot")
     generateKotlinModels.set(true)
 }
 
