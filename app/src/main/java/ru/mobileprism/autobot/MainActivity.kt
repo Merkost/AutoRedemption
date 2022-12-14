@@ -1,32 +1,25 @@
 package ru.mobileprism.autobot
 
-import android.Manifest
 import android.app.NotificationManager
 import android.content.Context
 import android.content.res.Resources
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.accompanist.permissions.*
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 import ru.mobileprism.autobot.compose.AutoBotApp
-import org.koin.androidx.compose.get
 import ru.mobileprism.autobot.compose.MainDestinations
-import ru.mobileprism.autobot.compose.screens.*
 import ru.mobileprism.autobot.compose.screens.auth.LoginDestinations
 import ru.mobileprism.autobot.model.entities.AuthState
-import ru.mobileprism.autobot.utils.checkNotificationPolicyAccess
-import ru.mobileprism.autobot.model.datastore.AppSettings
 import ru.mobileprism.autobot.ui.theme3.AutoBotTheme
-import ru.mobileprism.autobot.utils.*
 
 
 class MainActivity : ComponentActivity() {

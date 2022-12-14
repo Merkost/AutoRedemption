@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ru.mobileprism.autobot.R
 import ru.mobileprism.autobot.model.entities.PhoneAuthEntity
 import ru.mobileprism.autobot.model.repository.AuthRepository
+import ru.mobileprism.autobot.model.repository.AutoBotError
 import ru.mobileprism.autobot.model.repository.fold
 import ru.mobileprism.autobot.utils.BaseViewState
 import ru.mobileprism.autobot.utils.Constants
@@ -42,8 +44,8 @@ class PhoneEnteringViewModel(
             if (code.toString() == "7" && number.toString().length == 10) {
                 _phoneNum.value = "+7$number"
                 authenticate()
-            }
-        }
+            } else _uiState.update { BaseViewState.Error(AutoBotError(R.string.invalid_number)) }
+        } ?: _uiState.update { BaseViewState.Error(AutoBotError(R.string.invalid_number)) }
     }
 
     private fun isPhoneNumValid(newValue: String): Boolean {

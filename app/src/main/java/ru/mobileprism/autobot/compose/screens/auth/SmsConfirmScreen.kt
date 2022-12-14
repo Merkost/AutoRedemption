@@ -49,12 +49,11 @@ import ru.mobileprism.autobot.compose.screens.home.AutoBotTextField
 import ru.mobileprism.autobot.model.entities.PhoneAuthEntity
 import ru.mobileprism.autobot.model.entities.SmsConfirmEntity
 import ru.mobileprism.autobot.utils.BaseViewState
+import ru.mobileprism.autobot.utils.Constants
 import ru.mobileprism.autobot.utils.SmsBroadcastReceiver
 import ru.mobileprism.autobot.utils.showError
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalLayoutApi::class
-)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class,)
 @Composable
 fun SmsConfirmScreen(
     phoneAuth: PhoneAuthEntity,
@@ -108,14 +107,15 @@ fun SmsConfirmScreen(
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize().consumedWindowInsets(WindowInsets.navigationBars),
-        topBar = { AuthTopAppBar(upPress = upPress) }
+        modifier = Modifier.fillMaxSize(),
+        topBar = { AuthTopAppBar(upPress = upPress) },
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .imePadding()
-                .padding(horizontal = 30.dp)
+                .padding(horizontal = Constants.largePadding)
+                .padding(bottom = Constants.smallPadding)
                 .padding(it),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween

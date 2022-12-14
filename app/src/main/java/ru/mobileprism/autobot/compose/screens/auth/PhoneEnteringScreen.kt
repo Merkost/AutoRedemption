@@ -44,13 +44,10 @@ import ru.mobileprism.autobot.viewmodels.PhoneEnteringViewModel
 
 @OptIn(
     ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalLayoutApi::class
 )
 @Composable
 fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
-    val authManager: AuthManager = get()
     val viewModel: PhoneEnteringViewModel by viewModel()
-    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
     val uiState by viewModel.uiState.collectAsState()
@@ -102,15 +99,15 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .consumedWindowInsets(WindowInsets.navigationBars)
+//            .consumedWindowInsets(WindowInsets.navigationBars)
             .statusBarsPadding()
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .imePadding()
-                .padding(horizontal = 30.dp)
+                .padding(horizontal = Constants.largePadding)
+                .padding(bottom = Constants.smallPadding)
                 .padding(it),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
@@ -149,14 +146,7 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
                             modifier = Modifier
                                 .size(25.dp)
                                 .noRippleClickable(Constants.isDebug) {
-                                    coroutineScope.launch {
-                                        authManager.saveUserWithToken(
-                                            UserEntity(
-                                                name = "Test",
-                                                city = CityEntity("0", "", "")
-                                            ), "debug"
-                                        )
-                                    }
+                                    viewModel.loginTestUser()
                                 }
                         )
                     }, singleLine = true,

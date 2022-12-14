@@ -30,7 +30,7 @@ suspend fun <T : Operation.Data> safeGraphQLCall(
         } catch (throwable: Throwable) {
             when (throwable) {
                 is IOException, is ApolloNetworkException -> ResultWrapper.NetworkError
-                else -> ResultWrapper.GenericError(ServerGenericError)
+                else -> ResultWrapper.GenericError(ServerGenericError.copy(message = throwable.message ?: "GenericError"))
             }
         }
     }

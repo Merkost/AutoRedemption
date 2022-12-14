@@ -32,7 +32,9 @@ import ru.mobileprism.autobot.compose.screens.home.ListSpacer
 import ru.mobileprism.autobot.model.datastore.AppSettings
 import ru.mobileprism.autobot.utils.*
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalLayoutApi::class
+)
 @Composable
 fun PermissionsScreen(upPress: () -> Unit) {
     val context = LocalContext.current
@@ -72,21 +74,20 @@ fun PermissionsScreen(upPress: () -> Unit) {
         chosenSimCardFromSettings.value
     ) {
         mutableStateOf(
-            requiredPermissions.allPermissionsGranted &&
-                    chosenSimCardFromSettings.value != null
+            requiredPermissions.allPermissionsGranted && chosenSimCardFromSettings.value != null
         )
     }
 
     Scaffold(
         topBar = { MediumTopAppBar(title = { Text(text = "Разрешения для работы") }) },
-        modifier = Modifier.systemBarsPadding()
+        modifier = Modifier,
+//        contentWindowInsets = PaddingValues(0.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             DefaultColumn(
-                modifier = Modifier
+                modifier = Modifier.verticalScroll(rememberScrollState())
                     .padding(Constants.defaultPadding)
                     .padding(it)
-                    .verticalScroll(rememberScrollState())
             ) {
 
                 ActionCard(

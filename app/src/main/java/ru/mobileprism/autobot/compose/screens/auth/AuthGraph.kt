@@ -55,7 +55,12 @@ fun NavGraphBuilder.addAuthGraph(
     }
 
     composable(LoginDestinations.REGISTER) {
-        RegisterScreen(upPress = upPress) {
+        RegisterScreen(upPress = upPress, onAuth = {
+            navController.navigate(LoginDestinations.PHONE_ENTERING_ROUTE) {
+                launchSingleTop = true
+                popUpTo(0)
+            }
+        }) {
             navigateToApp()
         }
     }

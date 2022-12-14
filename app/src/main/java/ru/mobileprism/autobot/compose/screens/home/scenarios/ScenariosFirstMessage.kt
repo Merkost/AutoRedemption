@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import ru.mobileprism.autobot.R
 import ru.mobileprism.autobot.compose.custom.DefaultColumn
 import ru.mobileprism.autobot.compose.screens.home.AutoBotTextField
+import ru.mobileprism.autobot.compose.screens.home.ListSpacer
 import ru.mobileprism.autobot.utils.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +62,7 @@ fun ScenariosFirstMessage(upPress: () -> Unit) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     "Основной текст - это сообщение будет" +
-                            "отправлено сразу после текста приветствия."
+                            " отправлено сразу после текста приветствия."
                 )
                 AutoBotTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -88,6 +89,7 @@ fun ScenariosFirstMessage(upPress: () -> Unit) {
                     value = minuteDelay,
                     onValueChange = { minuteDelay = it })
             }
+            ListSpacer()
         }
     }
 }
@@ -107,7 +109,7 @@ fun TimeSelectRow(
         Text("Через", modifier = Modifier)
         AutoBotTextField(modifier = Modifier
             .wrapContentWidth()
-            .weight(1f, false), value = value, onValueChange = onValueChange)
+            .weight(1f, false), value = value, onValueChange = onValueChange, singleLine = true)
         Text(text = timeAmount, modifier = Modifier.weight(1f, true))
     }
 }

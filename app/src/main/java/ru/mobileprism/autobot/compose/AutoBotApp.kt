@@ -7,6 +7,7 @@ import android.content.Context.NOTIFICATION_SERVICE
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
@@ -60,7 +61,7 @@ fun AutoBotApp(
 //                snackbar = { snackbarData -> AppSnackbar(snackbarData) }
 //            )
         },
-        //contentWindowInsets = WindowInsets(0.dp),
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
 //        scaffoldState = appStateHolder.scaffoldState,
         modifier = Modifier
     ) { innerPaddingModifier ->

@@ -8,13 +8,15 @@ object Constants {
     //Update scheme
     /*
     * ./gradlew :app:downloadApolloSchema --endpoint='http://188.120.229.170:3000/graphql' --schema=app/src/main/graphql/ru/mobileprism/autoredemption/schema.graphqls
+    *
+    * generateApolloSources
     * */
 
     val superSmallPadding = 4.dp
     val smallPadding = 8.dp
     val defaultPadding = 16.dp
     val largePadding = 32.dp
-    const val apiUrl: String = "http://188.120.229.170:3000/graphql"
+    const val apiUrl: String = "http://188.120.229.170:4000/graphql"
     const val DEFAULT_MESSAGES_DELAY: Long = 500
     const val RETRY_DELAY: Long = 200
 

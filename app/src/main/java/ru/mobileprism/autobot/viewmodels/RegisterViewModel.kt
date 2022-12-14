@@ -12,7 +12,8 @@ import ru.mobileprism.autobot.utils.BaseViewState
 
 class RegisterViewModel(
     private val cityRepository: CityRepository,
-) : ViewModel() {
+    private val authManager: AuthManager,
+    ) : ViewModel() {
 
     private val _valuesState = MutableStateFlow<BaseViewState<Unit>>(BaseViewState.Loading())
     val valuesState = _valuesState.asStateFlow()
@@ -38,6 +39,13 @@ class RegisterViewModel(
     init {
         getCities()
     }
+
+    fun cancelRegister() {
+        viewModelScope.launch {
+            authManager.logout()
+        }
+    }
+
 
     fun retry() {
         _valuesState.update { BaseViewState.Loading() }

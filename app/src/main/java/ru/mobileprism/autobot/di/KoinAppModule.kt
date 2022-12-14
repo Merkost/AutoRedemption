@@ -50,7 +50,7 @@ val koinAppModule = module {
     }
 
     viewModel {
-        RegisterViewModel(cityRepository = get())
+        RegisterViewModel(cityRepository = get(), authManager = get())
     }
 
 
