@@ -59,6 +59,10 @@ fun PhoneEnteringScreen(onNext: (PhoneAuthEntity) -> Unit) {
 
     var invalidPhoneDialog by remember { mutableStateOf(false) }
 
+    PhoneNumberConsent {
+        viewModel.onPhoneSetFromIntent(phone = it)
+    }
+
     LaunchedEffect(uiState) {
         when (val state = uiState) {
             is BaseViewState.Success -> {

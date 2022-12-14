@@ -11,6 +11,7 @@ import ru.mobileprism.autobot.model.repository.fold
 import ru.mobileprism.autobot.utils.BaseViewState
 import ru.mobileprism.autobot.utils.Constants
 import ru.mobileprism.autobot.utils.Constants.PHONE_DEFAULT_VALUE
+import ru.mobileprism.autobot.utils.PhoneNumberFormatter
 
 class PhoneEnteringViewModel(
     private val authRepository: AuthRepository,
@@ -33,6 +34,16 @@ class PhoneEnteringViewModel(
 
     fun onPhoneSet(newValue: String) {
         if (isPhoneNumValid(newValue)) _phoneNum.update { newValue }
+    }
+
+    fun onPhoneSetFromIntent(phone: String) {
+        PhoneNumberFormatter.formatToCountryCodeAndNationalNumber(phone)?.let {
+            val (code, number) = it
+            if (code.toString() == "7" && number.toString().length == 10) {
+                _phoneNum.value = "+7$number"
+                authenticate()
+            }
+        }
     }
 
     private fun isPhoneNumValid(newValue: String): Boolean {
