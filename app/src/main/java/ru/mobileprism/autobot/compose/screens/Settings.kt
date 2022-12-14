@@ -1,6 +1,8 @@
 package ru.mobileprism.autobot.compose.screens
 
 import android.Manifest
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,10 +27,11 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import ru.mobileprism.autobot.model.datastore.AppSettings
 import ru.mobileprism.autobot.model.datastore.AppSettingsEntity
+import ru.mobileprism.autobot.utils.Constants
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
+fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit, toPermissions: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val settings: AppSettings = get()
     val context = LocalContext.current
@@ -49,26 +52,22 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
     }
 
 
-    Scaffold(
-        modifier = Modifier,
-        topBar = {
-            TopAppBar(title = {
-                Text(text = "Настройки")
-            }, navigationIcon = {
-                IconButton(onClick = upPress) {
-                    Icon(Icons.Default.ArrowBack, Icons.Default.ArrowBack.name)
-                }
-            },
-                actions = {
-                    IconButton(onClick = {
-                        //as a list of strings
-                        toLogs()
-                    }) {
-                        Icon(Icons.Default.List, "")
-                    }
-                })
-        }
-    ) {
+    Scaffold(modifier = Modifier, topBar = {
+        TopAppBar(title = {
+            Text(text = "Настройки")
+        }, navigationIcon = {
+            IconButton(onClick = upPress) {
+                Icon(Icons.Default.ArrowBack, Icons.Default.ArrowBack.name)
+            }
+        }, actions = {
+            IconButton(onClick = {
+                //as a list of strings
+                toLogs()
+            }) {
+                Icon(Icons.Default.List, "")
+            }
+        })
+    }) {
 
         Column(
             modifier = Modifier
@@ -77,17 +76,33 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SettingsRow(text = "Тестовые номера") {
+            SettingsRow(text = "Тестовые номера", onClick = {
+                coroutineScope.launch {
+                    settings.saveAppSettings(appSettings.value.copy(testMode = appSettings.value.testMode.not()))
+                }
+            }) {
                 Checkbox(checked = appSettings.value.testMode, onCheckedChange = {
                     coroutineScope.launch {
                         settings.saveAppSettings(appSettings.value.copy(testMode = it))
                     }
                 })
             }
-            SettingsRow(text = "Добавлять дату и время к тексту сообщения") {
+            SettingsRow(text = "Добавлять дату и время к тексту сообщения", onClick = {
+                coroutineScope.launch {
+                    settings.saveAppSettings(
+                        appSettings.value.copy(
+                            timeInText = appSettings.value.timeInText.not()
+                        )
+                    )
+                }
+            }) {
                 Checkbox(checked = appSettings.value.timeInText, onCheckedChange = {
                     coroutineScope.launch {
-                        settings.saveAppSettings(appSettings.value.copy(timeInText = it))
+                        settings.saveAppSettings(
+                            appSettings.value.copy(
+                                timeInText = it
+                            )
+                        )
                     }
                 })
             }
@@ -103,8 +118,7 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
                             }
                         } else if (newDelay.text.isEmpty()) {
                             numbersDelay.value = numbersDelay.value.copy(
-                                text = "0",
-                                selection = TextRange(1)
+                                text = "0", selection = TextRange(1)
                             )
                             coroutineScope.launch {
                                 settings.saveAppSettings(appSettings.value.copy(messagesDelay = 0L))
@@ -128,8 +142,13 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
                 )
             }
 
+            SettingsRow(text = "Разрешения для работы", onClick = {
+                toPermissions()
+            }, action = null)
+
             SettingsColumn(text = "Выбор сим карты") {
-                val readSimPermission = rememberPermissionState(permission = Manifest.permission.READ_PHONE_STATE)
+                val readSimPermission =
+                    rememberPermissionState(permission = Manifest.permission.READ_PHONE_STATE)
                 if (readSimPermission.status.isGranted.not()) {
                     IconButton(onClick = { readSimPermission.launchPermissionRequest() }) {
                         Text(text = "Необходимо разрешение!")
@@ -163,9 +182,8 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
 
 
             Text(
-                text = "Версия $currentVersion",
-                modifier = Modifier
-                    .padding(4.dp)
+                text = "Версия $currentVersion", modifier = Modifier
+                    .padding(Constants.superSmallPadding).padding(top = Constants.largePadding)
                     .weight(1f, true)
             )
         }
@@ -175,38 +193,53 @@ fun SettingsScreen(upPress: () -> Unit, toLogs: () -> Unit) {
 }
 
 @Composable
-fun SettingsRow(modifier: Modifier = Modifier, text: String, action: @Composable RowScope.() -> Unit) {
-    Row(
+fun SettingsRow(
+    modifier: Modifier = Modifier,
+    text: String,
+    onClick: (() -> Unit)? = null,
+    action: @Composable (RowScope.() -> Unit)?,
+) {
+    Column(
+        verticalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
-            .padding(8.dp)
-            .padding(horizontal = 4.dp)
-            .fillMaxWidth(),
+        .clickable(enabled = onClick != null) {
+            if (onClick != null) {
+                onClick()
+            }
+        }
+
+        ) {
+
+    Row(modifier = Modifier
+        .fillMaxWidth().heightIn(60.dp, 120.dp).padding(Constants.smallPadding)
+        .padding(Constants.smallPadding),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+        horizontalArrangement = Arrangement.SpaceBetween) {
         Text(
             text = text,
             modifier = Modifier
                 .weight(1f, false)
-                .padding(end = 8.dp),
+                .padding(end = Constants.smallPadding),
         )
-        action()
+        action?.let { action() }
     }
+        Divider(modifier = Modifier.fillMaxWidth())
+    }
+
 }
 
 @Composable
 fun SettingsColumn(text: String, action: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier = Modifier
-            .padding(8.dp)
-            .padding(horizontal = 4.dp)
+            .padding(Constants.smallPadding)
+            .padding(horizontal = Constants.smallPadding)
             .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(Constants.superSmallPadding),
         horizontalAlignment = Alignment.Start
     ) {
         Text(
-            text = text,
-            modifier = Modifier
+            text = text, modifier = Modifier
             //.padding(end = 8.dp)
             //.weight(1f, false),
         )

@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
 
         when (authState) {
             is AuthState.Logged -> {
-                checkNotificationPolicyAccess(notificationManager, this)
+                //checkNotificationPolicyAccess(notificationManager, this)
 
                 if (authState.user.shouldRegister) {
                     AutoBotApp(startRoute = MainDestinations.AUTH_ROUTE, startAuthRoute = LoginDestinations.REGISTER)

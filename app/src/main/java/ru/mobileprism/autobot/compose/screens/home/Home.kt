@@ -49,18 +49,8 @@ fun NavGraphBuilder.addHomeGraph(
     composable(
         HomeSections.SCENARIOS.route
     ) { from ->
-        ScenariosScreen(upPress)
+        ScenariosScreen(upPress, navController = navController)
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ScenariosScreen(upPress: () -> Unit) {
-
-    Scaffold() {
-
-    }
-
 }
 
 

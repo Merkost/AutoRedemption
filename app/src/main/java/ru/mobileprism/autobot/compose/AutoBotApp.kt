@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,6 +23,7 @@ import ru.mobileprism.autobot.compose.screens.auth.addAuthGraph
 import ru.mobileprism.autobot.compose.screens.home.AutoBotBottomBar
 import ru.mobileprism.autobot.compose.screens.home.HomeSections
 import ru.mobileprism.autobot.compose.screens.home.addHomeGraph
+import ru.mobileprism.autobot.compose.screens.home.scenarios.ScenariosFirstMessage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +60,7 @@ fun AutoBotApp(
 //                snackbar = { snackbarData -> AppSnackbar(snackbarData) }
 //            )
         },
+        //contentWindowInsets = WindowInsets(0.dp),
 //        scaffoldState = appStateHolder.scaffoldState,
         modifier = Modifier
     ) { innerPaddingModifier ->
@@ -97,7 +100,8 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(MainDestinations.SETTINGS) {
         SettingsScreen(upPress = navController::popBackStack,
-            toLogs = { navController.navigate(MainDestinations.LOGS) }
+            toLogs = { navController.navigate(MainDestinations.LOGS) },
+            toPermissions = { navController.navigate(MainDestinations.PERMISSIONS) }
         )
     }
 
@@ -109,8 +113,10 @@ private fun NavGraphBuilder.NavGraph(
         LogsScreen(navController::popBackStack)
     }
 
+    composable(ScenariosDestinations.FIRST_MESSAGE) {
+        ScenariosFirstMessage(upPress)
+    }
 }
-
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalPermissionsApi::class)
@@ -121,9 +127,7 @@ fun CheckForPermissions(toPermissions: () -> Unit) {
         context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
     val requiredPermissions = rememberMultiplePermissionsState(
-        listOf(
-            Manifest.permission.READ_PHONE_STATE,
-        )
+        listOf(Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS)
     )
 
     DisposableEffect(Unit) {

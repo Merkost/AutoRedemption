@@ -25,6 +25,10 @@ object MainDestinations {
     const val PERMISSIONS: String = "PERMISSIONS"
 }
 
+object ScenariosDestinations {
+    const val FIRST_MESSAGE = "first_message"
+}
+
 object Arguments {
 
 }

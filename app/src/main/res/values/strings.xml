@@ -37,4 +37,10 @@
     <string name="user_deletion_error">Не удалось удалить пользователя</string>
     <string name="database_error">Ошибка в системе хранения данных</string>
     <string name="registration">Регистрация</string>
+
+
+    <string name="logout_dialog_title">Выход из аккаунта</string>
+    <string name="logout_dialog_message">Вы уверены, что хотите выйти?</string>
+    <string name="exit_label">Выйти</string>
+    <string name="minute_after">минут</string>
 </resources>

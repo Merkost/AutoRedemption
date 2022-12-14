@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
@@ -18,13 +19,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
+import ru.mobileprism.autobot.R
 import ru.mobileprism.autobot.compose.custom.CircleButton
+import ru.mobileprism.autobot.compose.custom.DefaultAlertDialog3
+import ru.mobileprism.autobot.utils.Constants
 import ru.mobileprism.autobot.utils.Constants.DAY_MONTH_YEAR_TIME
 import ru.mobileprism.autobot.viewmodels.ProfileViewModel
 
@@ -32,8 +37,24 @@ import ru.mobileprism.autobot.viewmodels.ProfileViewModel
 @Composable
 fun ProfileScreen(upPress: () -> Unit, toAuth: () -> Unit) {
     val viewModel: ProfileViewModel = getViewModel()
-
     val user = viewModel.currentUser.collectAsState()
+    var logoutDialog by remember { mutableStateOf(false) }
+
+    if (logoutDialog)
+        DefaultAlertDialog3(
+            onDismiss = { logoutDialog = false },
+            primaryText = stringResource(R.string.logout_dialog_title),
+            secondaryText = stringResource(R.string.logout_dialog_message),
+            positiveButtonText = stringResource(R.string.exit_label),
+            onPositiveClick = {
+                viewModel.logout(); toAuth()
+                logoutDialog = false
+            },
+            dismissButtonText = stringResource(id = R.string.cancel),
+            onDismissClick = {
+                logoutDialog = false
+            },
+        )
 
     Scaffold(
         modifier = Modifier,
@@ -45,11 +66,11 @@ fun ProfileScreen(upPress: () -> Unit, toAuth: () -> Unit) {
     ) {
         Column(
             modifier = Modifier
-                .padding(30.dp)
-                .padding(it),
+                .padding(Constants.defaultPadding)
+                .padding(it).fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            AutoBotTextField(placeholder = "Телефон", value = user.value.phone, onValueChange = {})
+            AutoBotTextField(placeholder = "Телефон", value = user.value.phone, onValueChange = {}, readOnly = true)
             Text(
                 text = "Зарегистрирован: ${
                     user.value.createdAt.format(
@@ -69,26 +90,21 @@ fun ProfileScreen(upPress: () -> Unit, toAuth: () -> Unit) {
                 } else {
                     Text(text = "Подписка неактивна")
                 }
-
             }
 
             user.value.city?.label?.let {
-                Text(
-                    text = "Город: $it"
-                )
+                Text(text = "Город: $it")
             }
 
             user.value.timeZone?.label?.let {
-                Text(
-                    text = "Часовой пояс: $it"
-                )
+                Text(text = "Часовой пояс: $it")
             }
 
 
-//            Text(text = user.value.toString())
+//          Text(text = user.value.toString())
 
             CircleButton(
-                onClick = { viewModel.logout(); toAuth() },
+                onClick = { logoutDialog = true },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(text = "Выйти из аккаунта")

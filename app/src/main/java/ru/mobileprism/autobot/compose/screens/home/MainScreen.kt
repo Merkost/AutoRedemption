@@ -48,7 +48,6 @@ import ru.mobileprism.autobot.workmanager.ForegroundService
 @OptIn(
     ExperimentalPermissionsApi::class,
     ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class,
     ExperimentalMaterialApi::class
 )
 @Composable

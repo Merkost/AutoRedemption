@@ -5,8 +5,10 @@ import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.os.PowerManager
 import android.telephony.SmsManager
 import android.telephony.SubscriptionInfo
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
@@ -34,16 +36,26 @@ import ru.mobileprism.autobot.utils.*
 @Composable
 fun PermissionsScreen(upPress: () -> Unit) {
     val context = LocalContext.current
+    val powerManager: PowerManager =
+        context.getSystemService(ComponentActivity.POWER_SERVICE) as PowerManager
     val notificationManager: NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     val appSettings: AppSettings = get()
 
-    var areNotificationsEnabled by remember { mutableStateOf(notificationManager.areNotificationsEnabled()) }
+    var batteryOptimizationsDisabled by remember {
+        mutableStateOf(
+            powerManager.isIgnoringBatteryOptimizations(context.packageName)
+        )
+    }
+    var areNotificationsEnabled by remember {
+        mutableStateOf(notificationManager.areNotificationsEnabled())
+    }
 
     LaunchedEffect(Unit) {
-        if (notificationManager.areNotificationsEnabled()) {
-            areNotificationsEnabled = true
-        }
+        //if (notificationManager.areNotificationsEnabled()) { areNotificationsEnabled = true }
+        areNotificationsEnabled = notificationManager.areNotificationsEnabled()
+        batteryOptimizationsDisabled =
+            powerManager.isIgnoringBatteryOptimizations(context.packageName)
     }
 
     val readSimPermission =
@@ -59,8 +71,10 @@ fun PermissionsScreen(upPress: () -> Unit) {
         requiredPermissions.allPermissionsGranted,
         chosenSimCardFromSettings.value
     ) {
-        mutableStateOf(requiredPermissions.allPermissionsGranted &&
-                chosenSimCardFromSettings.value != null)
+        mutableStateOf(
+            requiredPermissions.allPermissionsGranted &&
+                    chosenSimCardFromSettings.value != null
+        )
     }
 
     Scaffold(
@@ -74,10 +88,6 @@ fun PermissionsScreen(upPress: () -> Unit) {
                     .padding(it)
                     .verticalScroll(rememberScrollState())
             ) {
-
-                AnimatedVisibility(visible = readSimPermission.status.isGranted) {
-                    ChooseSimScreen()
-                }
 
                 ActionCard(
                     modifier = Modifier
@@ -94,6 +104,10 @@ fun PermissionsScreen(upPress: () -> Unit) {
                     text = "Разрешение на просмотр активных сим карт на устройстве",
                     isPermissionGranted = readSimPermission.status.isGranted
                 )
+
+                AnimatedVisibility(visible = readSimPermission.status.isGranted) {
+                    ChooseSimScreen()
+                }
 
                 ActionCard(
                     modifier = Modifier
@@ -141,6 +155,16 @@ fun PermissionsScreen(upPress: () -> Unit) {
                         isPermissionGranted = true
                     )
                 }
+                ActionCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(50.dp),
+                    onClick = {
+                        batteryOptimizationsDisabled = true
+                        context.disableBatteryOptimizations() },
+                    text = "Отключить оптимизации батареи",
+                    isPermissionGranted = batteryOptimizationsDisabled
+                )
                 ListSpacer()
             }
             Button(

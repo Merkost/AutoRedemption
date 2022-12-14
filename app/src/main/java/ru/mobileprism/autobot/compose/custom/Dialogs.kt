@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -93,6 +94,7 @@ fun DefaultDialog(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
+                .clip(MaterialTheme.shapes.medium)
                 .wrapContentHeight()
                 .animateContentSize()
         ) {
@@ -227,3 +229,38 @@ fun DefaultDialog(
         }
     }
 }
+
+@Composable
+fun DefaultAlertDialog3(
+    primaryText: String,
+    secondaryText: String? = null,
+    onDismissClick: (() -> Unit)? = null,
+    dismissButtonText: String = stringResource(id = R.string.no),
+    positiveButtonText: String = stringResource(id = R.string.yes),
+    onPositiveClick: (() -> Unit)? = null,
+    onDismiss: () -> Unit,
+) {
+
+    AlertDialog(onDismissRequest = onDismiss,
+        title = { Text(primaryText) },
+        text = {
+            if (secondaryText != null) {
+                Text(secondaryText)
+            }
+        },
+        confirmButton = {
+            onPositiveClick?.let {
+                Button(
+                    onClick = onPositiveClick
+                ) { Text(positiveButtonText) }
+            }
+        },
+        dismissButton = {
+            onDismissClick?.let {
+                TextButton(onClick = onDismissClick) {
+                    Text(dismissButtonText)
+                }
+            }
+        })
+}
+

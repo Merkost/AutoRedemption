@@ -44,7 +44,7 @@ fun SmallErrorViewVertical(
 fun DefaultColumn(
     modifier: Modifier = Modifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    verticalArrangement: Arrangement.HorizontalOrVertical = Arrangement.spacedBy(12.dp),
+    verticalArrangement: Arrangement.HorizontalOrVertical = Arrangement.spacedBy(16.dp),
     function: @Composable ColumnScope.() -> Unit
 ) {
     Column(

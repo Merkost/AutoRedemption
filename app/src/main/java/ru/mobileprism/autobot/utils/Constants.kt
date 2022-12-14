@@ -10,6 +10,8 @@ object Constants {
     * ./gradlew :app:downloadApolloSchema --endpoint='http://188.120.229.170:3000/graphql' --schema=app/src/main/graphql/ru/mobileprism/autoredemption/schema.graphqls
     * */
 
+    val superSmallPadding = 4.dp
+    val smallPadding = 8.dp
     val defaultPadding = 16.dp
     val largePadding = 32.dp
     const val apiUrl: String = "http://188.120.229.170:3000/graphql"
