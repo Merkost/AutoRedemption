@@ -43,4 +43,5 @@
     <string name="exit_label">Выйти</string>
     <string name="minute_after">минут</string>
     <string name="invalid_number">Выбранный номер не подходит</string>
+    <string name="save">Сохранить</string>
 </resources>

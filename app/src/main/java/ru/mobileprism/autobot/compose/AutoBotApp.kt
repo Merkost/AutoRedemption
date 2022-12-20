@@ -25,6 +25,7 @@ import ru.mobileprism.autobot.compose.screens.home.AutoBotBottomBar
 import ru.mobileprism.autobot.compose.screens.home.HomeSections
 import ru.mobileprism.autobot.compose.screens.home.addHomeGraph
 import ru.mobileprism.autobot.compose.screens.home.scenarios.ScenariosFirstMessage
+import ru.mobileprism.autobot.compose.screens.home.scenarios.ScenariosOtherMessages
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -116,6 +117,10 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(ScenariosDestinations.FIRST_MESSAGE) {
         ScenariosFirstMessage(upPress)
+    }
+
+    composable(ScenariosDestinations.OTHER_MESSAGES) {
+        ScenariosOtherMessages(upPress)
     }
 }
 

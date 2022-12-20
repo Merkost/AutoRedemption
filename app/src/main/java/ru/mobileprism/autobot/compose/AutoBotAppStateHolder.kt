@@ -26,6 +26,7 @@ object MainDestinations {
 }
 
 object ScenariosDestinations {
+    const val OTHER_MESSAGES = "other_messages"
     const val FIRST_MESSAGE = "first_message"
 }
 
