@@ -37,8 +37,12 @@ fun ScenariosScreen(upPress: () -> Unit, navController: NavController) {
                 MenuButton(title = "Повторные сообщения") {
                     navController.navigate(ScenariosDestinations.OTHER_MESSAGES)
                 }
-                MenuButton(title = "Поднятые объяления")
-                MenuButton(title = "Изменение стоимости")
+                MenuButton(title = "Поднятые объяления") {
+                    navController.navigate(ScenariosDestinations.PAID_AD)
+                }
+                MenuButton(title = "Изменение стоимости") {
+                    navController.navigate(ScenariosDestinations.PRICE_CHANGED)
+                }
                 MenuButton(title = "Архивные сообщения")
                 MenuButton(title = "Проданные объявления")
             }

@@ -14,6 +14,7 @@ import ru.mobileprism.autobot.model.repository.CityRepository
 import ru.mobileprism.autobot.model.repository.CityRepositoryImpl
 import ru.mobileprism.autobot.utils.CurrentUserHandler
 import ru.mobileprism.autobot.viewmodels.*
+import ru.mobileprism.autobot.viewmodels.scenarios.PriceChangedViewModel
 
 val koinAppModule = module {
 
@@ -52,6 +53,8 @@ val koinAppModule = module {
     viewModel {
         RegisterViewModel(cityRepository = get(), authManager = get())
     }
+
+    viewModel { PriceChangedViewModel() }
 
 
 }

@@ -12,9 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.mobileprism.autobot.R
-import ru.mobileprism.autobot.compose.custom.DefaultColumn
-import ru.mobileprism.autobot.compose.custom.MainButton
-import ru.mobileprism.autobot.compose.custom.ScenariosLayout
+import ru.mobileprism.autobot.compose.custom.*
 import ru.mobileprism.autobot.compose.screens.home.AutoBotTextField
 import ru.mobileprism.autobot.compose.screens.home.ListSpacer
 import ru.mobileprism.autobot.utils.Constants
@@ -37,86 +35,47 @@ fun ScenariosFirstMessage(upPress: () -> Unit) {
         mutableStateOf("")
     }
 
-    ScenariosLayout(
-        topBar = {
-            DefaultTopAppBar(title = "Первое сообщение", upPress = upPress)
-        },
-        onSaveClick = {}
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Текст приветствия - этот текст будет отправлен первым сообщением.")
-            AutoBotTextField(
-                placeholder = "Текст приветствия",
-                modifier = Modifier.fillMaxWidth(),
-                value = firstMessage,
-                onValueChange = { firstMessage = it })
-        }
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                "Основной текст - это сообщение будет" + " отправлено сразу после текста приветствия."
-            )
-            AutoBotTextField(
-                placeholder = "Основной текст",
-                modifier = Modifier.fillMaxWidth(),
-                value = secondMessage,
-                onValueChange = { secondMessage = it })
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "Объединить сообщения в одно?")
-            Spacer(modifier = Modifier.size(4.dp))
-            Switch(checked = shouldUnite, onCheckedChange = { shouldUnite = it })
-        }
-
-        Column {
-            Text(
-                text = "Когда появилось интересующее вас объявление, " + "через сколько времени отправлять его владельцу " + "сообщение с этим текстом"
-            )
-            TimeSelectRow(value = minuteDelay, onValueChange = { minuteDelay = it })
-        }
-        ListSpacer()
-
-    }
-}
-
-@Composable
-fun TimeSelectRow(
-    value: String,
-    modifier: Modifier = Modifier,
-    timeAmount: String = stringResource(id = R.string.minute_after),
-    onValueChange: (String) -> Unit,
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start)
-    ) {
-        Text("Через", modifier = Modifier)
-        AutoBotTextField(
+    ScenariosLayout(topBar = {
+        DefaultTopAppBar(title = "Первое сообщение", upPress = upPress)
+    }, onSaveClick = {}) {
+        ScenariosColumn(
             modifier = Modifier
-                .wrapContentWidth()
-                .weight(1f, false),
-            value = value,
-            onValueChange = onValueChange,
-            singleLine = true
-        )
-        Text(text = timeAmount, modifier = Modifier.weight(1f, true))
+                .imePadding()
+                .verticalScroll(rememberScrollState())
+        ) {
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text("Текст приветствия - этот текст будет отправлен первым сообщением.")
+                AutoBotTextField(placeholder = "Текст приветствия",
+                    modifier = Modifier.fillMaxWidth(),
+                    value = firstMessage,
+                    onValueChange = { firstMessage = it })
+            }
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    "Основной текст - это сообщение будет" + " отправлено сразу после текста приветствия."
+                )
+                AutoBotTextField(placeholder = "Основной текст",
+                    modifier = Modifier.fillMaxWidth(),
+                    value = secondMessage,
+                    onValueChange = { secondMessage = it })
+            }
+            SwitchRow(
+                text = "Объединить сообщения в одно?",
+                checked = shouldUnite,
+                onCheckedChange = { shouldUnite = it }
+            )
+
+            Column {
+                Text(
+                    text = "Когда появилось интересующее вас объявление, " + "через сколько времени отправлять его владельцу " + "сообщение с этим текстом"
+                )
+                TimeSelectRow(value = minuteDelay, onValueChange = { minuteDelay = it })
+            }
+            ListSpacer()
+        }
+
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DefaultTopAppBar(title: String, upPress: (() -> Unit)? = null) {
-    TopAppBar(title = {
-        Text(text = ("Первое сообщение"))
-    }, navigationIcon = {
-        upPress?.let {
-            IconButton(onClick = upPress) {
-                Icon(Icons.Default.ArrowBack, Icons.Default.ArrowBack.name)
-            }
-        }
-    })
-}
+

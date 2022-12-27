@@ -170,17 +170,13 @@ fun PermissionsScreen(upPress: () -> Unit) {
             }
             Button(
                 onClick = { upPress() },
+                enabled = areAllPermissionsGiven.value,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(Constants.defaultPadding)
                     .fillMaxWidth()
             ) {
-                Crossfade(areAllPermissionsGiven.value) {
-                    when (it) {
-                        true -> Text(text = "Продолжить")
-                        else -> Text(text = "Пропустить")
-                    }
-                }
+                 Text(text = "Продолжить")
             }
 
 
