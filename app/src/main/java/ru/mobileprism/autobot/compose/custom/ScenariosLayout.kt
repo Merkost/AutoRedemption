@@ -16,10 +16,10 @@ import ru.mobileprism.autobot.utils.Constants
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScenariosLayout(topBar: @Composable () -> Unit, onSaveClick: () -> Unit, layout: @Composable () -> Unit) {
-    Scaffold(topBar = topBar, contentWindowInsets = WindowInsets(0.dp)) {
+    Scaffold(topBar = topBar) {
         Box(modifier = Modifier
             .padding(it)
-            .padding(vertical = Constants.smallPadding)
+            .padding(vertical = Constants.defaultPadding)
         ) {
             layout()
             MainButton(
@@ -47,6 +47,19 @@ fun CountSelectRow(
                 checked = value in checkedValues,
                 onClick = { onNumberClick(value) })
         }
+    }
+}
+
+@Composable
+fun SwitchRow(text: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = text, modifier = Modifier.weight(1f, false))
+        Spacer(modifier = Modifier.size(4.dp))
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 
@@ -83,5 +96,23 @@ fun TimeSelectRow(
             singleLine = true
         )
         Text(text = timeAmount, modifier = Modifier.weight(1f, true))
+    }
+}
+
+@Composable
+fun ScenariosTextField(
+    title: String?,
+    placeholder: String?,
+    value: String, onValueChange: (String) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        title?.let { Text(it) }
+
+        AutoBotTextField(
+            placeholder = placeholder,
+            modifier = Modifier.fillMaxWidth(),
+            value = value,
+            onValueChange = onValueChange
+        )
     }
 }

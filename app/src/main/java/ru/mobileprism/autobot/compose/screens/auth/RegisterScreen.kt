@@ -34,7 +34,7 @@ import ru.mobileprism.autobot.utils.Constants
 import ru.mobileprism.autobot.utils.showError
 import ru.mobileprism.autobot.viewmodels.RegisterViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(upPress: () -> Unit, onAuth: () -> Unit, onNext: () -> Unit) {
 
@@ -49,8 +49,8 @@ fun RegisterScreen(upPress: () -> Unit, onAuth: () -> Unit, onNext: () -> Unit) 
         mutableStateOf(false)
     }
     if (cancelRegisterDialog) {
-        DefaultAlertDialog3(primaryText = "Вы хотите прервать регистрацию?",
-            secondaryText = "Вам будет необходимо выполнить вход снова",
+        DefaultAlertDialog3(primaryText = stringResource(R.string.cancel_registration_dialog_title),
+            secondaryText = stringResource(R.string.cancel_registration_dialog_description),
             onPositiveClick = {
                 viewModel.cancelRegister()
                 onAuth()
@@ -59,9 +59,7 @@ fun RegisterScreen(upPress: () -> Unit, onAuth: () -> Unit, onNext: () -> Unit) 
             onDismissClick = { cancelRegisterDialog = false })
     }
 
-    BackHandler {
-        cancelRegisterDialog = true
-    }
+    BackHandler { cancelRegisterDialog = true }
 
     LaunchedEffect(uiState.value) {
         when (val state = uiState.value) {
@@ -75,10 +73,12 @@ fun RegisterScreen(upPress: () -> Unit, onAuth: () -> Unit, onNext: () -> Unit) 
 
     ModalLoadingDialog(isLoading = valuesState.value is BaseViewState.Loading || uiState.value is BaseViewState.Loading)
 
-    Scaffold(modifier = Modifier
-        .fillMaxSize()
-        .consumedWindowInsets(WindowInsets.navigationBars),
-        topBar = { AuthTopAppBar(title = stringResource(id = R.string.registration)) }) {
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+        topBar = { AuthTopAppBar(title = stringResource(id = R.string.registration)) },
+        //contentWindowInsets = WindowInsets(0.dp)
+    ) {
         Crossfade(
             targetState = valuesState.value,
             modifier = Modifier

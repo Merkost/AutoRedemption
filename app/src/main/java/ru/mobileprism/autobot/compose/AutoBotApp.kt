@@ -24,10 +24,7 @@ import ru.mobileprism.autobot.compose.screens.auth.addAuthGraph
 import ru.mobileprism.autobot.compose.screens.home.AutoBotBottomBar
 import ru.mobileprism.autobot.compose.screens.home.HomeSections
 import ru.mobileprism.autobot.compose.screens.home.addHomeGraph
-import ru.mobileprism.autobot.compose.screens.home.scenarios.ScenariosFirstMessage
-import ru.mobileprism.autobot.compose.screens.home.scenarios.ScenariosOtherMessages
-import ru.mobileprism.autobot.compose.screens.home.scenarios.ScenariosPaidAd
-import ru.mobileprism.autobot.compose.screens.home.scenarios.ScenariosPriceChanged
+import ru.mobileprism.autobot.compose.screens.home.scenarios.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +61,7 @@ fun AutoBotApp(
 //                snackbar = { snackbarData -> AppSnackbar(snackbarData) }
 //            )
         },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
+        contentWindowInsets = WindowInsets(0.dp)/*ScaffoldDefaults.contentWindowInsets*/,
 //        scaffoldState = appStateHolder.scaffoldState,
         modifier = Modifier
     ) { innerPaddingModifier ->
@@ -131,6 +128,14 @@ private fun NavGraphBuilder.NavGraph(
 
     composable(ScenariosDestinations.PRICE_CHANGED) {
         ScenariosPriceChanged(upPress)
+    }
+
+    composable(ScenariosDestinations.ARCHIVED) {
+        ScenariosArchived(upPress)
+    }
+
+    composable(ScenariosDestinations.SOLD) {
+        ScenariosSold(upPress)
     }
 }
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import ru.mobileprism.autobot.compose.screens.home.scenarios.defaultPriceChangedModel
+import kotlin.math.min
 
 class PriceChangedViewModel : ViewModel() {
 
@@ -25,7 +26,10 @@ class PriceChangedViewModel : ViewModel() {
         values.update { it.copy(dontSendIfOthersActive = bool) }
     }
 
-    fun afterMinutesChanged(minutes: Int) {
-        values.update { it.copy(minutesAfter = minutes) }
+    fun afterMinutesChanged(minutes: String) {
+        minutes.toIntOrNull()?.let { minInt ->
+            values.update { it.copy(minutesAfter = minInt) }
+        }
+
     }
 }

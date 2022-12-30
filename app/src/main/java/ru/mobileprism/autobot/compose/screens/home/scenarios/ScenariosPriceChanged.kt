@@ -7,9 +7,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
 import org.koin.androidx.compose.getViewModel
+import ru.mobileprism.autobot.R
 import ru.mobileprism.autobot.compose.custom.*
 import ru.mobileprism.autobot.compose.screens.home.AutoBotTextField
 import ru.mobileprism.autobot.compose.screens.home.ListSpacer
@@ -23,39 +25,39 @@ fun ScenariosPriceChanged(upPress: () -> Unit) {
     val values by viewModel.values.collectAsState()
 
     ScenariosLayout(topBar = {
-        DefaultTopAppBar(title = "Изменение цены", upPress = upPress)
+        DefaultTopAppBar(title = stringResource(R.string.price_changing), upPress = upPress)
     }, onSaveClick = {}) {
         ScenariosColumn(
             modifier = Modifier
                 .imePadding()
-
                 .verticalScroll(rememberScrollState())
         ) {
 
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text("Текст приветствия - этот текст будет отправлен первым сообщением.")
-                AutoBotTextField(placeholder = "Текст приветствия",
-                    modifier = Modifier.fillMaxWidth(),
-                    value = values.helloText,
-                    onValueChange = viewModel::onHelloTextChanged )
-            }
-            Column(modifier = Modifier.fillMaxWidth()) {
+            ScenariosTextField(
+                title = stringResource(id = R.string.hello_text_description),
+                placeholder = stringResource(id = R.string.hello_text_placeholder),
+                value = values.helloText,
+                onValueChange = viewModel::onHelloTextChanged
+            )
+
+            ScenariosTextField(
+                title = stringResource(id = R.string.main_text_description),
+                placeholder = stringResource(id = R.string.main_text_placeholder),
+                value = values.text,
+                onValueChange = viewModel::onPrimaryTextChanged
+            )
+
+            DefaultColumn {
                 Text(
-                    "Основной текст - это сообщение будет" + " отправлено сразу после текста приветствия."
+                    text = "● Продавец может изменять стоимость автомобиля. Если стоимость изменилась " +
+                            "в меньшую сторону, тогда человеку будет отправлено сообщение"
                 )
-                AutoBotTextField(placeholder = "Основной текст",
-                    modifier = Modifier.fillMaxWidth(),
-                    value = values.text,
-                    onValueChange = viewModel::onPrimaryTextChanged)
+                Text(
+                    text = "● Продавец может много раз в день изменить стоимость. Вы можете отправлять сообщение" +
+                            " на каждое изменение или только 1 раз в день. "
+                )
             }
-            Text(
-                text = "Продавец может изменять стоимость автомобиля. Если стоимость изменилась\n" +
-                        "в меньшую сторону, тогда человеку будет отправлено сообщение"
-            )
-            Text(
-                text = "Продавец может много раз в день изменить стоимость. Вы можете отправлять сообщение" +
-                        " на каждое изменение или только 1 раз в день. "
-            )
+
             SwitchRow(
                 text = "Отправлять сообщение 1 раз в день (если убрать галочку, сообщения будут уходить каждый раз при изменении стоимости",
                 checked = values.onePerDay,
@@ -70,28 +72,14 @@ fun ScenariosPriceChanged(upPress: () -> Unit) {
 
             Column {
                 Text(text = "Через какой промежуток времени после поднятия отправить сообщение?")
-                TimeSelectRow(value = values.minutesAfter.toString(), onValueChange = {
-                    it.toIntOrNull()?.let {
-                        viewModel.afterMinutesChanged(it)
-                    }
-                })
+                TimeSelectRow(
+                    value = values.minutesAfter.toString(),
+                    onValueChange = viewModel::afterMinutesChanged
+                )
             }
             ListSpacer()
         }
 
-    }
-}
-
-@Composable
-fun SwitchRow(text: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(text = text, modifier = Modifier.weight(1f, false))
-        Spacer(modifier = Modifier.size(4.dp))
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 

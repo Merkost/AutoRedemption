@@ -26,6 +26,8 @@ object MainDestinations {
 }
 
 object ScenariosDestinations {
+    const val ARCHIVED = "archived"
+    const val SOLD = "sold"
     const val PRICE_CHANGED = "price_changed"
     const val PAID_AD = "paid_ad"
     const val OTHER_MESSAGES = "other_messages"

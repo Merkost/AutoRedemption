@@ -11,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import ru.mobileprism.autobot.R
 import ru.mobileprism.autobot.compose.custom.*
 import ru.mobileprism.autobot.compose.screens.home.AutoBotTextField
 import ru.mobileprism.autobot.compose.screens.home.ListSpacer
@@ -37,40 +39,35 @@ fun ScenariosPaidAd(upPress: () -> Unit) {
         mutableStateListOf<Number>()
     }
 
-    ScenariosLayout(topBar = {
-        DefaultTopAppBar(title = "Поднятое сообщение", upPress = upPress)
-    }, onSaveClick = {}) {
+    ScenariosLayout(
+        topBar = {
+            DefaultTopAppBar(title = stringResource(R.string.scenarios_paid), upPress = upPress)
+        }, onSaveClick = {}) {
         ScenariosColumn(
             modifier = Modifier
                 .imePadding()
                 .verticalScroll(rememberScrollState())
         ) {
 
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text("Текст приветствия - этот текст будет отправлен первым сообщением.")
-                AutoBotTextField(placeholder = "Текст приветствия",
-                    modifier = Modifier.fillMaxWidth(),
-                    value = firstMessage,
-                    onValueChange = { firstMessage = it })
-            }
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    "Основной текст - это сообщение будет" + " отправлено сразу после текста приветствия."
-                )
-                AutoBotTextField(placeholder = "Основной текст",
-                    modifier = Modifier.fillMaxWidth(),
-                    value = secondMessage,
-                    onValueChange = { secondMessage = it })
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = "Объединить сообщения в одно?", modifier = Modifier.weight(1f, false))
-                Spacer(modifier = Modifier.size(4.dp))
-                Switch(checked = shouldUnite, onCheckedChange = { shouldUnite = it })
-            }
+            ScenariosTextField(
+                title = stringResource(id = R.string.hello_text_description),
+                placeholder = stringResource(id = R.string.hello_text_placeholder),
+                value = firstMessage,
+                onValueChange = { firstMessage = it }
+            )
+
+            ScenariosTextField(
+                title = stringResource(id = R.string.main_text_description),
+                placeholder = stringResource(id = R.string.main_text_placeholder),
+                value = secondMessage,
+                onValueChange = { secondMessage = it }
+            )
+
+            SwitchRow(
+                text = "Объединить сообщения в одно?",
+                checked = shouldUnite,
+                onCheckedChange = { shouldUnite = it }
+            )
 
             DefaultColumn {
                 Text(
@@ -87,15 +84,15 @@ fun ScenariosPaidAd(upPress: () -> Unit) {
                     }
                 )
             }
+
             Column {
-                Text(
-                    text = "Через какой промежуток времени после поднятия отправлять сообщение?"
-                )
+                Text(text = "Через какой промежуток времени после поднятия отправлять сообщение?")
                 TimeSelectRow(value = minuteDelay, onValueChange = { minuteDelay = it })
             }
+
             SwitchRow(
                 text = "Не отправлять сообщение, еспи в этот день уже было отправлено " +
-                        "сообщение из другого сценария (например: повторное сообщение" +
+                        "сообщение из другого сценария (например: повторное сообщение " +
                         "или изменение стоимости).",
                 checked = shouldUnite, onCheckedChange = { shouldUnite = it }
             )

@@ -24,11 +24,9 @@ import ru.mobileprism.autobot.ui.theme3.AutoBotTheme
 
 class MainActivity : ComponentActivity() {
 
-
     companion object {
         const val splashFadeDurationMillis = 300
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

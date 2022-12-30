@@ -44,4 +44,20 @@
     <string name="minute_after">минут</string>
     <string name="invalid_number">Выбранный номер не подходит</string>
     <string name="save">Сохранить</string>
+    <string name="hello_text_description">Текст приветствия - этот текст будет отправлен первым сообщением.</string>
+    <string name="hello_text_placeholder">Текст приветствия</string>
+    <string name="main_text_description">Основной текст - это сообщение будет отправлено сразу после текста приветствия.</string>
+    <string name="main_text_placeholder">Основной текст</string>
+    <string name="first_message">Первое сообщение</string>
+    <string name="scenarios_archive">Архивные объявления</string>
+    <string name="days_after">дней</string>
+    <string name="scenarios_paid">Поднятые объявления</string>
+    <string name="repeated_messages">Повторные сообщения</string>
+    <string name="price_changing">Изменение цены</string>
+    <string name="scenarios_sold">Проданные объявления</string>
+    <string name="permissions">Разрешения для работы</string>
+    <string name="unite_messages_question">Объединить сообщения в одно?</string>
+    <string name="add_new_message">Добавить новое сообщение</string>
+    <string name="cancel_registration_dialog_title">Вы хотите прервать регистрацию?</string>
+    <string name="cancel_registration_dialog_description">Вам будет необходимо выполнить вход снова</string>
 </resources>

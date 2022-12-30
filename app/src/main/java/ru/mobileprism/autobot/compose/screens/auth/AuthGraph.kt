@@ -13,7 +13,6 @@ object LoginDestinations {
     const val PHONE_ENTERING_ROUTE = "PHONE_ENTERING_ROUTE"
     const val SMS_CONFIRM_ROUTE = "SMS_CONFIRM_ROUTE"
     const val REGISTER: String = "REGISTER_ROUTE"
-
 }
 
 object LoginArguments {
@@ -22,8 +21,7 @@ object LoginArguments {
 
 
 fun NavGraphBuilder.addAuthGraph(
-    navController: NavController,
-    upPress: () -> Unit
+    navController: NavController, upPress: () -> Unit
 ) {
 
     val navigateToApp: () -> Unit = {
@@ -36,7 +34,9 @@ fun NavGraphBuilder.addAuthGraph(
 
     composable(LoginDestinations.PHONE_ENTERING_ROUTE) {
         PhoneEnteringScreen {
-            navController.navigate(LoginDestinations.SMS_CONFIRM_ROUTE, LoginArguments.PHONE_AUTH to it)
+            navController.navigate(
+                LoginDestinations.SMS_CONFIRM_ROUTE, LoginArguments.PHONE_AUTH to it
+            )
         }
     }
 
@@ -49,8 +49,9 @@ fun NavGraphBuilder.addAuthGraph(
                         inclusive = true
                     }
                 }
-            } else { navigateToApp() }
-
+            } else {
+                navigateToApp()
+            }
         }
     }
 
@@ -60,9 +61,7 @@ fun NavGraphBuilder.addAuthGraph(
                 launchSingleTop = true
                 popUpTo(0)
             }
-        }) {
-            navigateToApp()
-        }
+        }) { navigateToApp() }
     }
 }
 

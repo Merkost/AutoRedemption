@@ -14,13 +14,15 @@ import ru.mobileprism.autobot.model.repository.CityRepository
 import ru.mobileprism.autobot.model.repository.CityRepositoryImpl
 import ru.mobileprism.autobot.utils.CurrentUserHandler
 import ru.mobileprism.autobot.viewmodels.*
+import ru.mobileprism.autobot.viewmodels.scenarios.ArchivedViewModel
+import ru.mobileprism.autobot.viewmodels.scenarios.FirstMessageViewModel
 import ru.mobileprism.autobot.viewmodels.scenarios.PriceChangedViewModel
+import ru.mobileprism.autobot.viewmodels.scenarios.SoldViewModel
 
 val koinAppModule = module {
 
     single<AppSettings> { AppSettingsImpl(androidContext()) }
     single<UserDatastore> { UserDatastoreImpl(androidContext()) }
-
 
     single<AuthRepository> { AuthRepositoryImpl(apolloClient = get(), userDatastore = get()) }
     single<CityRepository> { CityRepositoryImpl(apolloClient = get(), userDatastore = get()) }
@@ -42,19 +44,19 @@ val koinAppModule = module {
     }
 
     viewModel { PhoneEnteringViewModel(authRepository = get(), authManager = get()) }
+
     viewModel {
         SmsVerificationViewModel(
-            authManager = get(),
-            authRepository = get(),
-            phoneAuth = get()
+            authManager = get(), authRepository = get(), phoneAuth = get()
         )
     }
 
-    viewModel {
-        RegisterViewModel(cityRepository = get(), authManager = get())
-    }
+    viewModel { RegisterViewModel(cityRepository = get(), authManager = get()) }
 
+    viewModel { FirstMessageViewModel() }
     viewModel { PriceChangedViewModel() }
+    viewModel { ArchivedViewModel() }
+    viewModel { SoldViewModel() }
 
 
 }
