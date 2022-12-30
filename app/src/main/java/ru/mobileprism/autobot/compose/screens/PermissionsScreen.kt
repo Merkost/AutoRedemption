@@ -23,18 +23,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.*
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
+import ru.mobileprism.autobot.R
 import ru.mobileprism.autobot.compose.custom.DefaultColumn
 import ru.mobileprism.autobot.compose.screens.home.ListSpacer
 import ru.mobileprism.autobot.model.datastore.AppSettings
 import ru.mobileprism.autobot.utils.*
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalLayoutApi::class
-)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class,)
 @Composable
 fun PermissionsScreen(upPress: () -> Unit) {
     val context = LocalContext.current
@@ -56,8 +56,7 @@ fun PermissionsScreen(upPress: () -> Unit) {
     LaunchedEffect(Unit) {
         //if (notificationManager.areNotificationsEnabled()) { areNotificationsEnabled = true }
         areNotificationsEnabled = notificationManager.areNotificationsEnabled()
-        batteryOptimizationsDisabled =
-            powerManager.isIgnoringBatteryOptimizations(context.packageName)
+        batteryOptimizationsDisabled = powerManager.isIgnoringBatteryOptimizations(context.packageName)
     }
 
     val readSimPermission =
@@ -71,7 +70,7 @@ fun PermissionsScreen(upPress: () -> Unit) {
     )
     val areAllPermissionsGiven = remember(
         requiredPermissions.allPermissionsGranted,
-        chosenSimCardFromSettings.value
+        chosenSimCardFromSettings.value,
     ) {
         mutableStateOf(
             requiredPermissions.allPermissionsGranted && chosenSimCardFromSettings.value != null
@@ -79,16 +78,63 @@ fun PermissionsScreen(upPress: () -> Unit) {
     }
 
     Scaffold(
-        topBar = { MediumTopAppBar(title = { Text(text = "Разрешения для работы") }) },
+        topBar = { MediumTopAppBar(title = { Text(text = stringResource(R.string.permissions)) }) },
         modifier = Modifier,
 //        contentWindowInsets = PaddingValues(0.dp)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = Constants.smallPadding)) {
             DefaultColumn(
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
                     .padding(Constants.defaultPadding)
                     .padding(it)
             ) {
+
+                ActionCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(50.dp),
+                    onClick = {
+                        batteryOptimizationsDisabled = true
+                        context.disableBatteryOptimizations() },
+                    text = "Отключить оптимизации батареи",
+                    isPermissionGranted = batteryOptimizationsDisabled
+                )
+
+                // FIXME: bug: could proceed even if notification permissions were not given
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val permission =
+                        rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
+
+                    ActionCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(50.dp),
+                        onClick = {
+                            if (permission.status.shouldShowRationale) {
+                                context.showToast("Необходимо выдать разрешения в настройках")
+                                context.launchAppSettings()
+                            } else {
+                                permission.launchPermissionRequest()
+                            }
+                        },
+                        text = "Разрешение на показ уведомлений",
+                        isPermissionGranted = permission.status.isGranted
+                    )
+                } else {
+                    checkNotificationPolicyAccess(notificationManager, context)
+                    ActionCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(50.dp),
+                        onClick = {},
+                        text = "Разрешение на показ уведомлений",
+                        isPermissionGranted = true
+                    )
+                }
 
                 ActionCard(
                     modifier = Modifier
@@ -125,47 +171,6 @@ fun PermissionsScreen(upPress: () -> Unit) {
                     text = "Разрешение на отправку СМС сообщений",
                     isPermissionGranted = sendSmsPermission.status.isGranted
                 )
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val permission =
-                        rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
-
-                    ActionCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(50.dp),
-                        onClick = {
-                            if (permission.status.shouldShowRationale) {
-                                context.showToast("Необходимо выдать разрешения в настройках")
-                                context.launchAppSettings()
-                            } else {
-                                permission.launchPermissionRequest()
-                            }
-                        },
-                        text = "Разрешение на показ уведомлений",
-                        isPermissionGranted = permission.status.isGranted
-                    )
-                } else {
-                    checkNotificationPolicyAccess(notificationManager, context)
-                    ActionCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(50.dp),
-                        onClick = {},
-                        text = "Разрешение на показ уведомлений",
-                        isPermissionGranted = true
-                    )
-                }
-                ActionCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(50.dp),
-                    onClick = {
-                        batteryOptimizationsDisabled = true
-                        context.disableBatteryOptimizations() },
-                    text = "Отключить оптимизации батареи",
-                    isPermissionGranted = batteryOptimizationsDisabled
-                )
                 ListSpacer()
             }
             Button(
@@ -178,7 +183,6 @@ fun PermissionsScreen(upPress: () -> Unit) {
             ) {
                  Text(text = "Продолжить")
             }
-
 
         }
     }
