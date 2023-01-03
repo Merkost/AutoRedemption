@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.singleOrNull
 import ru.mobileprism.autobot.workmanager.ForegroundService
 import ru.mobileprism.autobot.model.repository.AutoBotError
@@ -68,7 +69,7 @@ fun Context.getSmsManager(subscriptionId: Int): SmsManager {
 }
 
 suspend fun Context.tryGetExactSmsManager(selectedSimId: Flow<Int?>): SmsManager {
-    val subscriptionId = selectedSimId.singleOrNull()
+    val subscriptionId = selectedSimId.firstOrNull()
     return subscriptionId?.let {
         getSmsManager(it)
     } ?: getDefaultSmsManager()
